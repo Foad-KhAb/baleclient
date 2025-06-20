@@ -1,14 +1,14 @@
 from pydantic import Field
 from typing import Optional
 
-from .base import BaleObject
+from .base import BaleMethod
 
 
-class AuthBody(BaleObject):
+class AuthBody(BaleMethod):
     authorized: int = Field(..., alias="1")
     ready: int = Field(..., alias="2")
     
 
-class Auth(BaleObject):
+class Auth(BaleMethod):
     client: Optional[AuthBody] = Field(..., alias="3")
     server: Optional[AuthBody] = Field(..., alias="5")

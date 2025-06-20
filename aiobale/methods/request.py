@@ -1,23 +1,23 @@
 from pydantic import Field
 from typing import List, Any, Optional
 
-from .base import BaleObject
+from .base import BaleMethod
 
 
-class MetaValue(BaleObject):
+class MetaValue(BaleMethod):
     name: str = Field(..., alias="1")
 
 
-class MetaData(BaleObject):
+class MetaData(BaleMethod):
     name: str = Field(..., alias="1")
     values: MetaValue = Field(..., alias="2")
     
 
-class MetaList(BaleObject):
+class MetaList(BaleMethod):
     meta_list: List[MetaData] = Field(..., alias="1")
 
 
-class RequestBody(BaleObject):
+class RequestBody(BaleMethod):
     service: str = Field(..., alias="1")
     method: str = Field(..., alias="2")
     payload: Optional[Any] = Field(..., alias="3")
@@ -25,5 +25,5 @@ class RequestBody(BaleObject):
     number: int = Field(..., alias="5")
     
 
-class Request(BaleObject):
+class Request(BaleMethod):
     body: RequestBody = Field(..., alias="1")
