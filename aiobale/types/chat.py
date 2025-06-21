@@ -1,6 +1,6 @@
 from pydantic import Field
 
-from ..enums.chat_type import ChatType
+from ..enums import ChatType
 from .base import BaleObject
 
 

@@ -1,19 +1,19 @@
 from pydantic import Field
 from typing import Any, Optional
 
-from .base import BaleMethod
+from .base import BaleObject
 
 
-class BaleError(BaleMethod):
+class BaleError(BaleObject):
     topic: int
     message: str
 
 
-class ResponsetBody(BaleMethod):
+class ResponsetBody(BaleObject):
     error: Optional[BaleError] = Field(None, alias="1")
     result: Optional[Any] = Field(None, alias="2")
     number: int = Field(..., alias="3")
     
 
-class Response(BaleMethod):
+class Response(BaleObject):
     body: ResponsetBody = Field(..., alias="1")
