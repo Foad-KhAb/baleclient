@@ -10,8 +10,8 @@ class BaleError(BaleMethod):
 
 
 class ResponsetBody(BaleMethod):
-    error: Optional[BaleError] = Field(..., alias="1")
-    result: Optional[Any] = Field(..., alias="2")
+    error: Optional[BaleError] = Field(None, alias="1")
+    result: Optional[Any] = Field(None, alias="2")
     number: int = Field(..., alias="3")
     
 

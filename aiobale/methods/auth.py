@@ -10,5 +10,5 @@ class AuthBody(BaleMethod):
     
 
 class Auth(BaleMethod):
-    client: Optional[AuthBody] = Field(..., alias="3")
-    server: Optional[AuthBody] = Field(..., alias="5")
+    client: Optional[AuthBody] = Field(None, alias="3")
+    server: Optional[AuthBody] = Field(None, alias="5")

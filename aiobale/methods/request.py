@@ -20,7 +20,7 @@ class MetaList(BaleMethod):
 class RequestBody(BaleMethod):
     service: str = Field(..., alias="1")
     method: str = Field(..., alias="2")
-    payload: Optional[Any] = Field(..., alias="3")
+    payload: Optional[Any] = Field(None, alias="3")
     metadata: MetaList = Field(..., alias="4")
     number: int = Field(..., alias="5")
     

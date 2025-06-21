@@ -5,9 +5,13 @@ from .chat import Chat
 from .base import BaleObject
 
 
+class TextMessage(BaleObject):
+    content: str = Field(..., alias="1")
+
+
 class MessageContent(BaleObject):
-    document = Field(..., alias="4")
-    text = Field(..., alias="15")
+    document = Field(None, alias="4")
+    text: Optional[TextMessage] = Field(None, alias="15")
     
     
 class PrevMessage(BaleObject):
