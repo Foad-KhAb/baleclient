@@ -1,20 +1,12 @@
 from pydantic import Field
 from typing import List, Optional, Any
 
+from .ext import ExtData
 from .base import BaleObject
-
-
-class MetaValue(BaleObject):
-    name: str = Field(..., alias="1")
-
-
-class MetaData(BaleObject):
-    name: str = Field(..., alias="1")
-    values: MetaValue = Field(..., alias="2")
     
-
+    
 class MetaList(BaleObject):
-    meta_list: List[MetaData] = Field(..., alias="1")
+    meta_list: List[ExtData] = Field(..., alias="1")
 
 
 class RequestBody(BaleObject):

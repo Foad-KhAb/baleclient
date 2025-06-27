@@ -38,7 +38,7 @@ class PrevMessage(BaleObject):
 class Message(BaleObject):
     chat: Chat = Field(..., alias="1")
     sender_id: int = Field(..., alias="2")
-    unix_time: int = Field(..., alias="3")
+    date: int = Field(..., alias="3")
     message_id: int = Field(..., alias="4")
     content: MessageContent = Field(..., alias="5")
     previous_message: PrevMessage = Field(..., alias="9")
