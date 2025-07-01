@@ -31,7 +31,7 @@ class MessageContent(BaleObject):
 
 
 class PrevMessage(BaleObject):
-    unix_time: int = Field(..., alias="1")
+    date: int = Field(..., alias="1")
     message_id: int = Field(..., alias="2")
 
 
@@ -41,16 +41,18 @@ class Message(BaleObject):
     date: int = Field(..., alias="3")
     message_id: int = Field(..., alias="4")
     content: MessageContent = Field(..., alias="5")
-    previous_message: PrevMessage = Field(..., alias="9")
+    previous_message: Optional[PrevMessage] = Field(None, alias="9")
     
     if TYPE_CHECKING:
         def __init__(
+            self,
+            *,
             chat: Chat,
             sender_id: int,
             date: int,
             message_id: int,
             content: MessageContent,
-            previous_message: PrevMessage
+            previous_message: Optional[PrevMessage]
         ) -> None:
             super().__init__(
                 chat=chat,

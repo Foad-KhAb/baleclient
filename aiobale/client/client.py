@@ -1,11 +1,10 @@
 from typing import Optional, Any
 from base64 import b64decode
 
-from aiobale.types.responses.message import MessagetResponse
-
+from .session import AiohttpSession, BaseSession
 from ..exceptions import AiobaleError
 from ..utils import parse_jwt, generate_id
-from ..methods import SendMessage
+from ..methods import SendMessage, BaleMethod, BaleType
 from ..types import (
     Message, 
     MessageContent,
@@ -14,6 +13,7 @@ from ..types import (
     Chat,
     TextMessage
 )
+from ..types.responses import MessagetResponse
 from ..enums import ChatType, PeerType
 
 
@@ -21,10 +21,15 @@ class Client:
     def __init__(
         self,
         token: str,
-        session: Optional[Any] = None
+        session: Optional[BaseSession] = None
     ):
         self.__token = token
         self._me = self._check_token()
+        
+        if session is None:
+            session = AiohttpSession()
+            
+        self.session = session
         
     @property
     def token(self) -> str:
@@ -37,6 +42,9 @@ class Client:
     @property
     def id(self) -> int:
         return self._me.user_id
+    
+    async def __call__(self, method: BaleMethod[BaleType]):
+        return await self.session.make_request(method)
     
     def _check_token(self) -> ClientData:
         token = self.__token
@@ -75,8 +83,8 @@ class Client:
             chat=chat
         )
         
-        # To be continued
-        ...
+        return await self(call)
+        
     
     def _resolve_peer_type(chat_type: ChatType):
         if chat_type == ChatType.UNKNOWN:

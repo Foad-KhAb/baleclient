@@ -3,6 +3,7 @@ import asyncio
 from typing import Callable, Any, Optional, Dict, Coroutine
 
 from ...methods import BaleMethod, BaleType
+from ..client import Client
 from .base import BaseSession
 
 
@@ -53,6 +54,7 @@ class AiohttpSession(BaseSession):
 
     async def make_request(
         self,
+        client: Client,
         method: BaleMethod[BaleType],
         timeout: Optional[int] = None,
     ) -> BaleType:
