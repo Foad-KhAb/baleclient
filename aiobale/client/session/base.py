@@ -6,6 +6,7 @@ import abc
 
 from ...utils import ProtoBuf
 from ...methods import BaleMethod, BaleType
+from ...types import Request, RequestBody
 
 
 _Decoder = Callable[..., Any]
@@ -28,6 +29,19 @@ class BaseSession(abc.ABC):
         self.encoder = encoder
         self.timeout = timeout
         self._request_id = 0
+        
+    def build_payload(self, method: BaleMethod[BaleType], request_id: int):
+        request = Request(
+            body=RequestBody(
+                service=method.__service__,
+                method=method.__method__,
+                payload=method,
+                metadata=None,
+                request_id=request_id
+            )
+        )
+        
+        return request.model_dump(by_alias=True, exclude_none=True)
         
     @abc.abstractmethod
     async def close(self) -> None:

@@ -14,7 +14,7 @@ class RequestBody(BaleObject):
     method: str = Field(..., alias="2")
     payload: Optional[Any] = Field(None, alias="3")
     metadata: MetaList = Field(..., alias="4")
-    number: int = Field(..., alias="5")
+    request_id: int = Field(..., alias="5")
 
 
 class Request(BaleObject):

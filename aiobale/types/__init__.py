@@ -2,6 +2,7 @@ from .chat import Chat
 from .message import Message, MessageContent, TextMessage, PrevMessage
 from .peer import Peer
 from .client import ClientData
+from .request import Request, RequestBody
 
 
 __all__ = (
@@ -11,5 +12,7 @@ __all__ = (
     "Peer",
     "ClientData",
     "TextMessage",
-    "PrevMessage"
+    "PrevMessage",
+    "Request",
+    "RequestBody"
 )
