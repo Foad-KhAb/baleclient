@@ -1,5 +1,5 @@
 from pydantic import Field
-from typing import Optional, Any
+from typing import TYPE_CHECKING, Optional, Any
 
 from .chat import Chat
 from .base import BaleObject
@@ -42,7 +42,21 @@ class Message(BaleObject):
     message_id: int = Field(..., alias="4")
     content: MessageContent = Field(..., alias="5")
     previous_message: PrevMessage = Field(..., alias="9")
-
-
-# Creat `client`
-# Add `send_message` to `client`
+    
+    if TYPE_CHECKING:
+        def __init__(
+            chat: Chat,
+            sender_id: int,
+            date: int,
+            message_id: int,
+            content: MessageContent,
+            previous_message: PrevMessage
+        ) -> None:
+            super().__init__(
+                chat=chat,
+                sender_id=sender_id,
+                date=date,
+                message_id=message_id,
+                content=content,
+                previous_message=previous_message
+            )
