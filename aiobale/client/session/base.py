@@ -23,12 +23,11 @@ class BaseSession(abc.ABC):
         encoder: _Encoder = ProtoBuf().encode,
         timeout: float = DEFAULT_TIMEOUT
     ) -> None:
-
         self.ws_url = ws_url
         self.decoder = decoder
         self.encoder = encoder
         self.timeout = timeout
-        self._request_number = 0
+        self._request_id = 0
         
     @abc.abstractmethod
     async def close(self) -> None:
@@ -42,9 +41,9 @@ class BaseSession(abc.ABC):
     ) -> BaleType:
         pass
     
-    def next_request_number(self) -> int:
-        self._request_number += 1
-        return self._request_number
+    def _next_request_id(self) -> int:
+        self._request_id += 1
+        return self._request_id
     
     async def __aenter__(self) -> BaseSession:
         return self
