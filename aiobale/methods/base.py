@@ -3,10 +3,10 @@ from pydantic import BaseModel, ConfigDict
 from typing import TypeVar, Any, Generic, TYPE_CHECKING, ClassVar
 
 
-BaleObject = TypeVar("BaleObject", bound=Any)
+BaleType = TypeVar("BaleObject", bound=Any)
 
 
-class BaleMethod(BaseModel, Generic[BaleObject], ABC):
+class BaleMethod(BaseModel, Generic[BaleType], ABC):
     model_config = ConfigDict(
         populate_by_name=True,
         use_enum_values=True,
