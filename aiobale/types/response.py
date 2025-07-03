@@ -16,4 +16,5 @@ class ResponsetBody(BaleObject):
     
 
 class Response(BaleObject):
-    body: ResponsetBody = Field(..., alias="1")
+    response: ResponsetBody = Field(..., alias="1")
+    update: Any = Field(..., alias="2")

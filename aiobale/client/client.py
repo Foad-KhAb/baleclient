@@ -46,6 +46,9 @@ class Client:
     async def __call__(self, method: BaleMethod[BaleType]):
         return await self.session.make_request(method)
     
+    async def start(self) -> None:
+        await self.session.connect(self.__token)
+    
     def _check_token(self) -> ClientData:
         token = self.__token
         result = parse_jwt(token)
@@ -85,7 +88,6 @@ class Client:
         
         return await self(call)
         
-    
     def _resolve_peer_type(chat_type: ChatType):
         if chat_type == ChatType.UNKNOWN:
             return PeerType.UNKNOWN

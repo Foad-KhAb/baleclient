@@ -4,6 +4,8 @@ from typing import Callable, Any, Optional, Dict, Coroutine
 
 from ...methods import BaleMethod, BaleType
 from ..client import Client
+from ...types import Response
+from ...exceptions import BaleError
 from .base import BaseSession
 
 
@@ -55,23 +57,33 @@ class AiohttpSession(BaseSession):
     async def _listen(self):
         try:
             async for msg in self.ws:
-                if msg.type == aiohttp.WSMsgType.BINARY:
+                if msg.type != aiohttp.WSMsgType.BINARY:
+                    continue
+                
+                try:
                     data = self.decoder(msg.data)
-                    request_id = data.get("request_id")
+                    received = Response.model_validate(data)
+                except:
+                    continue
 
-                    if request_id and request_id in self._pending_requests:
-                        future = self._pending_requests.pop(request_id)
-                        if not future.done():
-                            future.set_result(data)
-                    else:
-                        msg_type = data.get("type")
-                        handler = self.handlers.get(msg_type)
-                        if handler:
-                            await handler(data)
+                response = received.response
+                if response is None:
+                    continue
+
+                future = self._pending_requests.pop(response.number, None)
+                if future is None or future.done():
+                    continue
+
+                if response.error:
+                    raise BaleError(response.error.message, response.error.topic)
+
+                future.set_result(response.result)
+
         except Exception as e:
-            print("WS listen error:", e)
+            print(f"WebSocket listening failed: {e}")
         finally:
             self._running = False
+
 
     async def make_request(
         self,
