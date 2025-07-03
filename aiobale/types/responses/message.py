@@ -18,7 +18,7 @@ class MessageResponse(DefaultResponse):
 
         client: Client = data.get("client_cls")
         method: SendMessage = data.get("method_data")
-        ext_fields = data.get("ext", [])
+        ext_fields = data.get("4", [])
 
         prev_data = {
             "message_id": field.value.number

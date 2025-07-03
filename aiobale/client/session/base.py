@@ -7,10 +7,11 @@ import abc
 from ...utils import ProtoBuf
 from ...methods import BaleMethod, BaleType
 from ...types import Request, RequestBody
+from ..client import Client
 
 
-_Decoder = Callable[..., Any]
-_Encoder = Callable[..., dict]
+_Decoder = Callable[..., dict]
+_Encoder = Callable[..., bytes]
 
 BALE_WS: Final[str] = "wss://next-ws.bale.ai/ws/"
 DEFAULT_TIMEOUT: Final[float] = 5.0
@@ -30,7 +31,7 @@ class BaseSession(abc.ABC):
         self.timeout = timeout
         self._request_id = 0
         
-    def build_payload(self, method: BaleMethod[BaleType], request_id: int):
+    def build_payload(self, method: BaleMethod[BaleType], request_id: int) -> bytes:
         request = Request(
             body=RequestBody(
                 service=method.__service__,
@@ -41,7 +42,16 @@ class BaseSession(abc.ABC):
             )
         )
         
-        return request.model_dump(by_alias=True, exclude_none=True)
+        payload = request.model_dump(by_alias=True, exclude_none=True)
+        return self.encoder(payload)
+    
+    def decode_result(self, result: bytes, method: BaleMethod[BaleType], client: Client) -> Any:
+        decoded = self.decoder(result)
+        decoded["client_cls"] = client
+        decoded["method_data"] = method
+        
+        model_type = method.__returning__
+        return model_type.model_validate(decoded)
         
     @abc.abstractmethod
     async def close(self) -> None:

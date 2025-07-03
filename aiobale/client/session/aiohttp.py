@@ -62,18 +62,19 @@ class AiohttpSession(BaseSession):
             raise RuntimeError("WebSocket is not connected")
 
         request_id = self.next_request_number()
-        payload = method.build(request_id=request_id)
-        encoded = self.encoder(payload)
+        payload = self.build_payload(method, request_id)
 
         future = asyncio.get_event_loop().create_future()
         self._pending_requests[request_id] = future
-        await self.ws.send_bytes(encoded)
+        await self.ws.send_bytes(payload)
 
         try:
-            return await asyncio.wait_for(future, timeout=timeout or self.timeout)
+            result = await asyncio.wait_for(future, timeout=timeout or self.timeout)
+            return self.decode_result(result)
+        
         except asyncio.TimeoutError:
             self._pending_requests.pop(request_id, None)
-            raise
+            raise 
 
     async def close(self):
         self._running = False
