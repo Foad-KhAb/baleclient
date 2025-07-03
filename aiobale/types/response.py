@@ -16,5 +16,6 @@ class ResponsetBody(BaleObject):
     
 
 class Response(BaleObject):
-    response: ResponsetBody = Field(..., alias="1")
-    update: Any = Field(..., alias="2")
+    response: Optional[ResponsetBody] = Field(None, alias="1")
+    update: Optional[Any] = Field(None, alias="2")
+    auth: Optional[Any] = Field(None, alias="5")

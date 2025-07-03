@@ -1,12 +1,16 @@
+from __future__ import annotations
+
 import aiohttp
 import asyncio
-from typing import Callable, Any, Optional, Dict, Coroutine
+from typing import Callable, Any, Optional, Dict, Coroutine, TYPE_CHECKING
 
 from ...methods import BaleMethod, BaleType
-from ..client import Client
 from ...types import Response
-from ...exceptions import BaleError
+from ...exceptions import BaleError, AiobaleError
 from .base import BaseSession
+
+if TYPE_CHECKING:
+    from ..client import Client
 
 
 DEFAULT_USER_AGENT = (
@@ -19,14 +23,11 @@ DEFAULT_USER_AGENT = (
 class AiohttpSession(BaseSession):
     def __init__(
         self,
-        ws_url: str = BaseSession.ws_url,
-        decoder: Callable[..., Any] = BaseSession.decoder,
-        encoder: Callable[..., dict] = BaseSession.encoder,
-        timeout: float = BaseSession.timeout,
         user_agent: Optional[str] = None,
+        **kwargs
     ) -> None:
-        super().__init__(ws_url, decoder, encoder, timeout)
-        self.session = aiohttp.ClientSession()
+        super().__init__(**kwargs)
+        self.session = None
         self.ws: Optional[aiohttp.ClientWebSocketResponse] = None
         self._running = False
 
@@ -45,14 +46,20 @@ class AiohttpSession(BaseSession):
         }
 
     async def connect(self, token: str):
+        if not self.session:
+            self.session = aiohttp.ClientSession()
+            
+        if self._running:
+            raise AiobaleError("Client is already running")
+        
         headers = self._build_headers(token)
         self.ws = await self.session.ws_connect(
             self.ws_url,
             timeout=self.timeout,
             headers=headers,
+            origin="https://web.bale.ai"
         )
         self._running = True
-        asyncio.create_task(self._listen())
 
     async def _listen(self):
         try:
@@ -84,7 +91,6 @@ class AiohttpSession(BaseSession):
         finally:
             self._running = False
 
-
     async def make_request(
         self,
         client: Client,
@@ -94,7 +100,7 @@ class AiohttpSession(BaseSession):
         if not self.ws:
             raise RuntimeError("WebSocket is not connected")
 
-        request_id = self.next_request_number()
+        request_id = self._next_request_id()
         payload = self.build_payload(method, request_id)
 
         future = asyncio.get_event_loop().create_future()
@@ -108,6 +114,10 @@ class AiohttpSession(BaseSession):
         except asyncio.TimeoutError:
             self._pending_requests.pop(request_id, None)
             raise 
+        
+    async def login_request(self):
+        payload = self.get_login_payload()
+        await self.ws.send_bytes(payload)
 
     async def close(self):
         self._running = False

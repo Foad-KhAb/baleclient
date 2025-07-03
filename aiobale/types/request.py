@@ -3,6 +3,7 @@ from typing import List, Optional, Any
 
 from .ext import ExtData
 from .base import BaleObject
+from .auth import AuthBody
     
     
 class MetaList(BaleObject):
@@ -18,4 +19,5 @@ class RequestBody(BaleObject):
 
 
 class Request(BaleObject):
-    body: RequestBody = Field(..., alias="1")
+    body: Optional[RequestBody] = Field(None, alias="1")
+    auth: Optional[AuthBody] = Field(None, alias="3")

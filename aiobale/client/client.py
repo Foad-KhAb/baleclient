@@ -1,5 +1,8 @@
-from typing import Optional, Any
-from base64 import b64decode
+from __future__ import annotations
+
+import asyncio
+from typing import Optional, Any, Type
+from types import TracebackType
 
 from .session import AiohttpSession, BaseSession
 from ..exceptions import AiobaleError
@@ -13,7 +16,7 @@ from ..types import (
     Chat,
     TextMessage
 )
-from ..types.responses import MessagetResponse
+from ..types.responses import MessageResponse
 from ..enums import ChatType, PeerType
 
 
@@ -41,13 +44,35 @@ class Client:
     
     @property
     def id(self) -> int:
-        return self._me.user_id
+        return self._me.id
     
     async def __call__(self, method: BaleMethod[BaleType]):
-        return await self.session.make_request(method)
+        return await self.session.make_request(self, method)
     
-    async def start(self) -> None:
+    async def start(self, run_in_background: bool = False) -> None:
         await self.session.connect(self.__token)
+        await self.session.login_request()
+
+        if run_in_background:
+            asyncio.create_task(self.session._listen())
+        else:
+            await self.session._listen()
+            
+    async def stop(self):
+        await self.session.close()
+        
+    async def __aenter__(self) -> Client:
+        await self.start(True)
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+    ) -> None:
+        await self.session.close()
+
     
     def _check_token(self) -> ClientData:
         token = self.__token
@@ -67,7 +92,7 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
         message_id: int | None = None
-    ) -> MessagetResponse:
+    ) -> MessageResponse:
         
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(type=peer_type, id=chat_id)
@@ -88,10 +113,9 @@ class Client:
         
         return await self(call)
         
-    def _resolve_peer_type(chat_type: ChatType):
+    def _resolve_peer_type(self, chat_type: ChatType):
         if chat_type == ChatType.UNKNOWN:
             return PeerType.UNKNOWN
         elif chat_type in (ChatType.PRIVATE, ChatType.BOT):
             return PeerType.PRIVATE
         return PeerType.GROUP
-    

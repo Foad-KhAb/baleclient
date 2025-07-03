@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 from pydantic import model_validator
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, TYPE_CHECKING
 
 from .default import DefaultResponse
-from ...types import Message, PrevMessage
-from ...client.client import Client
-from ...methods import SendMessage
+from ...types import Message, PrevMessage, ExtData
+
+if TYPE_CHECKING:
+    from ...methods import SendMessage
+    from ...client.client import Client
 
 
 class MessageResponse(DefaultResponse):
@@ -18,16 +22,16 @@ class MessageResponse(DefaultResponse):
 
         client: Client = data.get("client_cls")
         method: SendMessage = data.get("method_data")
-        ext_fields = data.get("4", [])
+        exts = [ExtData.model_validate(value) for value in data.get("4", [])]
 
         prev_data = {
             "message_id": field.value.number
-            for field in ext_fields
+            for field in exts
             if field.name == "previous_message_rid"
         }
         prev_data.update({
             "date": field.value.number
-            for field in ext_fields
+            for field in exts
             if field.name == "previous_message_date"
         })
 
@@ -36,10 +40,9 @@ class MessageResponse(DefaultResponse):
         data["message"] = Message(
             chat=method.chat,
             sender_id=client.id,
-            data=data.get("date"),
+            date=data.get("2", 0),
             message_id=method.message_id,
             content=method.content,
             previous_message=prev_message
         )
-
         return data

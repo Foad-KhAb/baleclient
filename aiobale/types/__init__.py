@@ -2,8 +2,10 @@ from .chat import Chat
 from .message import Message, MessageContent, TextMessage, PrevMessage
 from .peer import Peer
 from .client import ClientData
-from .request import Request, RequestBody
+from .request import Request, RequestBody, MetaList
 from .response import Response
+from .auth import AuthBody
+from .ext import ExtData, ExtValue
 
 
 __all__ = (
@@ -16,5 +18,9 @@ __all__ = (
     "PrevMessage",
     "Request",
     "RequestBody",
-    "Response"
+    "Response",
+    "AuthBody",
+    "ExtData",
+    "ExtValue",
+    "MetaList"
 )

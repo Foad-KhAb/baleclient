@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
 from ..types import Chat, Peer, MessageContent
-from ..types.responses import MessagetResponse
+from ..types.responses import MessageResponse
 from ..enums import Services
 from .base import BaleMethod
 
@@ -11,7 +11,7 @@ class SendMessage(BaleMethod):
     __service__ = Services.MESSAGING
     __method__ = "SendMessage"
     
-    __returning__ = MessagetResponse
+    __returning__ = MessageResponse
     
     peer: Peer = Field(..., alias="1")
     message_id: int = Field(..., alias="2")
