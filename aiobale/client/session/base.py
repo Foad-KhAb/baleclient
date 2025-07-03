@@ -56,6 +56,10 @@ class BaseSession(abc.ABC):
     @abc.abstractmethod
     async def close(self) -> None:
         pass
+    
+    @abc.abstractmethod
+    async def connect(self, token: str) -> None:
+        pass
         
     @abc.abstractmethod
     async def make_request(
