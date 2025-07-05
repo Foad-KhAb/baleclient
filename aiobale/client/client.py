@@ -12,7 +12,8 @@ from ..methods import (
     SendMessage, 
     BaleMethod, 
     BaleType,
-    StartPhoneAuth
+    StartPhoneAuth,
+    ValidateCode
 )
 from ..types import (
     MessageContent,
@@ -21,7 +22,7 @@ from ..types import (
     Chat,
     TextMessage,
 )
-from ..types.responses import MessageResponse, PhoneAuthResponse
+from ..types.responses import MessageResponse, PhoneAuthResponse, ValidateCodeResponse
 from ..enums import ChatType, PeerType, SendCodeType
 
 
@@ -113,8 +114,16 @@ class Client:
         self,
         code: str,
         transaction_hash: str
-    ) -> Any:
-        pass
+    ) -> ValidateCodeResponse:
+        call = ValidateCode(
+            code=code,
+            transaction_hash=transaction_hash
+        )
+        
+        try:
+            return await self.session.post(call)
+        except:
+            raise AiobaleError("wrong code specified")
     
     async def send_message(
         self,
