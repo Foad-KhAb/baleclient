@@ -141,7 +141,7 @@ class AiohttpSession(BaseSession):
         if method.__returning__ is None:
             return content
         
-        result = self.decoder(clean_grpc())
+        result = self.decoder(clean_grpc(content))
         return method.__returning__.model_validate(result)
 
     async def close(self):
