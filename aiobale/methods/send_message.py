@@ -8,7 +8,7 @@ from .base import BaleMethod
 
 
 class SendMessage(BaleMethod):
-    __service__ = Services.MESSAGING
+    __service__ = Services.MESSAGING.value
     __method__ = "SendMessage"
     
     __returning__ = MessageResponse

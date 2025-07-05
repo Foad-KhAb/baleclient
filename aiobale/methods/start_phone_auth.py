@@ -7,7 +7,7 @@ from .base import BaleMethod
 
 
 class StartPhoneAuth(BaleMethod):
-    __service__ = Services.AUTH
+    __service__ = Services.AUTH.value
     __method__ = "StartPhoneAuth"
     
     __returning__ = PhoneAuthResponse

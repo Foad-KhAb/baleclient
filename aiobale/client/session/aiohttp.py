@@ -121,10 +121,16 @@ class AiohttpSession(BaseSession):
         await self.ws.send_bytes(payload)
         
     async def post(self, method: BaleMethod[BaleType]):
+        if not self.session:
+            self.session = aiohttp.ClientSession()
+            
         headers = {
-            'User-Agent': self.user_agent
+            'User-Agent': self.user_agent,
+            'Origin': "https://web.bale.ai",
+            'content-type': "application/grpc-web+proto"
         }
-        headers.update(self._get_meta())
+        headers.update({k[0].upper() + k[1:]: v for k, v in self._get_meta().items()})
+
         url = f"{self.post_url}/{method.__service__}/{method.__method__}"
         data = method.model_dump(by_alias=True)
         payload = add_header(self.encoder(data))

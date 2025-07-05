@@ -7,7 +7,7 @@ from .base import BaleMethod
 
 
 class ValidateCode(BaleMethod):
-    __service__ = Services.AUTH
+    __service__ = Services.AUTH.value
     __method__ = "ValidateCode"
     
     __returning__ = ValidateCodeResponse

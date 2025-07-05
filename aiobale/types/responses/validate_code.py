@@ -7,7 +7,7 @@ from ...enums import SendCodeType
 
 
 class Value(BaleObject):
-    value: int = Field(..., alias="1")
+    value: str = Field(..., alias="1")
 
 
 class ValidateCodeResponse(BaleObject):
