@@ -66,8 +66,11 @@ class PhoneLoginCLI:
 
             try:
                 remaining_time = expiration_timestamp - time.time()
+                cooldown = resp.code_timeout.value
+                elapsed = time.time() - last_sent_time
+                
                 print(Fore.YELLOW + f"⏳ Time left before expiration: {int(remaining_time)} sec")
-                print(Fore.YELLOW + f"⌛ Entry timeout: {new_code_timeout} sec\n")
+                print(Fore.YELLOW + f"⌛ New code timeout: {cooldown - elapsed} sec\n")
 
                 try:
                     code = await asyncio.wait_for(
@@ -75,7 +78,7 @@ class PhoneLoginCLI:
                         timeout=remaining_time
                     )
                 except asyncio.TimeoutError:
-                    print(Fore.RED + f"⏰ Code entry timed out ({remaining_time} sec). Please try again.\n")
+                    print(Fore.RED + f"⏰ Code entry timed out. Please try again.\n")
                     return False
 
                 code = code.strip().lower()
@@ -100,6 +103,7 @@ class PhoneLoginCLI:
                     try:
                         resp = await self._send_login_request(phone_number, code_type=next_code_type)
                         last_sent_time = time.time()
+                        new_code_timeout = resp.code_timeout
                         print(Fore.GREEN + "✅ Code resent!\n")
                     except AiobaleError:
                         print(Fore.RED + "🚫 Phone number is banned. Restarting phone entry...\n")

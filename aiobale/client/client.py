@@ -170,15 +170,17 @@ class Client:
             transaction_hash=transaction_hash
         )
         
+        content = await self.session.post(call)
+        if not content:
+            raise AiobaleError("Invalid code specified.")
+
         try:
-            content = await self.session.post(call)
             self._write_session_content(content)
-            
             return self._parse_session_content(content)
-        
-        except:
-            raise AiobaleError("wrong code specified")
-    
+
+        except Exception as e:
+            raise AiobaleError("Error while parsing data.") from e
+
     async def send_message(
         self,
         text: str,
