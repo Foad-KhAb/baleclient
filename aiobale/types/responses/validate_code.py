@@ -11,5 +11,5 @@ class Value(BaleObject):
 
 
 class ValidateCodeResponse(BaleObject):
-    user = Field(..., alias="2")
+    user: dict = Field(..., alias="2")
     jwt: Value = Field(..., alias="4")
