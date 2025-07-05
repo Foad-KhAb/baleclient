@@ -28,7 +28,7 @@ from ..enums import ChatType, PeerType, SendCodeType
 from .auth_cli import PhoneLoginCLI
 
 
-DEFAULT_SESSION: Final[str] = "./session.abl"
+DEFAULT_SESSION: Final[str] = "./session.bale"
 
 
 class Client:
@@ -41,6 +41,12 @@ class Client:
             session = AiohttpSession()
             
         self.session = session
+        
+        if not isinstance(session_file, str) or not session_file.lower().endswith(".bale"):
+            raise AiobaleError(
+                f"Invalid session file: {session_file!r}. "
+                "Only `.bale` files are allowed."
+            )
         
         self.__session_file = session_file
         self.__token = None
@@ -61,7 +67,7 @@ class Client:
         return self._me.id
     
     def _write_session_content(self, content: bytes) -> None:
-        if not self.__session_file or os.path.exists(self.__session_file):
+        if not self.__session_file:
             return
         
         with open(self.__session_file, "wb") as f:
