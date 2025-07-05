@@ -16,6 +16,7 @@ _Decoder = Callable[..., dict]
 _Encoder = Callable[..., bytes]
 
 BALE_WS: Final[str] = "wss://next-ws.bale.ai/ws/"
+BALE_URL: Final[str] = "https://next-ws.bale.ai"
 DEFAULT_TIMEOUT: Final[float] = 5.0
 
 
@@ -23,11 +24,13 @@ class BaseSession(abc.ABC):
     def __init__(
         self,
         ws_url: str = BALE_WS,
+        post_url: str = BALE_URL,
         decoder: _Decoder = ProtoBuf().decode,
         encoder: _Encoder = ProtoBuf().encode,
         timeout: float = DEFAULT_TIMEOUT
     ) -> None:
         self.ws_url = ws_url
+        self.post_url = post_url
         self.decoder = decoder
         self.encoder = encoder
         self.timeout = timeout
@@ -66,8 +69,8 @@ class BaseSession(abc.ABC):
         payload = request.model_dump(by_alias=True, exclude_none=True)
         return self.encoder(payload)
     
-    def _get_meta_data(self) -> MetaList:
-        data = {
+    def _get_meta(self) -> dict:
+        return {
             'app_version': "105249",
             'browser_type': "1",
             'browser_version': "135.0.0.0",
@@ -79,6 +82,9 @@ class BaseSession(abc.ABC):
             'mt_os_type': "3",
             'mt_session_id': str(self.session_id)
         }
+    
+    def _get_meta_data(self) -> MetaList:
+        data = self._get_meta()
         
         ext = []
         for key, value in data.items():

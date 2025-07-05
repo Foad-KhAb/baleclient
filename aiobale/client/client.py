@@ -1,23 +1,28 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Optional, Any, Type
+from typing import Optional, Any, Type, Final
 from types import TracebackType
+import re
 
 from .session import AiohttpSession, BaseSession
 from ..exceptions import AiobaleError
 from ..utils import parse_jwt, generate_id
-from ..methods import SendMessage, BaleMethod, BaleType
+from ..methods import (
+    SendMessage, 
+    BaleMethod, 
+    BaleType,
+    StartPhoneAuth
+)
 from ..types import (
-    Message, 
     MessageContent,
     ClientData,
     Peer,
     Chat,
-    TextMessage
+    TextMessage,
 )
-from ..types.responses import MessageResponse
-from ..enums import ChatType, PeerType
+from ..types.responses import MessageResponse, PhoneAuthResponse
+from ..enums import ChatType, PeerType, SendCodeType
 
 
 class Client:
@@ -72,7 +77,6 @@ class Client:
         traceback: Optional[TracebackType],
     ) -> None:
         await self.session.close()
-
     
     def _check_token(self) -> ClientData:
         token = self.__token
@@ -85,6 +89,25 @@ class Client:
             raise AiobaleError("Wrong jwt payload")
         
         return ClientData.model_validate(data["payload"])
+    
+    async def login(
+        self, 
+        phone_number: int,
+        code_type: Optional[SendCodeType] = SendCodeType.DEFAULT
+    ) -> PhoneAuthResponse:
+        call = StartPhoneAuth(
+            phone_number=phone_number,
+            app_id=4,
+            app_key="C28D46DC4C3A7A26564BFCC48B929086A95C93C98E789A19847BEE8627DE4E7D",
+            device_hash="ce5ced83-a9ab-47fa-80c8-ed425eeb2ace",
+            device_title="Chrome_138.0.0.0, Windows",
+            send_code_type=code_type
+        )
+        
+        try:
+            return await self.session.post(call)
+        except:
+            raise AiobaleError("This phone number is banned")
     
     async def send_message(
         self,

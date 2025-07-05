@@ -6,6 +6,7 @@ from .request import Request, RequestBody, MetaList
 from .response import Response
 from .auth import AuthBody
 from .ext import ExtData, ExtValue
+from .int_bool import IntBool
 
 
 __all__ = (
@@ -22,5 +23,6 @@ __all__ = (
     "AuthBody",
     "ExtData",
     "ExtValue",
-    "MetaList"
+    "MetaList",
+    "IntBool"
 )

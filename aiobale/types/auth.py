@@ -1,7 +1,8 @@
 from pydantic import Field
-from typing import Optional
+from typing import Optional, Any
 
 from .base import BaleObject
+from ..enums import SendCodeType
 
 
 class AuthBody(BaleObject):

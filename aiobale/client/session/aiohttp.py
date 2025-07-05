@@ -6,6 +6,7 @@ from typing import Callable, Any, Optional, Dict, Coroutine, TYPE_CHECKING
 
 from ...methods import BaleMethod, BaleType
 from ...types import Response
+from ...utils import add_header, clean_grpc
 from ...exceptions import BaleError, AiobaleError
 from .base import BaseSession
 
@@ -118,6 +119,20 @@ class AiohttpSession(BaseSession):
     async def login_request(self):
         payload = self.get_login_payload()
         await self.ws.send_bytes(payload)
+        
+    async def post(self, method: BaleMethod[BaleType]):
+        headers = {
+            'User-Agent': self.user_agent
+        }
+        headers.update(self._get_meta())
+        url = f"{self.post_url}/{method.__service__}/{method.__method__}"
+        data = method.model_dump(by_alias=True)
+        payload = add_header(self.encoder(data))
+        
+        req = await self.session.post(url=url, headers=headers, data=payload)
+        result = self.decoder(clean_grpc(await req.read()))
+        
+        return method.__returning__.model_validate(result)
 
     async def close(self):
         self._running = False
