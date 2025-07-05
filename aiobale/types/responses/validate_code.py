@@ -1,9 +1,8 @@
 from pydantic import Field
 from typing import Optional, Any, List
 
-from ..int_bool import IntBool
 from ..base import BaleObject
-from ...enums import SendCodeType
+from ..user import UserAuth
 
 
 class Value(BaleObject):
@@ -11,5 +10,5 @@ class Value(BaleObject):
 
 
 class ValidateCodeResponse(BaleObject):
-    user: dict = Field(..., alias="2")
+    user: UserAuth = Field(..., alias="2")
     jwt: Value = Field(..., alias="4")

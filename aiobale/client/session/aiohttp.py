@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import aiohttp
 import asyncio
-from typing import Callable, Any, Optional, Dict, Coroutine, TYPE_CHECKING
+from typing import Callable, Any, Optional, Dict, Coroutine, TYPE_CHECKING, Union
 
 from ...methods import BaleMethod, BaleType
 from ...types import Response
@@ -120,7 +120,7 @@ class AiohttpSession(BaseSession):
         payload = self.get_login_payload()
         await self.ws.send_bytes(payload)
         
-    async def post(self, method: BaleMethod[BaleType]):
+    async def post(self, method: BaleMethod[BaleType]) -> Union[bytes, BaleType]:
         if not self.session:
             self.session = aiohttp.ClientSession()
             
@@ -136,8 +136,12 @@ class AiohttpSession(BaseSession):
         payload = add_header(self.encoder(data))
         
         req = await self.session.post(url=url, headers=headers, data=payload)
-        result = self.decoder(clean_grpc(await req.read()))
+        content = await req.read()
         
+        if method.__returning__ is None:
+            return content
+        
+        result = self.decoder(clean_grpc())
         return method.__returning__.model_validate(result)
 
     async def close(self):

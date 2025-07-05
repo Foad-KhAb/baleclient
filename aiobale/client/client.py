@@ -3,11 +3,11 @@ from __future__ import annotations
 import asyncio
 from typing import Optional, Any, Type, Final
 from types import TracebackType
-import re
+import os
 
 from .session import AiohttpSession, BaseSession
 from ..exceptions import AiobaleError
-from ..utils import parse_jwt, generate_id
+from ..utils import parse_jwt, generate_id, clean_grpc
 from ..methods import (
     SendMessage, 
     BaleMethod, 
@@ -21,24 +21,32 @@ from ..types import (
     Peer,
     Chat,
     TextMessage,
+    UserAuth
 )
 from ..types.responses import MessageResponse, PhoneAuthResponse, ValidateCodeResponse
 from ..enums import ChatType, PeerType, SendCodeType
+from .auth_cli import PhoneLoginCLI
+
+
+DEFAULT_SESSION: Final[str] = "./session.abl"
 
 
 class Client:
     def __init__(
         self,
-        token: str,
+        session_file: Optional[str] = DEFAULT_SESSION,
         session: Optional[BaseSession] = None
-    ):
-        self.__token = token
-        self._me = self._check_token()
-        
+    ):  
         if session is None:
             session = AiohttpSession()
             
         self.session = session
+        
+        self.__session_file = session_file
+        self.__token = None
+        self._me = None
+        
+        self._add_token_via_file()
         
     @property
     def token(self) -> str:
@@ -52,10 +60,45 @@ class Client:
     def id(self) -> int:
         return self._me.id
     
+    def _write_session_content(self, content: bytes) -> None:
+        if not self.__session_file or os.path.exists(self.__session_file):
+            return
+        
+        with open(self.__session_file, "wb") as f:
+            f.write(content)
+    
+    def _get_session_content(self) -> Optional[bytes]:
+        if self.__session_file and os.path.exists(self.__session_file):
+            with open(self.__session_file, "rb") as f:
+                return f.read()
+        return None
+
+    def _parse_session_content(self, data: bytes) -> ValidateCodeResponse:
+        decoded = self.session.decoder(clean_grpc(data))
+        model = ValidateCodeResponse.model_validate(decoded)
+        
+        self.__token = model.jwt.value
+        self._me = self._check_token(model.user)
+        
+        return model
+    
+    def _add_token_via_file(self) -> bool:
+        content = self._get_session_content()
+        if content is None:
+            return False
+        
+        self._parse_session_content(content)
+        return True
+    
     async def __call__(self, method: BaleMethod[BaleType]):
         return await self.session.make_request(self, method)
     
     async def start(self, run_in_background: bool = False) -> None:
+        if self.__token is None:
+            if not self._add_token_via_file():
+                auth_cli = PhoneLoginCLI(self)
+                await auth_cli.start()
+            
         await self.session.connect(self.__token)
         await self.session.login_request()
 
@@ -79,7 +122,7 @@ class Client:
     ) -> None:
         await self.session.close()
     
-    def _check_token(self) -> ClientData:
+    def _check_token(self, user: UserAuth) -> ClientData:
         token = self.__token
         result = parse_jwt(token)
         if not result:
@@ -89,6 +132,7 @@ class Client:
         if "payload" not in data:
             raise AiobaleError("Wrong jwt payload")
         
+        data["payload"]["user"] = user
         return ClientData.model_validate(data["payload"])
     
     async def login(
@@ -121,7 +165,11 @@ class Client:
         )
         
         try:
-            return await self.session.post(call)
+            content = await self.session.post(call)
+            self._write_session_content(content)
+            
+            return self._parse_session_content(content)
+        
         except:
             raise AiobaleError("wrong code specified")
     

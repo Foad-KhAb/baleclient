@@ -10,7 +10,7 @@ class ValidateCode(BaleMethod):
     __service__ = Services.AUTH.value
     __method__ = "ValidateCode"
     
-    __returning__ = ValidateCodeResponse
+    __returning__ = None
 
     transaction_hash: str = Field(..., alias="1")
     code: str = Field(..., alias="2")

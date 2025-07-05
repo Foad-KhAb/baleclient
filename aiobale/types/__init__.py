@@ -7,6 +7,7 @@ from .response import Response
 from .auth import AuthBody
 from .ext import ExtData, ExtValue
 from .int_bool import IntBool
+from .user import UserAuth
 
 
 __all__ = (
