@@ -108,6 +108,13 @@ class Client:
             return await self.session.post(call)
         except:
             raise AiobaleError("This phone number is banned")
+        
+    async def validate_code(
+        self,
+        code: str,
+        transaction_hash: str
+    ) -> Any:
+        pass
     
     async def send_message(
         self,
