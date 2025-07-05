@@ -52,6 +52,7 @@ class PhoneLoginCLI:
         expiration_timestamp = resp.code_expiration_date.value / 1000
         code_timeout = resp.code_timeout.value
         last_sent_time = time.time()
+        next_code_type = resp.next_send_code_type
 
         print(Fore.GREEN + f"✅ Code sent! You have {code_timeout} seconds per attempt.")
         print(Fore.CYAN + "🔑 Enter your code. Available commands:\n"
@@ -91,9 +92,13 @@ class PhoneLoginCLI:
                         wait_seconds = int(cooldown - elapsed)
                         print(Fore.RED + f"⚠️ Wait {wait_seconds} sec before requesting a new code.\n")
                         continue
+                    
+                    if next_code_type is None:
+                        print(Fore.RED + f"⚠️ Resend is not available.\n")
+                        continue
 
                     try:
-                        resp = await self._send_login_request(phone_number, code_type=resp.next_send_code_type)
+                        resp = await self._send_login_request(phone_number, code_type=next_code_type)
                         last_sent_time = time.time()
                         print(Fore.GREEN + "✅ Code resent!\n")
                     except AiobaleError:
