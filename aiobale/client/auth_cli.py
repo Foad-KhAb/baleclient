@@ -3,9 +3,11 @@ from __future__ import annotations
 import asyncio
 import time
 from colorama import Fore, init
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from ..exceptions import AiobaleError
+from ..enums import SendCodeType
+from ..types.responses import PhoneAuthResponse
 
 if TYPE_CHECKING:
     from .client import Client
@@ -41,10 +43,10 @@ class PhoneLoginCLI:
                 return int(phone)
             print(Fore.RED + "❌ Invalid input. Please enter digits only.\n")
 
-    async def _send_login_request(self, phone_number, code_type=None):
+    async def _send_login_request(self, phone_number: int, code_type: Optional[SendCodeType]=SendCodeType.DEFAULT):
         return await self.client.login(phone_number, code_type=code_type)
 
-    async def _handle_code_entry(self, resp, phone_number):
+    async def _handle_code_entry(self, resp: PhoneAuthResponse, phone_number: int):
         max_attempts = 3
         attempts = 0
         expiration_timestamp = resp.code_expiration_date.value / 1000
