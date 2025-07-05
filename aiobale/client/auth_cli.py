@@ -50,11 +50,11 @@ class PhoneLoginCLI:
         max_attempts = 3
         attempts = 0
         expiration_timestamp = resp.code_expiration_date.value / 1000
-        code_timeout = resp.code_timeout.value
+        new_code_timeout = resp.code_timeout.value
         last_sent_time = time.time()
         next_code_type = resp.next_send_code_type
 
-        print(Fore.GREEN + f"✅ Code sent! You have {code_timeout} seconds per attempt.")
+        print(Fore.GREEN + f"✅ Code sent!")
         print(Fore.CYAN + "🔑 Enter your code. Available commands:\n"
                           "   'resend' - request a new code\n"
                           "   'restart' - enter your phone number again\n")
@@ -67,16 +67,16 @@ class PhoneLoginCLI:
             try:
                 remaining_time = expiration_timestamp - time.time()
                 print(Fore.YELLOW + f"⏳ Time left before expiration: {int(remaining_time)} sec")
-                print(Fore.YELLOW + f"⌛ Entry timeout: {code_timeout} sec\n")
+                print(Fore.YELLOW + f"⌛ Entry timeout: {new_code_timeout} sec\n")
 
                 try:
                     code = await asyncio.wait_for(
                         asyncio.to_thread(input, Fore.BLUE + "Enter code: "),
-                        timeout=code_timeout
+                        timeout=remaining_time
                     )
                 except asyncio.TimeoutError:
-                    print(Fore.RED + f"⏰ Code entry timed out ({code_timeout} sec). Please try again.\n")
-                    continue  # Timeout does NOT count as a failed attempt
+                    print(Fore.RED + f"⏰ Code entry timed out ({remaining_time} sec). Please try again.\n")
+                    return False
 
                 code = code.strip().lower()
 
