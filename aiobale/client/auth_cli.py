@@ -70,7 +70,7 @@ class PhoneLoginCLI:
                 elapsed = time.time() - last_sent_time
                 
                 print(Fore.YELLOW + f"⏳ Time left before expiration: {int(remaining_time)} sec")
-                print(Fore.YELLOW + f"⌛ New code timeout: {cooldown - elapsed} sec\n")
+                print(Fore.YELLOW + f"⌛ New code timeout: {int(cooldown - elapsed)} sec\n")
 
                 try:
                     code = await asyncio.wait_for(
