@@ -15,5 +15,5 @@ class PhoneAuthResponse(BaleObject):
     is_registered: IntBool = Field(..., alias="2")
     sent_code_type: SendCodeType = Field(..., alias="5")
     code_expiration_date: Value = Field(..., alias="6")
-    next_send_code_type: Optional[SendCodeType] = Field(..., alias="7")
+    next_send_code_type: Optional[SendCodeType] = Field(None, alias="7")
     code_timeout: Value = Field(..., alias="8")
