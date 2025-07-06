@@ -50,7 +50,6 @@ class PhoneLoginCLI:
         max_attempts = 3
         attempts = 0
         expiration_timestamp = resp.code_expiration_date.value / 1000
-        new_code_timeout = resp.code_timeout.value
         last_sent_time = time.time()
         next_code_type = resp.next_send_code_type
 
@@ -103,7 +102,8 @@ class PhoneLoginCLI:
                     try:
                         resp = await self._send_login_request(phone_number, code_type=next_code_type)
                         last_sent_time = time.time()
-                        new_code_timeout = resp.code_timeout
+                        expiration_timestamp = resp.code_expiration_date.value / 1000
+                        
                         print(Fore.GREEN + "✅ Code resent!\n")
                     except AiobaleError:
                         print(Fore.RED + "🚫 Phone number is banned. Restarting phone entry...\n")
