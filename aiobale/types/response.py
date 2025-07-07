@@ -2,11 +2,12 @@ from pydantic import Field
 from typing import Any, Optional
 
 from .base import BaleObject
+from .updae import UpdateBody
 
 
 class BaleError(BaleObject):
-    topic: int
-    message: str
+    topic: int = Field(..., alias="1")
+    message: str = Field(..., alias="2")
 
 
 class ResponsetBody(BaleObject):
@@ -17,5 +18,5 @@ class ResponsetBody(BaleObject):
 
 class Response(BaleObject):
     response: Optional[ResponsetBody] = Field(None, alias="1")
-    update: Optional[Any] = Field(None, alias="2")
+    update: Optional[UpdateBody] = Field(None, alias="2")
     auth: Optional[Any] = Field(None, alias="5")
