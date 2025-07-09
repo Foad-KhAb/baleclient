@@ -113,10 +113,16 @@ class BaseSession(abc.ABC):
         return MetaList(meta_list=ext)
     
     async def _handle_update(self, update: UpdateBody) -> None:
-        body = update.body
-        event_type, event = body.current_event
-        dp = self.client.dispatcher
+        event_info = update.body.current_event
+        if not event_info:
+            return
+
+        event_type, event = event_info
+    
+        if event_type == "message" and getattr(event, "sender_id", None) == self.client.id:
+            return
         
+        dp = self.client.dispatcher
         await dp.dispatch(event_type, event)
         
     @abc.abstractmethod
