@@ -73,6 +73,10 @@ class AiohttpSession(BaseSession):
                     received = Response.model_validate(data)
                 except:
                     continue
+                
+                if received.update is not None:
+                    await self._handle_update(received.update)
+                    continue
 
                 response = received.response
                 if response is None:
@@ -110,7 +114,7 @@ class AiohttpSession(BaseSession):
 
         try:
             result = await asyncio.wait_for(future, timeout=timeout or self.timeout)
-            return self.decode_result(result, method, client)
+            return self.decode_result(result, method)
         
         except asyncio.TimeoutError:
             self._pending_requests.pop(request_id, None)

@@ -19,6 +19,6 @@ class Update(BaleObject):
 
 
 class UpdateBody(BaleObject):
-    body: Any = Field(..., alias="1")
+    body: Update = Field(..., alias="1")
     update_id: int = Field(..., alias="2")
     date: int = Field(..., alias="3")

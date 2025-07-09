@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import Any, Optional
 
 from .base import BaleObject
-from .updae import UpdateBody
+from .update import UpdateBody
 
 
 class BaleError(BaleObject):

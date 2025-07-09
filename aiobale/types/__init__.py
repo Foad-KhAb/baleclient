@@ -8,6 +8,7 @@ from .auth import AuthBody
 from .ext import ExtData, ExtValue
 from .int_bool import IntBool
 from .user import UserAuth
+from .update import Update, UpdateBody
 
 
 __all__ = (
@@ -25,5 +26,8 @@ __all__ = (
     "ExtData",
     "ExtValue",
     "MetaList",
-    "IntBool"
+    "IntBool",
+    "UserAuth",
+    "UpdateBody",
+    "Update"
 )

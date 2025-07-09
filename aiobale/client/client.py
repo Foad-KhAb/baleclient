@@ -25,6 +25,7 @@ from ..types import (
 )
 from ..types.responses import MessageResponse, PhoneAuthResponse, ValidateCodeResponse
 from ..enums import ChatType, PeerType, SendCodeType
+from ..dispatcher.dispatcher import Dispatcher
 from .auth_cli import PhoneLoginCLI
 
 
@@ -34,13 +35,16 @@ DEFAULT_SESSION: Final[str] = "./session.bale"
 class Client:
     def __init__(
         self,
+        dispatcher: Dispatcher,
         session_file: Optional[str] = DEFAULT_SESSION,
         session: Optional[BaseSession] = None
     ):  
         if session is None:
             session = AiohttpSession()
-            
+        
+        session._bind_client(self)
         self.session = session
+        self.dispatcher: Dispatcher = dispatcher
         
         if not isinstance(session_file, str) or not session_file.lower().endswith(".bale"):
             raise AiobaleError(

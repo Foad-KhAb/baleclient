@@ -6,7 +6,15 @@ import time
 
 from ...utils import ProtoBuf
 from ...methods import BaleMethod, BaleType
-from ...types import Request, RequestBody, AuthBody, ExtData, ExtValue, MetaList
+from ...types import (
+    Request, 
+    RequestBody, 
+    AuthBody, 
+    ExtData, 
+    ExtValue, 
+    MetaList,
+    UpdateBody
+)
 
 if TYPE_CHECKING:
     from ..client import Client
@@ -37,6 +45,11 @@ class BaseSession(abc.ABC):
         self._request_id = 0
         self.session_id = int(time.time() * 1000)
         
+        self.client: Optional[Client] = None
+        
+    def _bind_client(self, client: Client) -> None:
+        self.client = client
+        
     def build_payload(self, method: BaleMethod[BaleType], request_id: int) -> bytes:
         request = Request(
             body=RequestBody(
@@ -51,8 +64,8 @@ class BaseSession(abc.ABC):
         payload = request.model_dump(by_alias=True, exclude_none=True)
         return self.encoder(payload)
     
-    def decode_result(self, result: Any, method: BaleMethod[BaleType], client: Client) -> Any:
-        result["client_cls"] = client
+    def decode_result(self, result: Any, method: BaleMethod[BaleType]) -> Any:
+        result["client_cls"] = self.client
         result["method_data"] = method
         
         model_type = method.__returning__
@@ -98,6 +111,13 @@ class BaseSession(abc.ABC):
             )
             
         return MetaList(meta_list=ext)
+    
+    async def _handle_update(self, update: UpdateBody) -> None:
+        body = update.body
+        event_type, event = body.current_event
+        dp = self.client.dispatcher
+        
+        await dp.dispatch(event_type, event)
         
     @abc.abstractmethod
     async def close(self) -> None:
