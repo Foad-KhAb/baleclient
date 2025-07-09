@@ -4,15 +4,15 @@ from pydantic import model_validator
 from typing import Optional, Any, Dict, TYPE_CHECKING
 
 from .default import DefaultResponse
-from ...types import Message, PrevMessage, ExtData
 
 if TYPE_CHECKING:
+    from ...types import Message, PrevMessage, ExtData
     from ...methods import SendMessage
     from ...client.client import Client
 
 
 class MessageResponse(DefaultResponse):
-    message: Optional[Message]
+    message: Optional["Message"]
 
     @model_validator(mode="before")
     @classmethod
