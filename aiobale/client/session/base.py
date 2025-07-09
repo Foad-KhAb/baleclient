@@ -69,7 +69,7 @@ class BaseSession(abc.ABC):
         result["method_data"] = method
         
         model_type = method.__returning__
-        return model_type.model_validate(result)
+        return model_type.model_validate(result, context={"client": self.client})
     
     def get_login_payload(self) -> bytes:
         request = Request(

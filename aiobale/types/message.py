@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 from pydantic import Field
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional
 
 from .chat import Chat
 from .base import BaleObject
+from .responses import MessageResponse
 
 
 class TextMessage(BaleObject):
-    content: str = Field(..., alias="1")
+    value: str = Field(..., alias="1")
     
 
 class MessageCaption(BaleObject):
@@ -62,3 +65,24 @@ class Message(BaleObject):
                 content=content,
                 previous_message=previous_message
             )
+            
+    @property
+    def text(self) -> Optional[str]:
+        text_content = self.content.text
+        if text_content is None:
+            return
+        
+        return text_content.value
+    
+    async def answer(
+        self,
+        text: str,
+        message_id: Optional[int] = None
+    ) -> MessageResponse:
+        
+        return await self.client.send_message(
+            text,
+            self.chat.id,
+            self.chat.type,
+            message_id
+        )

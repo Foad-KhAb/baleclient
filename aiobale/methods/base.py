@@ -2,11 +2,13 @@ from abc import ABC, abstractmethod
 from pydantic import BaseModel, ConfigDict
 from typing import TypeVar, Any, Generic, TYPE_CHECKING, ClassVar
 
+from ..client.context_controller import BotContextController
+
 
 BaleType = TypeVar("BaleObject", bound=Any)
 
 
-class BaleMethod(BaseModel, Generic[BaleType], ABC):
+class BaleMethod(BotContextController, BaseModel, Generic[BaleType], ABC):
     model_config = ConfigDict(
         populate_by_name=True,
         use_enum_values=True,

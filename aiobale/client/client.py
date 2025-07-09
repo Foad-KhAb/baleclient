@@ -101,7 +101,7 @@ class Client:
         return True
     
     async def __call__(self, method: BaleMethod[BaleType]):
-        return await self.session.make_request(self, method)
+        return await self.session.make_request(method)
     
     async def start(self, run_in_background: bool = False) -> None:
         if self.__token is None:
@@ -200,7 +200,7 @@ class Client:
         message_id = message_id or generate_id()
         
         content = MessageContent(
-            text=TextMessage(content=text)
+            text=TextMessage(value=text)
         )
         
         call = SendMessage(

@@ -1,7 +1,9 @@
 from pydantic import BaseModel, ConfigDict
 
+from ..client.context_controller import BotContextController
 
-class BaleObject(BaseModel):
+
+class BaleObject(BotContextController, BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
         use_enum_values=True,

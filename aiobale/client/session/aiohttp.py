@@ -70,7 +70,7 @@ class AiohttpSession(BaseSession):
                 
                 try:
                     data = self.decoder(msg.data)
-                    received = Response.model_validate(data)
+                    received = Response.model_validate(data, context={"client": self.client})
                 except:
                     continue
                 
@@ -98,7 +98,6 @@ class AiohttpSession(BaseSession):
 
     async def make_request(
         self,
-        client: Client,
         method: BaleMethod[BaleType],
         timeout: Optional[int] = None,
     ) -> BaleType:

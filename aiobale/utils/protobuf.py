@@ -13,6 +13,7 @@ class ProtoBuf:
                 return obj.decode("utf-8")
             except UnicodeDecodeError:
                 return obj.hex()
+        
         else:
             return obj
 
