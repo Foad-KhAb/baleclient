@@ -14,7 +14,6 @@ class Router:
         self._register_default_event_types()
         
         self.message = self._observer.get_decorator("message")
-        self.callback_query = self._observer.get_decorator("callback_query")
 
     def _register_default_event_types(self) -> None:
         for event_type in ("message", "callback_query", "edited_message"):
