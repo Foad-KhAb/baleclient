@@ -75,7 +75,7 @@ class AiohttpSession(BaseSession):
                     continue
                 
                 if received.update is not None:
-                    await self._handle_update(received.update)
+                    await self._handle_update(received.update.body)
                     continue
 
                 response = received.response
