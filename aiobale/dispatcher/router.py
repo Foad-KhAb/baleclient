@@ -12,6 +12,9 @@ class Router:
         self._observer = EventObserver()
 
         self._register_default_event_types()
+        
+        self.message = self._observer.get_decorator("message")
+        self.callback_query = self._observer.get_decorator("callback_query")
 
     def _register_default_event_types(self) -> None:
         for event_type in ("message", "callback_query", "edited_message"):
@@ -21,12 +24,6 @@ class Router:
         def decorator(*filters: Callable[..., Union[bool, Awaitable[bool]]]):
             return self.register(event_type, *filters)
         return decorator
-
-    def message(self, *filters: Callable[..., Union[bool, Awaitable[bool]]]):
-        return self._observer.get_decorator("message")(*filters)
-
-    def callback_query(self, *filters: Callable[..., Union[bool, Awaitable[bool]]]):
-        return self._observer.get_decorator("callback_query")(*filters)
 
     def add_event_type(self, event_type: str) -> None:
         self._observer.register(event_type, self._make_event_decorator(event_type))
