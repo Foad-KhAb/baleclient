@@ -16,7 +16,10 @@ from ..methods import (
     ValidateCode,
     DeleteMessage,
     ForwardMessages,
-    MessageRead
+    MessageRead,
+    EditName,
+    EditNickName,
+    CheckNickName
 )
 from ..types import (
     MessageContent,
@@ -27,13 +30,15 @@ from ..types import (
     UserAuth,
     IntValue,
     Message,
-    InfoMessage
+    InfoMessage,
+    StringValue
 )
 from ..types.responses import (
     MessageResponse, 
     PhoneAuthResponse, 
     ValidateCodeResponse,
-    DefaultResponse
+    DefaultResponse,
+    NickNameAvailable
 )
 from ..enums import ChatType, PeerType, SendCodeType
 from ..dispatcher.dispatcher import Dispatcher
@@ -353,4 +358,36 @@ class Client:
             peer=peer
         )
         
+        return await self(call)
+    
+    async def edit_name(
+        self,
+        name: str
+    ) -> DefaultResponse:
+        
+        call = EditName(
+            name=name
+        )
+        return await self(call)
+    
+    async def check_username(
+        self,
+        username: str
+    ) -> NickNameAvailable:
+        
+        call = CheckNickName(
+            nick_name=username
+        )
+        return await self(call)
+    
+    async def edit_username(
+        self,
+        username: str
+    ) -> DefaultResponse:
+        
+        call = EditNickName(
+            nick_name=StringValue(
+                value=username
+            )
+        )
         return await self(call)

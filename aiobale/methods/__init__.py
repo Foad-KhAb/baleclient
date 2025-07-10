@@ -5,6 +5,9 @@ from .validate_code import ValidateCode
 from .delete_message import DeleteMessage
 from .forward_message import ForwardMessages
 from .message_read import MessageRead
+from .edit_name import EditName
+from .edit_nickname import EditNickName
+from .check_nickname import CheckNickName
 
 
 __all__ = (
@@ -15,5 +18,8 @@ __all__ = (
     "ValidateCode",
     "DeleteMessage",
     "ForwardMessages",
-    "MessageRead"
+    "MessageRead",
+    "EditName",
+    "EditNickName",
+    "CheckNickName"
 )
