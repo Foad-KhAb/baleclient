@@ -6,7 +6,9 @@ from typing import TYPE_CHECKING, Optional
 from .chat import Chat
 from .base import BaleObject
 from ..enums import ChatType
-from ..types import QuotedMessage, MessageContent
+from .quoted_message import QuotedMessage
+from .message_content import MessageContent
+
 if TYPE_CHECKING:
     from .responses import DefaultResponse, MessageResponse
 
@@ -22,7 +24,7 @@ class Message(BaleObject):
     date: int = Field(..., alias="3")
     message_id: int = Field(..., alias="4")
     content: MessageContent = Field(..., alias="5")
-    reply_to: Optional[QuotedMessage] = Field(None, alias="7")
+    replied_to: Optional[QuotedMessage] = Field(None, alias="7")
     previous_message: Optional[PrevMessage] = Field(None, alias="9")
     
     if TYPE_CHECKING:
