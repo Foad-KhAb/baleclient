@@ -27,7 +27,7 @@ from ..types import (
     UserAuth,
     IntValue,
     Message,
-    ForwardedMessage
+    InfoMessage
 )
 from ..types.responses import (
     MessageResponse, 
@@ -276,7 +276,7 @@ class Client:
     
     async def forward_messages(
         self,
-        messages: List[Union[Message, ForwardedMessage]],
+        messages: List[Union[Message, InfoMessage]],
         chat_id: int,
         chat_type: ChatType,
         new_ids: Optional[List[int]] = None
@@ -306,14 +306,14 @@ class Client:
 
         return await self(call)
 
-    def _ensure_forwarded_message(self, message: Union[Message, ForwardedMessage]) -> ForwardedMessage:
+    def _ensure_forwarded_message(self, message: Union[Message, InfoMessage]) -> InfoMessage:
         """Ensures that a message is converted to ForwardedMessage if it's not already one."""
-        if isinstance(message, ForwardedMessage):
+        if isinstance(message, InfoMessage):
             return message
 
         origin_peer = self._resolve_peer(message.chat)
 
-        return ForwardedMessage(
+        return InfoMessage(
             peer=origin_peer,
             message_id=message.message_id,
             date=IntValue(value=message.date)
@@ -321,7 +321,7 @@ class Client:
         
     async def forward_message(
         self,
-        message: Union[Message, ForwardedMessage],
+        message: Union[Message, InfoMessage],
         chat_id: int,
         chat_type: ChatType,
         new_id: Optional[int] = None

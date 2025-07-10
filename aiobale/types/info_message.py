@@ -8,7 +8,7 @@ from .base import BaleObject
 from .values import IntValue
 
 
-class ForwardedMessage(BaleObject):
+class InfoMessage(BaleObject):
     peer: Peer = Field(..., alias="1")
     message_id: int = Field(..., alias="2")
     date: IntValue = Field(..., alias="3")

@@ -1,7 +1,7 @@
 from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from ..types import Peer, IntValue, BytesValue, ForwardedMessage
+from ..types import Peer, IntValue, BytesValue, InfoMessage
 from ..utils import Int64VarintCodec
 from ..types.responses import DefaultResponse
 from ..enums import Services
@@ -16,7 +16,7 @@ class ForwardMessages(BaleMethod):
     
     peer: Peer = Field(..., alias="1")
     message_ids: bytes = Field(..., alias="2")
-    forwarded_messages: List[ForwardedMessage] = Field(..., alias="3")
+    forwarded_messages: List[InfoMessage] = Field(..., alias="3")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -26,7 +26,7 @@ class ForwardMessages(BaleMethod):
             *,
             peer: Peer,
             message_ids: List[int],
-            forwarded_messages: List[ForwardedMessage],
+            forwarded_messages: List[InfoMessage],
             **__pydantic_kwargs: Any
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins
