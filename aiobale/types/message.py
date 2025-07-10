@@ -115,3 +115,10 @@ class Message(BaleObject):
             chat_type=chat_type,
             new_id=new_id
         )
+        
+    async def seen(self) -> DefaultResponse:
+
+        return await self.client.seen_chat(
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
+        )
