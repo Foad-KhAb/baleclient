@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING, Optional
 
 from .chat import Chat
 from .base import BaleObject
-from .responses import MessageResponse
+if TYPE_CHECKING:
+    from .responses import MessageResponse
 
 
 class TextMessage(BaleObject):
