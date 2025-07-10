@@ -15,7 +15,8 @@ from ..methods import (
     StartPhoneAuth,
     ValidateCode,
     DeleteMessage,
-    ForwardMessages
+    ForwardMessages,
+    MessageRead
 )
 from ..types import (
     MessageContent,
@@ -333,3 +334,18 @@ class Client:
             chat_type=chat_type,
             new_ids=new_ids
         )
+        
+    async def seen_chat(
+        self,
+        chat_id: int,
+        chat_type: ChatType
+    ) -> DefaultResponse:
+        
+        peer_type = self._resolve_peer_type(chat_type)
+        peer = Peer(id=chat_id, type=peer_type)
+        
+        call = MessageRead(
+            peer=peer
+        )
+        
+        return await self(call)
