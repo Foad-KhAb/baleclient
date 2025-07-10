@@ -41,12 +41,12 @@ class Int64VarintCodec:
         return result
 
     @classmethod
-    def encode_list(cls, numbers: list[int]) -> str:
+    def encode_list(cls, numbers: list[int]) -> bytes:
         """"Encodes a list of int64 integers into a bytes object using varint encoding."""
         encoded = bytearray()
         for number in numbers:
             encoded.extend(cls.encode_varint(number))
-        return encoded.hex()
+        return bytes(encoded)
 
     @classmethod
     def decode_list(cls, hex_string: str | bytes) -> list[int]:

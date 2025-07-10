@@ -9,7 +9,7 @@ from .ext import ExtData, ExtValue
 from .int_bool import IntBool
 from .user import UserAuth
 from .update import Update, UpdateBody
-from .values import StringValue, IntValue
+from .values import StringValue, IntValue, BytesValue
 
 
 __all__ = (

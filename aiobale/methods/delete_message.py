@@ -1,9 +1,9 @@
 from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from ..types import Peer, StringValue, IntValue
+from ..types import Peer, IntValue, BytesValue
 from ..utils import Int64VarintCodec
-from ..types.responses import MessageResponse
+from ..types.responses import DefaultResponse
 from ..enums import Services
 from .base import BaleMethod
 
@@ -12,11 +12,11 @@ class DeleteMessage(BaleMethod):
     __service__ = Services.MESSAGING.value
     __method__ = "DeleteMessage"
     
-    __returning__ = MessageResponse
+    __returning__ = DefaultResponse
     
     peer: Peer = Field(..., alias="1")
-    message_ids: str = Field(..., alias="2")
-    dates: StringValue = Field(..., alias="3")
+    message_ids: bytes = Field(..., alias="2")
+    dates: BytesValue = Field(..., alias="3")
     just_me: IntValue = Field(..., alias="4")
     
     if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class DeleteMessage(BaleMethod):
     @classmethod
     def fix_lists(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         data["message_ids"] = Int64VarintCodec.encode_list(data["message_ids"])
-        data["dates"] = StringValue(
+        data["dates"] = BytesValue(
             value=Int64VarintCodec.encode_list(data["dates"])
         )
         

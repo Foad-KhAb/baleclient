@@ -223,6 +223,26 @@ class Client:
     
     async def delete_message(
         self,
+        message_id: int,
+        message_date: int,
+        chat_id: int,
+        chat_type: ChatType,
+        just_me: Optional[bool] = False
+    ) -> Any:
+        peer_type = self._resolve_peer_type(chat_type)
+        peer = Peer(type=peer_type, id=chat_id)
+        
+        call = DeleteMessage(
+            peer=peer,
+            message_ids=[message_id],
+            dates=[message_date],
+            just_me=IntValue(value=int(just_me))
+        )
+        
+        return await self(call)
+    
+    async def delete_messages(
+        self,
         message_ids: List[int],
         message_dates: List[int],
         chat_id: int,

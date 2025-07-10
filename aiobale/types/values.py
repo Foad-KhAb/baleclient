@@ -10,3 +10,7 @@ class StringValue(BaleObject):
 
 class IntValue(BaleObject):
     value: int = Field(None, alias="1")
+
+
+class BytesValue(BaleObject):
+    value: bytes = Field(None, alias="1")
