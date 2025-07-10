@@ -15,7 +15,7 @@ class MessageRead(BaleMethod):
     __returning__ = DefaultResponse
     
     peer: Peer = Field(..., alias="1")
-    date: int = Field(default_factory=lambda: int(time.time()), alias="2")
+    date: int = Field(default_factory=lambda: int(time.time() * 1000), alias="2")
     
     if TYPE_CHECKING:
         # Just For Type Helping
