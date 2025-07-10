@@ -50,5 +50,3 @@ class DeleteMessage(BaleMethod):
         )
         
         return data
-        
-        
