@@ -22,7 +22,8 @@ from ..types import (
     Peer,
     Chat,
     TextMessage,
-    UserAuth
+    UserAuth,
+    IntValue
 )
 from ..types.responses import MessageResponse, PhoneAuthResponse, ValidateCodeResponse
 from ..enums import ChatType, PeerType, SendCodeType
@@ -235,7 +236,7 @@ class Client:
             peer=peer,
             message_ids=message_ids,
             dates=message_dates,
-            just_me=int(just_me)
+            just_me=IntValue(value=int(just_me))
         )
         
         return await self(call)
