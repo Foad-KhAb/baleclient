@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Optional
 
 from .chat import Chat
@@ -46,6 +46,12 @@ class Message(BaleObject):
                 content=content,
                 previous_message=previous_message
             )
+            
+    @model_validator(mode="after")
+    def attach_chat_to_reply(self) -> Message:
+        if self.replied_to and not self.replied_to.chat:
+            self.replied_to.chat = self.chat
+        return self
             
     @property
     def text(self) -> Optional[str]:

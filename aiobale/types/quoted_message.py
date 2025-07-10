@@ -3,6 +3,7 @@ from __future__ import annotations
 from pydantic import Field
 from typing import TYPE_CHECKING, Optional
 
+from ..exceptions import AiobaleError
 from .peer import Peer
 from .values import IntValue
 from .base import BaleObject
@@ -20,18 +21,18 @@ class QuotedMessage(BaleObject):
     content: MessageContent = Field(..., alias="5")
     peer: Peer = Field(..., alias="6")
     
-    def message(
-        self,
-        chat_to_rewrite: Optional[Chat] = None
-    ) -> Message:
+    chat: Optional[Chat] = Field(None, exclude=True)
+    
+    @property
+    def message(self) -> Message:
         from .message import Message
         
-        chat = chat_to_rewrite or Chat(
-            id=self.peer.id, type=self.peer.type
-        )
+        if self.chat is None:
+            raise AiobaleError("Need the current chat to process")
+        
         return Message(
             message_id=self.message_id.value,
-            chat=chat,
+            chat=self.chat,
             sender_id=self.sender_id,
             date=self.date,
             content=self.content
