@@ -1,5 +1,6 @@
 from .chat import Chat
-from .message import Message, MessageContent, TextMessage, PrevMessage
+from .message import Message, PrevMessage
+from .message_content import MessageContent, TextMessage
 from .peer import Peer
 from .client import ClientData
 from .request import Request, RequestBody, MetaList
@@ -11,6 +12,7 @@ from .user import UserAuth
 from .update import Update, UpdateBody
 from .values import StringValue, IntValue, BytesValue
 from .info_message import InfoMessage
+from .quoted_message import QuotedMessage
 
 
 __all__ = (
@@ -35,5 +37,6 @@ __all__ = (
     "StringValue",
     "IntValue",
     "BytesValue",
-    "InfoMessage"
+    "InfoMessage",
+    "QuotedMessage"
 )
