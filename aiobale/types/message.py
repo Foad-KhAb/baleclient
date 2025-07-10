@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional
 from .chat import Chat
 from .base import BaleObject
 if TYPE_CHECKING:
-    from .responses import MessageResponse
+    from .responses import DefaultResponse, MessageResponse
 
 
 class TextMessage(BaleObject):
@@ -86,4 +86,17 @@ class Message(BaleObject):
             self.chat.id,
             self.chat.type,
             message_id
+        )
+
+    async def delete(
+        self, 
+        just_me: Optional[bool] = False
+    ) -> DefaultResponse:
+        
+        return await self.client.delete_message(
+            self.message_id,
+            self.date,
+            self.chat.id,
+            self.chat.type,
+            just_me
         )
