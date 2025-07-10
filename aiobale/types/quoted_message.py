@@ -20,15 +20,20 @@ class QuotedMessage(BaleObject):
     content: MessageContent = Field(..., alias="5")
     peer: Peer = Field(..., alias="6")
     
-    @property
-    def message(self) -> Message:
+    def message(
+        self,
+        chat_to_rewrite: Optional[Chat] = None
+    ) -> Message:
         from .message import Message
         
-        chat = Chat(id=self.peer.id, type=self.peer.type)
+        chat = chat_to_rewrite or Chat(
+            id=self.peer.id, type=self.peer.type
+        )
         return Message(
             message_id=self.message_id.value,
             chat=chat,
             sender_id=self.sender_id,
             date=self.date,
             content=self.content
+            
         ).as_(self.client)
