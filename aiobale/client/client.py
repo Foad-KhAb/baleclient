@@ -201,6 +201,7 @@ class Client:
         text: str,
         chat_id: int,
         chat_type: ChatType,
+        reply_to: Optional[Union[Message, InfoMessage]],
         message_id: int | None = None
     ) -> MessageResponse:
         
@@ -213,10 +214,14 @@ class Client:
             text=TextMessage(value=text)
         )
         
+        if reply_to is not None:
+            reply_to = self._ensure_info_message(reply_to)
+        
         call = SendMessage(
             peer=peer,
             message_id=message_id,
             content=content,
+            reply_to=reply_to,
             chat=chat
         )
         
@@ -296,7 +301,7 @@ class Client:
             id=chat_id
         )
 
-        forwarded_messages = [self._ensure_forwarded_message(msg) for msg in messages]
+        forwarded_messages = [self._ensure_info_message(msg) for msg in messages]
 
         call = ForwardMessages(
             peer=target_peer,
@@ -306,7 +311,7 @@ class Client:
 
         return await self(call)
 
-    def _ensure_forwarded_message(self, message: Union[Message, InfoMessage]) -> InfoMessage:
+    def _ensure_info_message(self, message: Union[Message, InfoMessage]) -> InfoMessage:
         """Ensures that a message is converted to ForwardedMessage if it's not already one."""
         if isinstance(message, InfoMessage):
             return message
