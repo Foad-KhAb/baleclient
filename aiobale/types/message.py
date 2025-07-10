@@ -88,6 +88,20 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             message_id=message_id
         )
+        
+    async def reply(
+        self,
+        text: str,
+        message_id: Optional[int] = None
+    ) -> MessageResponse:
+        
+        return await self.client.send_message(
+            text=text,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            reply_to=self,
+            message_id=message_id
+        )
 
     async def delete(
         self, 
