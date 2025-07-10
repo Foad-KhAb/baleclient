@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Optional, Any, Type, Final
+from typing import List, Optional, Any, Type, Final
 from types import TracebackType
 import os
 
@@ -13,7 +13,8 @@ from ..methods import (
     BaleMethod, 
     BaleType,
     StartPhoneAuth,
-    ValidateCode
+    ValidateCode,
+    DeleteMessage
 )
 from ..types import (
     MessageContent,
@@ -218,3 +219,23 @@ class Client:
         elif chat_type in (ChatType.PRIVATE, ChatType.BOT):
             return PeerType.PRIVATE
         return PeerType.GROUP
+    
+    async def delete_message(
+        self,
+        message_ids: List[int],
+        message_dates: List[int],
+        chat_id: int,
+        chat_type: ChatType,
+        just_me: Optional[bool] = False
+    ) -> Any:
+        peer_type = self._resolve_peer_type(chat_type)
+        peer = Peer(type=peer_type, id=chat_id)
+        
+        call = DeleteMessage(
+            peer=peer,
+            message_ids=message_ids,
+            dates=message_dates,
+            just_me=int(just_me)
+        )
+        
+        return await self(call)
