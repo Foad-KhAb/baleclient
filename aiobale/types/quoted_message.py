@@ -26,7 +26,7 @@ class QuotedMessage(BaleObject):
         
         chat = Chat(id=self.peer.id, type=self.peer.type)
         return Message(
-            message_id=self.message_id,
+            message_id=self.message_id.value,
             chat=chat,
             sender_id=self.sender_id,
             date=self.date,
