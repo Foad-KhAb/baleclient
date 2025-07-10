@@ -3,6 +3,8 @@ from .base import BaleMethod, BaleType
 from .start_phone_auth import StartPhoneAuth
 from .validate_code import ValidateCode
 from .delete_message import DeleteMessage
+from .forward_message import ForwardMessages
+
 
 __all__ = (
     "SendMessage",
@@ -10,5 +12,6 @@ __all__ = (
     "BaleType",
     "StartPhoneAuth",
     "ValidateCode",
-    "DeleteMessage"
+    "DeleteMessage",
+    "ForwardMessages"
 )

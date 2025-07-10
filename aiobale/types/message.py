@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 
 from .chat import Chat
 from .base import BaleObject
+from ..enums import ChatType
 if TYPE_CHECKING:
     from .responses import DefaultResponse, MessageResponse
 
@@ -82,21 +83,35 @@ class Message(BaleObject):
     ) -> MessageResponse:
         
         return await self.client.send_message(
-            text,
-            self.chat.id,
-            self.chat.type,
-            message_id
+            text=text,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id
         )
 
     async def delete(
         self, 
         just_me: Optional[bool] = False
     ) -> DefaultResponse:
-        
+
         return await self.client.delete_message(
-            self.message_id,
-            self.date,
-            self.chat.id,
-            self.chat.type,
-            just_me
+            message_id=self.message_id,
+            message_date=self.date,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            just_me=just_me
+        )
+        
+    async def forward_to(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        new_id: Optional[int] = None
+    ) -> DefaultResponse:
+        
+        return await self.client.forward_message(
+            message=self,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            new_id=new_id
         )

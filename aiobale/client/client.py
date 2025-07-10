@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import List, Optional, Any, Type, Final
+from typing import List, Optional, Any, Type, Final, Union
 from types import TracebackType
 import os
 
@@ -14,7 +14,8 @@ from ..methods import (
     BaleType,
     StartPhoneAuth,
     ValidateCode,
-    DeleteMessage
+    DeleteMessage,
+    ForwardMessages
 )
 from ..types import (
     MessageContent,
@@ -23,9 +24,16 @@ from ..types import (
     Chat,
     TextMessage,
     UserAuth,
-    IntValue
+    IntValue,
+    Message,
+    ForwardedMessage
 )
-from ..types.responses import MessageResponse, PhoneAuthResponse, ValidateCodeResponse
+from ..types.responses import (
+    MessageResponse, 
+    PhoneAuthResponse, 
+    ValidateCodeResponse,
+    DefaultResponse
+)
 from ..enums import ChatType, PeerType, SendCodeType
 from ..dispatcher.dispatcher import Dispatcher
 from .auth_cli import PhoneLoginCLI
@@ -195,9 +203,8 @@ class Client:
         message_id: int | None = None
     ) -> MessageResponse:
         
-        peer_type = self._resolve_peer_type(chat_type)
-        peer = Peer(type=peer_type, id=chat_id)
         chat = Chat(type=chat_type, id=chat_id)
+        peer = self._resolve_peer(chat)
         
         message_id = message_id or generate_id()
         
@@ -214,32 +221,16 @@ class Client:
         
         return await self(call)
         
-    def _resolve_peer_type(self, chat_type: ChatType):
+    def _resolve_peer_type(self, chat_type: ChatType) -> PeerType:
         if chat_type == ChatType.UNKNOWN:
             return PeerType.UNKNOWN
         elif chat_type in (ChatType.PRIVATE, ChatType.BOT):
             return PeerType.PRIVATE
         return PeerType.GROUP
     
-    async def delete_message(
-        self,
-        message_id: int,
-        message_date: int,
-        chat_id: int,
-        chat_type: ChatType,
-        just_me: Optional[bool] = False
-    ) -> Any:
-        peer_type = self._resolve_peer_type(chat_type)
-        peer = Peer(type=peer_type, id=chat_id)
-        
-        call = DeleteMessage(
-            peer=peer,
-            message_ids=[message_id],
-            dates=[message_date],
-            just_me=IntValue(value=int(just_me))
-        )
-        
-        return await self(call)
+    def _resolve_peer(self, chat: Chat) -> Peer:
+        peer_type = self._resolve_peer_type(chat.type)
+        return Peer(id=chat.id, type=peer_type)
     
     async def delete_messages(
         self,
@@ -248,7 +239,11 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
         just_me: Optional[bool] = False
-    ) -> Any:
+    ) -> DefaultResponse:
+        
+        if not message_ids or not message_dates:
+            raise AiobaleError("`message_ids` or `message_dates` can not be empty")
+        
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(type=peer_type, id=chat_id)
         
@@ -260,3 +255,81 @@ class Client:
         )
         
         return await self(call)
+    
+    async def delete_message(
+        self,
+        message_id: int,
+        message_date: int,
+        chat_id: int,
+        chat_type: ChatType,
+        just_me: Optional[bool] = False
+    ) -> DefaultResponse:
+        
+        return await self.delete_messages(
+            message_ids=[message_id],
+            message_dates=[message_date],
+            chat_id=chat_id,
+            chat_type=chat_type,
+            just_me=just_me
+        )
+    
+    async def forward_messages(
+        self,
+        messages: List[Union[Message, ForwardedMessage]],
+        chat_id: int,
+        chat_type: ChatType,
+        new_ids: Optional[List[int]] = None
+    ) -> DefaultResponse:
+
+        if not messages:
+            raise AiobaleError("`messages` cannot be empty")
+
+        if new_ids is None:
+            new_ids = [generate_id() for _ in messages]
+
+        if len(new_ids) != len(messages):
+            raise AiobaleError("Mismatch between number of `new_ids` and `messages`")
+
+        target_peer = Peer(
+            type=self._resolve_peer_type(chat_type),
+            id=chat_id
+        )
+
+        forwarded_messages = [self._ensure_forwarded_message(msg) for msg in messages]
+
+        call = ForwardMessages(
+            peer=target_peer,
+            message_ids=new_ids,
+            forwarded_messages=forwarded_messages
+        )
+
+        return await self(call)
+
+    def _ensure_forwarded_message(self, message: Union[Message, ForwardedMessage]) -> ForwardedMessage:
+        """Ensures that a message is converted to ForwardedMessage if it's not already one."""
+        if isinstance(message, ForwardedMessage):
+            return message
+
+        origin_peer = self._resolve_peer(message.chat)
+
+        return ForwardedMessage(
+            peer=origin_peer,
+            message_id=message.message_id,
+            date=IntValue(value=message.date)
+        )
+        
+    async def forward_message(
+        self,
+        message: Union[Message, ForwardedMessage],
+        chat_id: int,
+        chat_type: ChatType,
+        new_id: Optional[int] = None
+    ) -> DefaultResponse:
+        new_ids = [new_id] if new_id is not None else None
+
+        return await self.forward_messages(
+            messages=[message],
+            chat_id=chat_id,
+            chat_type=chat_type,
+            new_ids=new_ids
+        )

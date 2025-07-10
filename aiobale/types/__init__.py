@@ -10,6 +10,7 @@ from .int_bool import IntBool
 from .user import UserAuth
 from .update import Update, UpdateBody
 from .values import StringValue, IntValue, BytesValue
+from .forwarded_message import ForwardedMessage
 
 
 __all__ = (
@@ -30,5 +31,9 @@ __all__ = (
     "IntBool",
     "UserAuth",
     "UpdateBody",
-    "Update"
+    "Update",
+    "StringValue",
+    "IntValue",
+    "BytesValue",
+    "ForwardedMessage"
 )
