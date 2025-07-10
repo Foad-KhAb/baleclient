@@ -6,6 +6,6 @@ from ..base import BaleObject
 
 
 class DefaultResponse(BaleObject):
-    seq: int = Field(..., alias="1")
+    seq: Optional[int] = Field(None, alias="1")
     data: Optional[int] = Field(None, alias="2")
     ext: Optional[List[ExtData]] = Field(None, alias="4")
