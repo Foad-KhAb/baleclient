@@ -31,4 +31,4 @@ class QuotedMessage(BaleObject):
             sender_id=self.sender_id,
             date=self.date,
             content=self.content
-        )
+        ).as_(self.client)
