@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, Optional
 
 from .chat import Chat
 from .base import BaleObject
-from ..enums import ChatType
+from ..enums import ChatType, ListLoadMode
 from .quoted_message import QuotedMessage
 from .message_content import MessageContent
 from .other_message import OtherMessage
 
 if TYPE_CHECKING:
-    from .responses import DefaultResponse, MessageResponse
+    from .responses import DefaultResponse, MessageResponse, HistoryResponse
 
 
 class Message(BaleObject):
@@ -138,4 +138,19 @@ class Message(BaleObject):
         return await self.client.delete_chat(
             chat_id=self.chat.id,
             chat_type=self.chat.type
+        )
+        
+    async def load_history(
+        self,
+        limit: int = 20,
+        offset_date: int = -1,
+        load_mode: ListLoadMode = ListLoadMode.BACKWARD
+    ) -> HistoryResponse:
+        
+        return await self.client.load_history(
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            limit=limit,
+            offset_date=offset_date,
+            load_mode=load_mode
         )
