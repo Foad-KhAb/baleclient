@@ -1,17 +1,19 @@
 from __future__ import annotations
 
 from pydantic import Field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from .peer import Peer
 from .base import BaleObject
 from .values import IntValue
+from .other_message import OtherMessage
 
 
 class InfoMessage(BaleObject):
     peer: Peer = Field(..., alias="1")
     message_id: int = Field(..., alias="2")
     date: IntValue = Field(..., alias="3")
+    previous_message: Optional[OtherMessage] = Field(..., alias="4")
     
     if TYPE_CHECKING:
         # Just For Type Helping
