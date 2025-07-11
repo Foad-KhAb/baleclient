@@ -383,6 +383,21 @@ class Client:
         
         return await self(call)
     
+    async def clear_chat(
+        self,
+        chat_id: int,
+        chat_type: ChatType
+    ) -> DefaultResponse:
+        
+        peer_type = self._resolve_peer_type(chat_type)
+        peer = Peer(id=chat_id, type=peer_type)
+        
+        call = MessageRead(
+            peer=peer
+        )
+        
+        return await self(call)
+    
     async def edit_name(
         self,
         name: str
