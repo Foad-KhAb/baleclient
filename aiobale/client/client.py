@@ -22,7 +22,8 @@ from ..methods import (
     CheckNickName,
     UpdateMessage,
     ClearChat,
-    DeleteChat
+    DeleteChat,
+    LoadHistory
 )
 from ..types import (
     MessageContent,
@@ -41,9 +42,10 @@ from ..types.responses import (
     PhoneAuthResponse, 
     ValidateCodeResponse,
     DefaultResponse,
-    NickNameAvailable
+    NickNameAvailable,
+    HistoryResponse
 )
-from ..enums import ChatType, PeerType, SendCodeType
+from ..enums import ChatType, PeerType, SendCodeType, ListLoadMode
 from ..dispatcher.dispatcher import Dispatcher
 from .auth_cli import PhoneLoginCLI
 
@@ -414,6 +416,30 @@ class Client:
         )
         
         return await self(call)
+    
+    async def load_history(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        limit: int = 20,
+        offset_date: int = -1,
+        load_mode: ListLoadMode = ListLoadMode.BACKWARD
+    ) -> HistoryResponse:
+        
+        chat = Chat(id=chat_id, type=chat_type)
+        peer = self._resolve_peer(chat)
+        
+        call = LoadHistory(
+            peer=peer,
+            offset_date=offset_date,
+            load_mode=load_mode,
+            limit=limit
+        )
+        
+        result: HistoryResponse = await self(call)
+        result.add_chat(chat)
+        
+        return result
     
     async def edit_name(
         self,

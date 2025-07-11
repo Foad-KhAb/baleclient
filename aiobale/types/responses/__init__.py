@@ -3,6 +3,7 @@ from .message import MessageResponse
 from .auth import PhoneAuthResponse
 from .validate_code import ValidateCodeResponse
 from .nickname_available import NickNameAvailable
+from .history import HistoryResponse
 
 
 __all__ = (
@@ -10,5 +11,6 @@ __all__ = (
     "MessageResponse",
     "PhoneAuthResponse",
     "ValidateCodeResponse",
-    "NickNameAvailable"
+    "NickNameAvailable",
+    "HistoryResponse",
 )

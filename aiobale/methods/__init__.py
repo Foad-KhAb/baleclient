@@ -5,7 +5,8 @@ from .messaging import (
     ClearChat,
     DeleteMessage,
     MessageRead,
-    DeleteChat
+    DeleteChat,
+    LoadHistory
 )
 from .auth import (
     StartPhoneAuth,
@@ -34,4 +35,5 @@ __all__ = (
     "UpdateMessage",
     "ClearChat",
     "DeleteChat",
+    "LoadHistory"
 )

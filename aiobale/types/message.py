@@ -8,14 +8,10 @@ from .base import BaleObject
 from ..enums import ChatType
 from .quoted_message import QuotedMessage
 from .message_content import MessageContent
+from .other_message import OtherMessage
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse, MessageResponse
-
-
-class PrevMessage(BaleObject):
-    date: int = Field(..., alias="1")
-    message_id: int = Field(..., alias="2")
 
 
 class Message(BaleObject):
@@ -25,7 +21,7 @@ class Message(BaleObject):
     message_id: int = Field(..., alias="4")
     content: MessageContent = Field(..., alias="5")
     replied_to: Optional[QuotedMessage] = Field(None, alias="7")
-    previous_message: Optional[PrevMessage] = Field(None, alias="9")
+    previous_message: Optional[OtherMessage] = Field(None, alias="9")
     
     if TYPE_CHECKING:
         def __init__(
@@ -36,7 +32,8 @@ class Message(BaleObject):
             date: int,
             message_id: int,
             content: MessageContent,
-            previous_message: Optional[PrevMessage]
+            replied_to: Optional[QuotedMessage] = None,
+            previous_message: Optional[OtherMessage] = None
         ) -> None:
             super().__init__(
                 chat=chat,
@@ -44,6 +41,7 @@ class Message(BaleObject):
                 date=date,
                 message_id=message_id,
                 content=content,
+                replied_to=replied_to,
                 previous_message=previous_message
             )
             
