@@ -22,7 +22,7 @@ class DocumentMessage(BaleObject):
     file_size: int = Field(..., alias="3")
     name: str = Field(..., alias="4")
     mime_type: str = Field(..., alias="5")
-    ext: str = Field(..., alias="7")
+    ext: dict = Field(..., alias="7")
     caption: MessageCaption = Field(..., alias="8")
 
 
