@@ -5,11 +5,16 @@ from typing import Any, Optional, Tuple
 from .base import BaleObject
 from .message import Message
 from .selected_messages import SelectedMessages
+from .peer_data import PeerData
+from .username_changed import UsernameChanged
 
 
 class Update(BaleObject):
     message_deleted: Optional[SelectedMessages] = Field(None, alias="46")
+    chat_cleared: Optional[PeerData] = Field(None, alias="47")
+    chat_deleted: Optional[PeerData] = Field(None, alias="48")
     message: Optional[Message] = Field(None, alias="55")
+    username_changed: Optional[UsernameChanged] = Field(None, alias="209")
     
     @cached_property
     def current_event(self) -> Optional[Tuple[str, Any]]:

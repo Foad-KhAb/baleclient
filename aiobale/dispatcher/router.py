@@ -15,9 +15,18 @@ class Router:
         
         self.message = self._observer.get_decorator("message")
         self.message_deleted = self._observer.get_decorator("message_deleted")
+        self.chat_deleted = self._observer.get_decorator("chat_deleted")
+        self.chat_cleared = self._observer.get_decorator("chat_cleared")
+        self.username_changed = self._observer.get_decorator("username_changed")
 
     def _register_default_event_types(self) -> None:
-        for event_type in ("message", "message_deleted"):
+        for event_type in (
+            "message", 
+            "message_deleted",
+            "chat_cleared",
+            "chat_deleted",
+            "username_changed"
+        ):
             self._observer.register(event_type, self._make_event_decorator(event_type))
 
     def _make_event_decorator(self, event_type: str) -> Callable[..., Callable[..., Coroutine[Any, Any, Any]]]:
