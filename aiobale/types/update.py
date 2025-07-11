@@ -5,14 +5,14 @@ from typing import Any, Optional, Tuple
 from .base import BaleObject
 from .message import Message
 from .selected_messages import SelectedMessages
-from .chat_data import PeerData
+from .chat_data import ChatData
 from .username_changed import UsernameChanged
 
 
 class Update(BaleObject):
     message_deleted: Optional[SelectedMessages] = Field(None, alias="46")
-    chat_cleared: Optional[PeerData] = Field(None, alias="47")
-    chat_deleted: Optional[PeerData] = Field(None, alias="48")
+    chat_cleared: Optional[ChatData] = Field(None, alias="47")
+    chat_deleted: Optional[ChatData] = Field(None, alias="48")
     message: Optional[Message] = Field(None, alias="55")
     username_changed: Optional[UsernameChanged] = Field(None, alias="209")
     

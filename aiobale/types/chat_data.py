@@ -6,5 +6,5 @@ from .peer import Peer
 from ..utils import Int64VarintCodec
 
 
-class PeerData(BaleObject):
+class ChatData(BaleObject):
     peer: Peer = Field(..., alias="1")
