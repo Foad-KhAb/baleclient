@@ -125,15 +125,19 @@ class Message(BaleObject):
         )
         
     async def seen(self) -> DefaultResponse:
-
         return await self.client.seen_chat(
             chat_id=self.chat.id,
             chat_type=self.chat.type
         )
         
     async def clear_chat(self) -> DefaultResponse:
-        
         return await self.client.clear_chat(
+            chat_id=self.cha.id,
+            chat_type=self.chat.type
+        )
+        
+    async def delete_chat(self) -> DefaultResponse:
+        return await self.client.delete_chat(
             chat_id=self.cha.id,
             chat_type=self.chat.type
         )
