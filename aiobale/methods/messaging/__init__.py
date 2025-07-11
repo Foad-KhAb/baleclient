@@ -4,6 +4,7 @@ from .forward_message import ForwardMessages
 from .message_read import MessageRead
 from .send_message import SendMessage
 from .update_message import UpdateMessage
+from .delete_chat import DeleteChat
 
 
 __all__ = (
@@ -13,4 +14,5 @@ __all__ = (
     "MessageRead",
     "SendMessage",
     "UpdateMessage",
+    "DeleteChat",
 )
