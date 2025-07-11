@@ -20,7 +20,9 @@ from ..methods import (
     EditName,
     EditNickName,
     CheckNickName,
-    UpdateMessage
+    UpdateMessage,
+    ClearChat,
+    DeleteChat
 )
 from ..types import (
     MessageContent,
@@ -392,7 +394,22 @@ class Client:
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(id=chat_id, type=peer_type)
         
-        call = MessageRead(
+        call = ClearChat(
+            peer=peer
+        )
+        
+        return await self(call)
+    
+    async def delete_chat(
+        self,
+        chat_id: int,
+        chat_type: ChatType
+    ) -> DefaultResponse:
+        
+        peer_type = self._resolve_peer_type(chat_type)
+        peer = Peer(id=chat_id, type=peer_type)
+        
+        call = DeleteChat(
             peer=peer
         )
         
