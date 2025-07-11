@@ -19,7 +19,8 @@ from ..methods import (
     MessageRead,
     EditName,
     EditNickName,
-    CheckNickName
+    CheckNickName,
+    UpdateMessage
 )
 from ..types import (
     MessageContent,
@@ -207,7 +208,7 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
         reply_to: Optional[Union[Message, InfoMessage]],
-        message_id: int | None = None
+        message_id: Optional[int] = None
     ) -> MessageResponse:
         
         chat = Chat(type=chat_type, id=chat_id)
@@ -242,6 +243,28 @@ class Client:
     def _resolve_peer(self, chat: Chat) -> Peer:
         peer_type = self._resolve_peer_type(chat.type)
         return Peer(id=chat.id, type=peer_type)
+    
+    async def edit_message(
+        self,
+        text: str,
+        message_id: int,
+        chat_id: int,
+        chat_type: ChatType
+    ) -> DefaultResponse:
+        
+        peer_type = self._resolve_peer_type(chat_type)
+        peer = Peer(type=peer_type, id=chat_id)
+        content = MessageContent(
+            text=TextMessage(value=text)
+        )
+        
+        call = UpdateMessage(
+            peer=peer,
+            message_id=message_id,
+            updated_message=content
+        )
+        
+        return await self(call)
     
     async def delete_messages(
         self,

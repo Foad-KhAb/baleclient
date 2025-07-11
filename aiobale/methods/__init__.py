@@ -8,6 +8,7 @@ from .message_read import MessageRead
 from .edit_name import EditName
 from .edit_nickname import EditNickName
 from .check_nickname import CheckNickName
+from .update_message import UpdateMessage
 
 
 __all__ = (
@@ -21,5 +22,6 @@ __all__ = (
     "MessageRead",
     "EditName",
     "EditNickName",
-    "CheckNickName"
+    "CheckNickName",
+    "UpdateMessage"
 )
