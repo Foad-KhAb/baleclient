@@ -87,6 +87,15 @@ class Message(BaleObject):
             reply_to=self,
             message_id=message_id
         )
+        
+    async def edit_text(self, text: str) -> DefaultResponse:
+        
+        return await self.client.edit_message(
+            text=text,
+            message_id=self.message_id,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
+        )
 
     async def delete(
         self, 
@@ -107,7 +116,7 @@ class Message(BaleObject):
         chat_type: ChatType,
         new_id: Optional[int] = None
     ) -> DefaultResponse:
-        
+
         return await self.client.forward_message(
             message=self,
             chat_id=chat_id,
