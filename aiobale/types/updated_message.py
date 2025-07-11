@@ -32,8 +32,8 @@ class UpdatedMessage(BaleObject):
         return Message(
             message_id=self.message_id,
             chat=chat,
-            sender_id=self.sender_id,
-            date=self.date,
+            sender_id=self.sender_id.value,
+            date=self.date.value,
             content=self.content,
                  
         ).as_(self.client)
