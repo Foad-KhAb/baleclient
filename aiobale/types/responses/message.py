@@ -4,7 +4,7 @@ from pydantic import model_validator
 from typing import Optional, Any, Dict, TYPE_CHECKING
 
 from .default import DefaultResponse
-from ...types import Message, PrevMessage, ExtData
+from ...types import Message, OtherMessage, ExtData
 
 if TYPE_CHECKING:
     from ...methods import SendMessage
@@ -35,7 +35,7 @@ class MessageResponse(DefaultResponse):
             if field.name == "previous_message_date"
         })
 
-        prev_message = PrevMessage.model_validate(prev_data) if prev_data else None
+        prev_message = OtherMessage.model_validate(prev_data) if prev_data else None
 
         data["message"] = Message(
             chat=method.chat,
