@@ -5,7 +5,7 @@ from typing import Any, Optional, Tuple
 from .base import BaleObject
 from .message import Message
 from .selected_messages import SelectedMessages
-from .peer_data import PeerData
+from .chat_data import PeerData
 from .username_changed import UsernameChanged
 
 
