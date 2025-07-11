@@ -1,10 +1,10 @@
 from pydantic import Field
 from typing import TYPE_CHECKING, Any, Optional
 
-from ..types import Peer, MessageContent
-from ..types.responses import DefaultResponse
-from ..enums import Services
-from .base import BaleMethod
+from ...types import Peer, MessageContent
+from ...types.responses import DefaultResponse
+from ...enums import Services
+from ..base import BaleMethod
 
 
 class UpdateMessage(BaleMethod):

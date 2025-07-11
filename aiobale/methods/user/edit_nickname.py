@@ -2,18 +2,19 @@ import time
 from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
-from ..types.responses import NickNameAvailable
-from ..enums import Services
-from .base import BaleMethod
+from ...types.responses import DefaultResponse
+from ...types import StringValue
+from ...enums import Services
+from ..base import BaleMethod
 
 
-class CheckNickName(BaleMethod):
+class EditNickName(BaleMethod):
     __service__ = Services.USER.value
-    __method__ = "CheckNickName"
+    __method__ = "EditNickName"
     
-    __returning__ = NickNameAvailable
+    __returning__ = DefaultResponse
     
-    nick_name: str = Field(..., alias="1")
+    nick_name: StringValue = Field(..., alias="1")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -21,7 +22,7 @@ class CheckNickName(BaleMethod):
         def __init__(
             __pydantic__self__,
             *,
-            nick_name: str,
+            nick_name: StringValue,
             **__pydantic_kwargs: Any
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins

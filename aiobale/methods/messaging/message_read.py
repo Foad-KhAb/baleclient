@@ -2,19 +2,20 @@ import time
 from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
-from ..types import Peer
-from ..types.responses import DefaultResponse
-from ..enums import Services
-from .base import BaleMethod
+from ...types import Peer
+from ...types.responses import DefaultResponse
+from ...enums import Services
+from ..base import BaleMethod
 
 
-class EditName(BaleMethod):
-    __service__ = Services.USER.value
-    __method__ = "EditName"
+class MessageRead(BaleMethod):
+    __service__ = Services.MESSAGING.value
+    __method__ = "MessageRead"
     
     __returning__ = DefaultResponse
     
-    name: str = Field(..., alias="1")
+    peer: Peer = Field(..., alias="1")
+    date: int = Field(default_factory=lambda: int(time.time() * 1000), alias="2")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -22,12 +23,12 @@ class EditName(BaleMethod):
         def __init__(
             __pydantic__self__,
             *,
-            name: str,
+            peer: Peer,
             **__pydantic_kwargs: Any
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins
             
             super().__init__(
-                name=name,
+                peer=peer,
                 **__pydantic_kwargs
             )

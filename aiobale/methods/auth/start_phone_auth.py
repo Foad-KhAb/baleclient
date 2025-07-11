@@ -1,9 +1,9 @@
 from pydantic import Field
 from typing import TYPE_CHECKING, Any, Optional
 
-from ..types.responses import PhoneAuthResponse
-from ..enums import Services, SendCodeType
-from .base import BaleMethod
+from ...types.responses import PhoneAuthResponse
+from ...enums import Services, SendCodeType
+from ..base import BaleMethod
 
 
 class StartPhoneAuth(BaleMethod):

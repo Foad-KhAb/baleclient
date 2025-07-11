@@ -1,19 +1,20 @@
+import time
 from pydantic import Field
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
-from ..types import Peer, MessageContent
-from ..types.responses import DefaultResponse
-from ..enums import Services
-from .base import BaleMethod
+from ...types import Peer
+from ...types.responses import DefaultResponse
+from ...enums import Services
+from ..base import BaleMethod
 
 
-class ClearChat(BaleMethod):
-    __service__ = Services.MESSAGING.value
-    __method__ = "ClearChat"
+class EditName(BaleMethod):
+    __service__ = Services.USER.value
+    __method__ = "EditName"
     
     __returning__ = DefaultResponse
     
-    peer: Peer = Field(..., alias="1")
+    name: str = Field(..., alias="1")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -21,12 +22,12 @@ class ClearChat(BaleMethod):
         def __init__(
             __pydantic__self__,
             *,
-            peer: Peer,
-            **__pydantic_kwargs
+            name: str,
+            **__pydantic_kwargs: Any
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins
             
             super().__init__(
-                peer=peer,
+                name=name,
                 **__pydantic_kwargs
             )

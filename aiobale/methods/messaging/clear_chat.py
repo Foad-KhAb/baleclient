@@ -1,21 +1,19 @@
-import time
 from pydantic import Field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
-from ..types import Peer
-from ..types.responses import DefaultResponse
-from ..enums import Services
-from .base import BaleMethod
+from ...types import Peer, MessageContent
+from ...types.responses import DefaultResponse
+from ...enums import Services
+from ..base import BaleMethod
 
 
-class MessageRead(BaleMethod):
+class ClearChat(BaleMethod):
     __service__ = Services.MESSAGING.value
-    __method__ = "MessageRead"
+    __method__ = "ClearChat"
     
     __returning__ = DefaultResponse
     
     peer: Peer = Field(..., alias="1")
-    date: int = Field(default_factory=lambda: int(time.time() * 1000), alias="2")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -24,7 +22,7 @@ class MessageRead(BaleMethod):
             __pydantic__self__,
             *,
             peer: Peer,
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins
             

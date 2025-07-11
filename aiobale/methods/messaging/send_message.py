@@ -1,10 +1,10 @@
 from pydantic import Field
 from typing import TYPE_CHECKING, Any, Optional
 
-from ..types import Chat, Peer, MessageContent, InfoMessage
-from ..types.responses import MessageResponse
-from ..enums import Services
-from .base import BaleMethod
+from ...types import Chat, Peer, MessageContent, InfoMessage
+from ...types.responses import MessageResponse
+from ...enums import Services
+from ..base import BaleMethod
 
 
 class SendMessage(BaleMethod):

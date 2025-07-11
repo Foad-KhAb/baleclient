@@ -1,11 +1,11 @@
 from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from ..types import Peer, IntValue, BytesValue, InfoMessage
-from ..utils import Int64VarintCodec
-from ..types.responses import DefaultResponse
-from ..enums import Services
-from .base import BaleMethod
+from ...types import Peer, IntValue, BytesValue, InfoMessage
+from ...utils import Int64VarintCodec
+from ...types.responses import DefaultResponse
+from ...enums import Services
+from ..base import BaleMethod
 
 
 class ForwardMessages(BaleMethod):
