@@ -20,7 +20,7 @@ class DocumentMessage(BaleObject):
     file_id: int = Field(..., alias="1")
     access_hash: int = Field(..., alias="2")
     file_size: int = Field(..., alias="3")
-    name: str = Field(..., alias="4")
+    name: dict = Field(..., alias="4")
     mime_type: str = Field(..., alias="5")
     ext: dict = Field(..., alias="7")
     caption: MessageCaption = Field(..., alias="8")
