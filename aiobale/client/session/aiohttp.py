@@ -119,8 +119,8 @@ class AiohttpSession(BaseSession):
             self._pending_requests.pop(request_id, None)
             raise 
         
-    async def login_request(self):
-        payload = self.get_login_payload()
+    async def handshake_request(self):
+        payload = self.get_handshake_payload()
         await self.ws.send_bytes(payload)
         
     async def post(self, method: BaleMethod[BaleType]) -> Union[bytes, BaleType]:

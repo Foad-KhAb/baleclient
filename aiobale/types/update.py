@@ -7,6 +7,7 @@ from .message import Message
 
 
 class Update(BaleObject):
+    message_deleted: Optional[Any] = Field(None, alias="46")
     message: Optional[Message] = Field(None, alias="55")
     
     @cached_property

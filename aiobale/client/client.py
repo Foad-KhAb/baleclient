@@ -131,7 +131,7 @@ class Client:
                 await auth_cli.start()
             
         await self.session.connect(self.__token)
-        await self.session.login_request()
+        await self.session.handshake_request()
 
         if run_in_background:
             asyncio.create_task(self.session._listen())

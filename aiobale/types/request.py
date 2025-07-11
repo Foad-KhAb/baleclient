@@ -20,4 +20,5 @@ class RequestBody(BaleObject):
 
 class Request(BaleObject):
     body: Optional[RequestBody] = Field(None, alias="1")
-    auth: Optional[AuthBody] = Field(None, alias="3")
+    ping: Optional[Any] = Field(None, alias="2")
+    handshake: Optional[AuthBody] = Field(None, alias="3")

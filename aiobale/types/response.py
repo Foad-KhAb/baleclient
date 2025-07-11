@@ -23,4 +23,6 @@ class UpdateField(BaleObject):
 class Response(BaleObject):
     response: Optional[ResponsetBody] = Field(None, alias="1")
     update: Optional[UpdateField] = Field(None, alias="2")
-    auth: Optional[Any] = Field(None, alias="5")
+    terminate_session: Optional[Any] = Field(None, alias="3")
+    pong: Optional[Any] = Field(None, alias="4")
+    hsndshake: Optional[Any] = Field(None, alias="5")

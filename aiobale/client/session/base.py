@@ -71,9 +71,9 @@ class BaseSession(abc.ABC):
         model_type = method.__returning__
         return model_type.model_validate(result, context={"client": self.client})
     
-    def get_login_payload(self) -> bytes:
+    def get_handshake_payload(self) -> bytes:
         request = Request(
-            auth=AuthBody(
+            handshake=AuthBody(
                 authorized=1,
                 ready=1
             )
@@ -134,7 +134,7 @@ class BaseSession(abc.ABC):
         pass
     
     @abc.abstractmethod
-    async def login_request(self) -> None:
+    async def handshake_request(self) -> None:
         pass
         
     @abc.abstractmethod
