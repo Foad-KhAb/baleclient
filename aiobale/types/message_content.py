@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import Field
-from typing import Optional
+from typing import Optional, Union
 
 from .base import BaleObject
 
@@ -19,10 +19,10 @@ class MessageCaption(BaleObject):
 class DocumentMessage(BaleObject):
     file_id: int = Field(..., alias="1")
     access_hash: int = Field(..., alias="2")
-    file_size: int = Field(..., alias="3")
-    name: dict = Field(..., alias="4")
+    file_size: Optional[int] = Field(None, alias="3")
+    name: Union[dict, str] = Field(..., alias="4")
     mime_type: str = Field(..., alias="5")
-    ext: dict = Field(..., alias="7")
+    ext: Optional[dict] = Field(None, alias="7")
     caption: MessageCaption = Field(..., alias="8")
 
 
