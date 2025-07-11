@@ -44,5 +44,6 @@ class MessageResponse(DefaultResponse):
             message_id=method.message_id,
             content=method.content,
             previous_message=prev_message
-        )
+        ).as_(client)
+        
         return data
