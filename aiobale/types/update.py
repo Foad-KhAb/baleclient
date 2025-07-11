@@ -29,5 +29,5 @@ class Update(BaleObject):
 
 class UpdateBody(BaleObject):
     body: Optional[Update] = Field(None, alias="1")
-    update_id: Optional[int] = Field(..., alias="3")
+    update_id: Optional[int] = Field(None, alias="3")
     date: int = Field(..., alias="4")

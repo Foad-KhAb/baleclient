@@ -113,6 +113,9 @@ class BaseSession(abc.ABC):
         return MetaList(meta_list=ext)
     
     async def _handle_update(self, update: UpdateBody) -> None:
+        if update.body is None:
+            return
+        
         event_info = update.body.current_event
         if not event_info:
             return
