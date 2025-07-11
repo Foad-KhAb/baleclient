@@ -7,9 +7,11 @@ from .message import Message
 from .selected_messages import SelectedMessages
 from .chat_data import ChatData
 from .username_changed import UsernameChanged
+from .info_message import InfoMessage
 
 
 class Update(BaleObject):
+    message_sent: Optional[InfoMessage] = Field(None, alias="4")
     message_deleted: Optional[SelectedMessages] = Field(None, alias="46")
     chat_cleared: Optional[ChatData] = Field(None, alias="47")
     chat_deleted: Optional[ChatData] = Field(None, alias="48")
