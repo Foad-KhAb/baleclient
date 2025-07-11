@@ -209,7 +209,7 @@ class Client:
         text: str,
         chat_id: int,
         chat_type: ChatType,
-        reply_to: Optional[Union[Message, InfoMessage]],
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
         message_id: Optional[int] = None
     ) -> MessageResponse:
         
