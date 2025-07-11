@@ -14,9 +14,10 @@ class Router:
         self._register_default_event_types()
         
         self.message = self._observer.get_decorator("message")
+        self.message_deleted = self._observer.get_decorator("message_deleted")
 
     def _register_default_event_types(self) -> None:
-        for event_type in ("message", "callback_query", "edited_message"):
+        for event_type in ("message", "message_deleted"):
             self._observer.register(event_type, self._make_event_decorator(event_type))
 
     def _make_event_decorator(self, event_type: str) -> Callable[..., Callable[..., Coroutine[Any, Any, Any]]]:

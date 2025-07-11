@@ -4,10 +4,11 @@ from typing import Any, Optional, Tuple
 
 from .base import BaleObject
 from .message import Message
+from .selected_messages import SelectedMessages
 
 
 class Update(BaleObject):
-    message_deleted: Optional[Any] = Field(None, alias="46")
+    message_deleted: Optional[SelectedMessages] = Field(None, alias="46")
     message: Optional[Message] = Field(None, alias="55")
     
     @cached_property
