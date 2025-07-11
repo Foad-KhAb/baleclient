@@ -15,6 +15,7 @@ from .values import StringValue, IntValue, BytesValue
 from .info_message import InfoMessage
 from .quoted_message import QuotedMessage
 from .message_data import MessageData
+from .selected_messages import SelectedMessages
 
 
 __all__ = (
@@ -42,4 +43,5 @@ __all__ = (
     "InfoMessage",
     "QuotedMessage",
     "MessageData",
+    "SelectedMessages",
 )
