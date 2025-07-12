@@ -15,8 +15,8 @@ class UnPinMessages(BaleMethod):
     __returning__ = DefaultResponse
     
     peer: Peer = Field(..., alias="1")
-    messages: List[OtherMessage] = Field(None, alias="2")
-    all_messages: Optional[IntBool] = Field(None, alias="3")
+    messages: List[OtherMessage] = Field(..., alias="2")
+    all_messages: IntBool = Field(False, alias="3")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -26,7 +26,7 @@ class UnPinMessages(BaleMethod):
             *,
             peer: Peer,
             messages: List[OtherMessage],
-            all_messages: Optional[IntBool] = None,
+            all_messages: IntBool = False,
             **__pydantic_kwargs: Any
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins
