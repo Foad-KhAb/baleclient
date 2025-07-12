@@ -500,6 +500,7 @@ class Client:
         
         call = UnPinMessages(
             peer=peer,
+            messages=[],
             all_messages=True
         )
         
