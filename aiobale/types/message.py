@@ -167,3 +167,17 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             just_me=just_me
         )
+        
+    async def unpin(self) -> DefaultResponse:
+        return await self.client.unpin_message(
+            message_id=self.message_id,
+            message_date=self.date,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
+        )
+        
+    async def unpin_all(self) -> DefaultResponse:
+        return await self.client.unpin_all(
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
+        )
