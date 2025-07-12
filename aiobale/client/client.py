@@ -459,7 +459,7 @@ class Client:
         call = PinMessage(
             peer=peer,
             message=OtherMessage(
-                id=message_id,
+                message_id=message_id,
                 date=message_date
             ),
             just_me=just_me
