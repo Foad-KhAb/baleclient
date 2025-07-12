@@ -84,14 +84,14 @@ class BaseSession(abc.ABC):
     
     def _get_meta(self) -> dict:
         return {
-            'app_version': "105249",
+            'app_version': "113466",
             'browser_type': "1",
-            'browser_version': "135.0.0.0",
+            'browser_version': "138.0.0.0",
             'os_type': "3",
             'session_id': str(self.session_id),
-            'mt_app_version': "105249",
+            'mt_app_version': "113466",
             'mt_browser_type': "1",
-            'mt_browser_version': "135.0.0.0",
+            'mt_browser_version': "138.0.0.0",
             'mt_os_type': "3",
             'mt_session_id': str(self.session_id)
         }
