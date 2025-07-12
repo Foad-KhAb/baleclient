@@ -23,7 +23,8 @@ from ..methods import (
     UpdateMessage,
     ClearChat,
     DeleteChat,
-    LoadHistory
+    LoadHistory,
+    SetOnline
 )
 from ..types import (
     MessageContent,
@@ -470,5 +471,17 @@ class Client:
             nick_name=StringValue(
                 value=username
             )
+        )
+        return await self(call)
+    
+    async def set_online(
+        self,
+        is_online: bool,
+        timeout: int
+    ) -> DefaultResponse:
+        
+        call = SetOnline(
+            is_online=is_online,
+            timeout=timeout
         )
         return await self(call)
