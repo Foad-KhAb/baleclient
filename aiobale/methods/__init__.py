@@ -17,6 +17,7 @@ from .user import (
     CheckNickName,
     EditNickName
 )
+from .presence import SetOnline
 from .base import BaleMethod, BaleType
 
 
@@ -35,5 +36,6 @@ __all__ = (
     "UpdateMessage",
     "ClearChat",
     "DeleteChat",
-    "LoadHistory"
+    "LoadHistory",
+    "SetOnline"
 )
