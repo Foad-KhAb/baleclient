@@ -183,3 +183,9 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type
         )
+        
+    async def load_pinned_messages(self) -> HistoryResponse:
+        return await self.client.load_pinned_messages(
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
+        )

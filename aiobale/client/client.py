@@ -516,7 +516,7 @@ class Client:
         self,
         chat_id: int,
         chat_type: ChatType
-    ) -> DefaultResponse:
+    ) -> HistoryResponse:
         
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)

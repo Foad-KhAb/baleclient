@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
 from ...types import Peer
-from ...types.responses import DefaultResponse
+from ...types.responses import HistoryResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class LoadPinnedMessages(BaleMethod):
     __service__ = Services.MESSAGING.value
     __method__ = "LoadPinnedMessages"
     
-    __returning__ = DefaultResponse
+    __returning__ = HistoryResponse
     
     peer: Peer = Field(..., alias="1")
     
