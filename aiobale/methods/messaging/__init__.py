@@ -6,6 +6,7 @@ from .send_message import SendMessage
 from .update_message import UpdateMessage
 from .delete_chat import DeleteChat
 from .load_history import LoadHistory
+from .pin_message import PinMessage
 
 
 __all__ = (
@@ -17,4 +18,5 @@ __all__ = (
     "UpdateMessage",
     "DeleteChat",
     "LoadHistory",
+    "PinMessage",
 )

@@ -24,7 +24,8 @@ from ..methods import (
     ClearChat,
     DeleteChat,
     LoadHistory,
-    SetOnline
+    SetOnline,
+    PinMessage
 )
 from ..types import (
     MessageContent,
@@ -36,7 +37,8 @@ from ..types import (
     IntValue,
     Message,
     InfoMessage,
-    StringValue
+    StringValue,
+    OtherMessage
 )
 from ..types.responses import (
     MessageResponse, 
@@ -441,6 +443,29 @@ class Client:
         result.add_chat(chat)
         
         return result
+    
+    async def pin_message(
+        self,
+        message_id: int,
+        message_date: int,
+        chat_id: int,
+        chat_type: ChatType,
+        just_me: bool = False
+    ) -> DefaultResponse:
+        
+        chat = Chat(id=chat_id, type=chat_type)
+        peer = self._resolve_peer(chat)
+        
+        call = PinMessage(
+            peer=peer,
+            message=OtherMessage(
+                id=message_id,
+                date=message_date
+            ),
+            just_me=just_me
+        )
+        
+        return await self(call)
     
     async def edit_name(
         self,
