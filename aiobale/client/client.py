@@ -26,7 +26,8 @@ from ..methods import (
     LoadHistory,
     SetOnline,
     PinMessage,
-    UnPinMessages
+    UnPinMessages,
+    LoadPinnedMessages
 )
 from ..types import (
     MessageContent,
@@ -507,6 +508,21 @@ class Client:
                 date=one_message_date
             )],
             all_messages=True
+        )
+        
+        return await self(call)
+    
+    async def load_pinned_messages(
+        self,
+        chat_id: int,
+        chat_type: ChatType
+    ) -> DefaultResponse:
+        
+        chat = Chat(id=chat_id, type=chat_type)
+        peer = self._resolve_peer(chat)
+        
+        call = LoadPinnedMessages(
+            peer=peer
         )
         
         return await self(call)

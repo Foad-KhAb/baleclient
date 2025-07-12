@@ -8,7 +8,8 @@ from .messaging import (
     DeleteChat,
     LoadHistory,
     PinMessage,
-    UnPinMessages
+    UnPinMessages,
+    LoadPinnedMessages
 )
 from .auth import (
     StartPhoneAuth,
@@ -42,4 +43,5 @@ __all__ = (
     "SetOnline",
     "PinMessage",
     "UnPinMessages",
+    "LoadPinnedMessages"
 )
