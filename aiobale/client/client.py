@@ -25,7 +25,8 @@ from ..methods import (
     DeleteChat,
     LoadHistory,
     SetOnline,
-    PinMessage
+    PinMessage,
+    UnPinMessages
 )
 from ..types import (
     MessageContent,
@@ -463,6 +464,43 @@ class Client:
                 date=message_date
             ),
             just_me=just_me
+        )
+        
+        return await self(call)
+    
+    async def unpin_message(
+        self,
+        message_id: int,
+        message_date: int,
+        chat_id: int,
+        chat_type: ChatType
+    ) -> DefaultResponse:
+        
+        chat = Chat(id=chat_id, type=chat_type)
+        peer = self._resolve_peer(chat)
+        
+        call = UnPinMessages(
+            peer=peer,
+            messages=[OtherMessage(
+                message_id=message_id,
+                date=message_date
+            )]
+        )
+        
+        return await self(call)
+    
+    async def unpin_all(
+        self,
+        chat_id: int,
+        chat_type: ChatType
+    ) -> DefaultResponse:
+        
+        chat = Chat(id=chat_id, type=chat_type)
+        peer = self._resolve_peer(chat)
+        
+        call = UnPinMessages(
+            peer=peer,
+            all_messages=True
         )
         
         return await self(call)
