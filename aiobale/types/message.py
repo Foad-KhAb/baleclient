@@ -154,3 +154,16 @@ class Message(BaleObject):
             offset_date=offset_date,
             load_mode=load_mode
         )
+        
+    async def pin(
+        self,
+        just_me: bool = False
+    ) -> DefaultResponse:
+        
+        return await self.client.pin_message(
+            message_id=self.message_id,
+            message_date=self.date,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            just_me=just_me
+        )
