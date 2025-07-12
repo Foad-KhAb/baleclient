@@ -491,6 +491,8 @@ class Client:
     
     async def unpin_all(
         self,
+        one_message_id: int,
+        one_message_date: int,
         chat_id: int,
         chat_type: ChatType
     ) -> DefaultResponse:
@@ -500,7 +502,10 @@ class Client:
         
         call = UnPinMessages(
             peer=peer,
-            messages=[],
+            messages=[OtherMessage(
+                message_id=one_message_id,
+                date=one_message_date
+            )],
             all_messages=True
         )
         
