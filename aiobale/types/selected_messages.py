@@ -12,6 +12,7 @@ class SelectedMessages(BaleObject):
     dates: List[int] = Field(..., alias="3")
     
     @model_validator(mode="before")
+    @classmethod
     def fix_fields(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         data["2"] = Int64VarintCodec().decode_list(data["2"])
         data["3"] = Int64VarintCodec().decode_list(data["3"]["1"])

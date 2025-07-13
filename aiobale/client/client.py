@@ -40,7 +40,9 @@ from ..types import (
     Message,
     InfoMessage,
     StringValue,
-    OtherMessage
+    OtherMessage,
+    MessageData,
+    QuotedMessage
 )
 from ..types.responses import (
     MessageResponse, 
@@ -445,7 +447,10 @@ class Client:
         result: HistoryResponse = await self(call)
         result.add_chat(chat)
         
-        return result
+        return self._resolve_list_messages(result.data)
+    
+    def _resolve_list_messages(data: List[Union[MessageData, QuotedMessage]]) -> List[Message]:
+        return [item.message for item in data]
     
     async def pin_message(
         self,
@@ -517,7 +522,7 @@ class Client:
         self,
         chat_id: int,
         chat_type: ChatType
-    ) -> HistoryResponse:
+    ) -> List[Message]:
         
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)
@@ -526,7 +531,8 @@ class Client:
             peer=peer
         )
         
-        return await self(call)
+        result: HistoryResponse = await self(call)
+        return self._resolve_list_messages(result.data)
     
     async def edit_name(
         self,
@@ -541,12 +547,14 @@ class Client:
     async def check_username(
         self,
         username: str
-    ) -> NickNameAvailable:
+    ) -> bool:
         
         call = CheckNickName(
             nick_name=username
         )
-        return await self(call)
+        
+        result: NickNameAvailable = await self(call)
+        return result.availbale
     
     async def edit_username(
         self,

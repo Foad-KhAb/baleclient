@@ -9,6 +9,7 @@ class UsernameChanged(BaleObject):
     username: str = Field(..., alias="2")
     
     @model_validator(mode="before")
+    @classmethod
     def fix_fields(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         data["2"] = data["2"]["1"]
         

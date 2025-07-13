@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic import Field, model_validator
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from .chat import Chat
 from .base import BaleObject
@@ -11,7 +11,7 @@ from .message_content import MessageContent
 from .other_message import OtherMessage
 
 if TYPE_CHECKING:
-    from .responses import DefaultResponse, MessageResponse, HistoryResponse
+    from .responses import DefaultResponse
 
 
 class Message(BaleObject):
@@ -20,9 +20,11 @@ class Message(BaleObject):
     date: int = Field(..., alias="3")
     message_id: int = Field(..., alias="4")
     content: MessageContent = Field(..., alias="5")
-    replied_to: Optional[QuotedMessage] = Field(None, alias="7")
+    quoted_replied_to: Optional[QuotedMessage] = Field(None, alias="7")
     previous_message: Optional[OtherMessage] = Field(None, alias="9")
-    next_message: Optional[OtherMessage] = Field(None, exclude=None)
+    
+    next_message: Optional[OtherMessage] = Field(None, exclude=True)
+    replied_to: Optional[Message] = Field(None, exclude=True)
     
     if TYPE_CHECKING:
         def __init__(
@@ -33,8 +35,10 @@ class Message(BaleObject):
             date: int,
             message_id: int,
             content: MessageContent,
-            replied_to: Optional[QuotedMessage] = None,
-            previous_message: Optional[OtherMessage] = None
+            replied_to: Optional[Message] = None,
+            previous_message: Optional[OtherMessage] = None,
+            next_message: Optional[OtherMessage] = None,
+            **__pydantic_kwargs
         ) -> None:
             super().__init__(
                 chat=chat,
@@ -43,13 +47,19 @@ class Message(BaleObject):
                 message_id=message_id,
                 content=content,
                 replied_to=replied_to,
-                previous_message=previous_message
+                previous_message=previous_message,
+                next_message=next_message,
+                **__pydantic_kwargs
             )
             
     @model_validator(mode="after")
     def attach_chat_to_reply(self) -> Message:
-        if self.replied_to and not self.replied_to.chat:
-            self.replied_to.chat = self.chat
+        if self.quoted_replied_to and not self.quoted_replied_to.chat:
+            self.quoted_replied_to.chat = self.chat
+            
+        if not self.replied_to:
+            self.replied_to = self.quoted_replied_to.message
+            
         return self
             
     @property
@@ -64,7 +74,7 @@ class Message(BaleObject):
         self,
         text: str,
         message_id: Optional[int] = None
-    ) -> MessageResponse:
+    ) -> Message:
         
         return await self.client.send_message(
             text=text,
@@ -77,7 +87,7 @@ class Message(BaleObject):
         self,
         text: str,
         message_id: Optional[int] = None
-    ) -> MessageResponse:
+    ) -> Message:
         
         return await self.client.send_message(
             text=text,
@@ -146,7 +156,7 @@ class Message(BaleObject):
         limit: int = 20,
         offset_date: int = -1,
         load_mode: ListLoadMode = ListLoadMode.BACKWARD
-    ) -> HistoryResponse:
+    ) -> List[Message]:
         
         return await self.client.load_history(
             chat_id=self.chat.id,
@@ -185,7 +195,7 @@ class Message(BaleObject):
             chat_type=self.chat.type
         )
         
-    async def load_pinned_messages(self) -> HistoryResponse:
+    async def load_pinned_messages(self) -> List[Message]:
         return await self.client.load_pinned_messages(
             chat_id=self.chat.id,
             chat_type=self.chat.type

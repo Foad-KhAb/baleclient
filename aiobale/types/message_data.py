@@ -38,5 +38,7 @@ class MessageData(BaleObject):
             sender_id=self.sender_id,
             date=self.date,
             content=self.content,
+            previous_message=self.previous_message,
+            replied_to=self.replied_to,
             
         ).as_(self.client)

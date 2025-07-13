@@ -9,17 +9,18 @@ from ..chat import Chat
 
 
 class HistoryResponse(BaleObject):
-    result: List[MessageData] = Field(..., alias="1")
+    data: List[MessageData] = Field(..., alias="1")
     
     @model_validator(mode="before")
-    def validate_list(cls, data: Dict[str, Any]):
+    @classmethod
+    def validate_list(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         if not isinstance(data["1"], list):
             data["1"] = list(data["1"])
         
         return data
     
     def add_chat(self, chat: Chat) -> None:
-        for message in self.result:
+        for message in self.data:
             message.chat = chat
             if message.replied_to is not None:
                 message.replied_to.chat = chat
