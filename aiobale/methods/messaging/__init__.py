@@ -9,6 +9,7 @@ from .load_history import LoadHistory
 from .pin_message import PinMessage
 from .unpin_messages import UnPinMessages
 from .load_pinned import LoadPinnedMessages
+from .load_dialogs import LoadDialogs
 
 
 __all__ = (
@@ -23,4 +24,5 @@ __all__ = (
     "PinMessage",
     "UnPinMessages",
     "LoadPinnedMessages",
+    "LoadDialogs"
 )

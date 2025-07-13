@@ -19,6 +19,7 @@ from .selected_messages import SelectedMessages
 from .chat_data import ChatData
 from .username_changed import UsernameChanged
 from .updated_message import UpdatedMessage
+from .peer_data import PeerData
 
 
 __all__ = (
@@ -49,5 +50,6 @@ __all__ = (
     "SelectedMessages",
     "ChatData",
     "UsernameChanged",
-    "UpdatedMessage"
+    "UpdatedMessage",
+    "PeerData"
 )

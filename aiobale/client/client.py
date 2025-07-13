@@ -27,7 +27,8 @@ from ..methods import (
     SetOnline,
     PinMessage,
     UnPinMessages,
-    LoadPinnedMessages
+    LoadPinnedMessages,
+    LoadDialogs
 )
 from ..types import (
     MessageContent,
@@ -42,7 +43,8 @@ from ..types import (
     StringValue,
     OtherMessage,
     MessageData,
-    QuotedMessage
+    QuotedMessage,
+    PeerData
 )
 from ..types.responses import (
     MessageResponse, 
@@ -50,7 +52,8 @@ from ..types.responses import (
     ValidateCodeResponse,
     DefaultResponse,
     NickNameAvailable,
-    HistoryResponse
+    HistoryResponse,
+    DialogResponse
 )
 from ..enums import ChatType, PeerType, SendCodeType, ListLoadMode
 from ..dispatcher.dispatcher import Dispatcher
@@ -536,6 +539,22 @@ class Client:
         result.add_chat(chat)
         
         return self._resolve_list_messages(result.data)
+    
+    async def load_dialogs(
+        self,
+        limit: int = 40,
+        offset_date: int = -1,
+        exclude_pinned: bool = False
+    ) -> List[PeerData]:
+        
+        call = LoadDialogs(
+            offset_date=offset_date,
+            limit=limit,
+            exclude_pinned=exclude_pinned
+        )
+        
+        result: DialogResponse = await self(call)
+        return result.dialogs
     
     async def edit_name(
         self,

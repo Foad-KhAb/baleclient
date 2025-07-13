@@ -9,7 +9,8 @@ from .messaging import (
     LoadHistory,
     PinMessage,
     UnPinMessages,
-    LoadPinnedMessages
+    LoadPinnedMessages,
+    LoadDialogs
 )
 from .auth import (
     StartPhoneAuth,
@@ -43,5 +44,6 @@ __all__ = (
     "SetOnline",
     "PinMessage",
     "UnPinMessages",
-    "LoadPinnedMessages"
+    "LoadPinnedMessages",
+    "LoadDialogs"
 )
