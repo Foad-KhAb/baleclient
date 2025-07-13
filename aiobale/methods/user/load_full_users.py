@@ -1,7 +1,7 @@
 from pydantic import Field
 from typing import TYPE_CHECKING, Any, List
 
-from ...types import Peer
+from ...types import InfoPeer
 from ...types.responses import DefaultResponse
 from ...enums import Services
 from ..base import BaleMethod
@@ -13,7 +13,7 @@ class LoadFullUsers(BaleMethod):
     
     __returning__ = DefaultResponse
     
-    peers: List[Peer] = Field(..., alias="1")
+    peers: List[InfoPeer] = Field(..., alias="1")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -21,7 +21,7 @@ class LoadFullUsers(BaleMethod):
         def __init__(
             __pydantic__self__,
             *,
-            peers: str,
+            peers: List[InfoPeer],
             **__pydantic_kwargs: Any
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins

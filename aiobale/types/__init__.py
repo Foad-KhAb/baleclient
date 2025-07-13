@@ -20,6 +20,7 @@ from .chat_data import ChatData
 from .username_changed import UsernameChanged
 from .updated_message import UpdatedMessage
 from .peer_data import PeerData
+from .info_peer import InfoPeer
 
 
 __all__ = (
@@ -51,5 +52,6 @@ __all__ = (
     "ChatData",
     "UsernameChanged",
     "UpdatedMessage",
-    "PeerData"
+    "PeerData",
+    "InfoPeer"
 )
