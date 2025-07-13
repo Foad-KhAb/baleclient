@@ -3,7 +3,21 @@ import base64
 
 
 class ProtoBuf:
+    def _try_dict_to_bytes(self, obj):
+        if isinstance(obj, dict):
+            try:
+                items = [(int(k), v) for k, v in obj.items()]
+            except ValueError:
+                return obj
+
+            if all(isinstance(v, int) and 0 <= v <= 255 for _, v in items):
+                items.sort()
+                return bytes(v for _, v in items)
+        return obj
+
     def _convert_bytes_to_string(self, obj):
+        obj = self._try_dict_to_bytes(obj)
+
         if isinstance(obj, dict):
             return {k: self._convert_bytes_to_string(v) for k, v in obj.items()}
         elif isinstance(obj, list):
