@@ -35,6 +35,7 @@ class Message(BaleObject):
             date: int,
             message_id: int,
             content: MessageContent,
+            quoted_replied_to: Optional[QuotedMessage] = None,
             replied_to: Optional[Message] = None,
             previous_message: Optional[OtherMessage] = None,
             next_message: Optional[OtherMessage] = None,
@@ -47,6 +48,7 @@ class Message(BaleObject):
                 message_id=message_id,
                 content=content,
                 replied_to=replied_to,
+                quoted_replied_to=quoted_replied_to,
                 previous_message=previous_message,
                 next_message=next_message,
                 **__pydantic_kwargs
