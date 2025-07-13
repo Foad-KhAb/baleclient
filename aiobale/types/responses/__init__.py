@@ -5,6 +5,7 @@ from .validate_code import ValidateCodeResponse
 from .nickname_available import NickNameAvailable
 from .history import HistoryResponse
 from .dialogs import DialogResponse
+from .full_users import FullUsersResponse
 
 
 __all__ = (
@@ -14,5 +15,6 @@ __all__ = (
     "ValidateCodeResponse",
     "NickNameAvailable",
     "HistoryResponse",
-    "DialogResponse"
+    "DialogResponse",
+    "FullUsersResponse",
 )

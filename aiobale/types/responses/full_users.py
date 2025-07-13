@@ -3,13 +3,12 @@ from __future__ import annotations
 from pydantic import Field, model_validator
 from typing import List, Dict, Any
 
-from ..message_data import MessageData
 from ..base import BaleObject
-from ..chat import Chat
+from ..full_user import FullUser
 
 
 class FullUsersResponse(BaleObject):
-    data: List[MessageData] = Field(..., alias="1")
+    data: List[FullUser] = Field(..., alias="1")
     
     @model_validator(mode="before")
     @classmethod

@@ -29,7 +29,8 @@ from ..methods import (
     UnPinMessages,
     LoadPinnedMessages,
     LoadDialogs,
-    EditAbout
+    EditAbout,
+    LoadFullUsers
 )
 from ..types import (
     MessageContent,
@@ -45,7 +46,9 @@ from ..types import (
     OtherMessage,
     MessageData,
     QuotedMessage,
-    PeerData
+    PeerData,
+    InfoPeer,
+    FullUser
 )
 from ..types.responses import (
     MessageResponse, 
@@ -54,7 +57,8 @@ from ..types.responses import (
     DefaultResponse,
     NickNameAvailable,
     HistoryResponse,
-    DialogResponse
+    DialogResponse,
+    FullUsersResponse
 )
 from ..enums import ChatType, PeerType, SendCodeType, ListLoadMode
 from ..dispatcher.dispatcher import Dispatcher
@@ -602,6 +606,38 @@ class Client:
             )
         )
         return await self(call)
+    
+    async def load_full_users(
+        self,
+        peers: List[Union[Peer, InfoPeer]]
+    ) -> List[FullUser]:
+        
+        peers = [
+            InfoPeer(id=peer.id, type=peer.type.value)
+            for peer in peers if isinstance(peer, Peer)
+        ]
+        
+        call = LoadFullUsers(
+            peers=peers
+        )
+        
+        result: FullUsersResponse = await self(call)
+        return result.data
+    
+    async def load_full_user(
+        self,
+        chat_id: int,
+        chat_type: ChatType
+    ) -> FullUser:
+        
+        peers = [InfoPeer(id=chat_id, type=chat_type)]
+        result = await self.load_full_users(peers=peers)
+        return result[0]
+    
+    async def get_full_me(self) -> FullUser:
+        peers = [InfoPeer(id=self.id, type=ChatType.PRIVATE)]
+        result = await self.load_full_users(peers=peers)
+        return result[0]
     
     async def set_online(
         self,

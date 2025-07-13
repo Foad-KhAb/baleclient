@@ -21,6 +21,7 @@ from .username_changed import UsernameChanged
 from .updated_message import UpdatedMessage
 from .peer_data import PeerData
 from .info_peer import InfoPeer
+from .full_user import FullUser
 
 
 __all__ = (
