@@ -7,7 +7,7 @@ from .client import ClientData
 from .request import Request, RequestBody, MetaList
 from .response import Response
 from .auth import AuthBody
-from .ext import ExtData, ExtValue
+from .ext import ExtData, ExtValue, ExtKeyValue
 from .int_bool import IntBool
 from .user import UserAuth
 from .update import Update, UpdateBody
@@ -54,5 +54,7 @@ __all__ = (
     "UsernameChanged",
     "UpdatedMessage",
     "PeerData",
-    "InfoPeer"
+    "InfoPeer",
+    "FullUser",
+    "ExtKeyValue"
 )

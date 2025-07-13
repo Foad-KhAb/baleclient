@@ -12,3 +12,8 @@ class ExtValue(BaleObject):
 class ExtData(BaleObject):
     name: str = Field(..., alias="1")
     value: ExtValue = Field(..., alias="2")
+    
+
+class ExtKeyValue(BaleObject):
+    key: str = Field(..., alias="1")
+    value: str = Field(..., alias="2")

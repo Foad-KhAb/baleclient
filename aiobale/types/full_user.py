@@ -4,6 +4,7 @@ from pydantic import Field, model_validator
 from ..enums import ChatType, PrivacyMode
 from .int_bool import IntBool
 from .base import BaleObject
+from .ext import ExtKeyValue
 
 
 class ExInfo(BaleObject):
@@ -16,7 +17,9 @@ class FullUser(BaleObject):
     about: Optional[str] = Field(None, alias="3")
     languages: Optional[List[str]] = Field(None, alias="4")
     timezone: Optional[str] = Field(None, alias="5")
-    is_blocked: IntBool = Field(False, alias="6")
+    bot_commands: Optional[List[ExtKeyValue]] = Field(None, alias="6")
+    
+    is_blocked: IntBool = Field(False, alias="8")
     ex_info: ExInfo = Field(..., alias="9")
     is_deleted: IntBool = Field(False, alias="12")
     is_contact: IntBool = Field(False, alias="13")
