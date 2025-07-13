@@ -29,8 +29,11 @@ class FullUser(BaleObject):
     def fix_fields(cls, data: Dict[str, Any]) -> Dict[str , Any]:
         for key in list(data.keys()):
             value = data[key]
+            
+            if key == "9":
+                continue
 
-            if isinstance(value, dict) and len(value) == 1 and "1" in value:
+            elif isinstance(value, dict) and len(value) == 1 and "1" in value:
                 data[key] = value["1"]
 
             elif not value:
@@ -38,5 +41,5 @@ class FullUser(BaleObject):
 
             elif key == "4" and not isinstance(data[key], list):
                 data[key] = [data[key]]
-
+                
         return data
