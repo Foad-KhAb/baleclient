@@ -1,5 +1,5 @@
-from typing import List, Optional
-from pydantic import Field
+from typing import Any, Dict, List, Optional
+from pydantic import Field, model_validator
 
 from ..enums import ChatType, PrivacyMode
 from .int_bool import IntBool
@@ -23,3 +23,16 @@ class FullUser(BaleObject):
     created_at: int = Field(..., alias="15")
     privacy_mode: PrivacyMode = Field(..., alias="16")
     allowed_invite: IntBool = Field(False, alias="17")
+    
+    @model_validator(mode="before")
+    @classmethod
+    def fix_fields(cls, data: Dict[str, Any]) -> Dict[str , Any]:
+        for key, value in data.items():
+            if isinstance(value, dict) \
+                and len(value) == 1 and "1" in value:
+                    data[key] = value["1"]
+                    
+            if key == "4" and not isinstance(value, List):
+                data[key] = [value]
+                
+        return data
