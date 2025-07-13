@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import model_validator
+from pydantic import ValidationInfo, model_validator
 from typing import Optional, Any, Dict, TYPE_CHECKING
 
 from .default import DefaultResponse
@@ -15,11 +15,14 @@ class MessageResponse(DefaultResponse):
 
     @model_validator(mode="before")
     @classmethod
-    def add_message(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+    def add_message(cls, data: Dict[str, Any], info: ValidationInfo) -> Dict[str, Any]:
         if "message" in data:
             return data
-        
-        client = cls.client
+
+        client = info.context.get("client")
+        if client is None:
+            raise ValueError("client not found in context")
+
         method: SendMessage = data.get("method_data")
         exts = [ExtData.model_validate(value) for value in data.get("4", [])]
 
@@ -44,5 +47,5 @@ class MessageResponse(DefaultResponse):
             content=method.content,
             previous_message=prev_message
         ).as_(client)
-        
+
         return data
