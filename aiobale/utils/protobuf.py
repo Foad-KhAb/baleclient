@@ -1,4 +1,3 @@
-import json
 from typing import Any, Dict, Optional
 from blackboxprotobuf import decode_message, encode_message
 import base64
