@@ -12,7 +12,9 @@ class ProtoBuf:
                 if "-" in key:
                     key = key.split("-")[0]
                     
-                if key == "15" and isinstance(value, dict) and "1" in value:
+                if (key == "15" and isinstance(value, dict) and "1" in value \
+                    and isinstance(value["1"], dict)
+                ):
                     try:
                         raw_bytes = self.encode(value)
                         fixed = self.decode(raw_bytes, {"1": {"type": "str"}})
