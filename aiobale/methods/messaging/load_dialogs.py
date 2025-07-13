@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
 from ...types import Peer
-from ...types.responses import HistoryResponse
+from ...types.responses import DialogResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class LoadDialogs(BaleMethod):
     __service__ = Services.MESSAGING.value
     __method__ = "LoadDialogs"
     
-    __returning__ = HistoryResponse
+    __returning__ = DialogResponse
     
     offset_date: int = Field(..., alias="1")
     limit: int = Field(..., alias="2")
