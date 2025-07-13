@@ -15,7 +15,7 @@ class LoadDialogs(BaleMethod):
     
     offset_date: int = Field(..., alias="1")
     limit: int = Field(..., alias="2")
-    exclute_pinned: bool = Field(..., alias="5")
+    exclude_pinned: bool = Field(..., alias="5")
     
     if TYPE_CHECKING:
         # Just For Type Helping
