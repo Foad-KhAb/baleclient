@@ -613,8 +613,8 @@ class Client:
     ) -> List[FullUser]:
         
         peers = [
-            InfoPeer(id=peer.id, type=peer.type.value)
-            for peer in peers if isinstance(peer, Peer)
+            InfoPeer(id=peer.id, type=peer.type.value) if isinstance(peer, Peer) else peer
+            for peer in peers
         ]
         
         call = LoadFullUsers(
