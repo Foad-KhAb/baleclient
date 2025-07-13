@@ -57,8 +57,8 @@ class Message(BaleObject):
         if self.quoted_replied_to and not self.quoted_replied_to.chat:
             self.quoted_replied_to.chat = self.chat
             
-        if not self.replied_to:
-            self.replied_to = self.quoted_replied_to.message
+            if not self.replied_to:
+                self.replied_to = self.quoted_replied_to.message
             
         return self
             
