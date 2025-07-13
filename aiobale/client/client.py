@@ -218,7 +218,7 @@ class Client:
         chat_type: ChatType,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
         message_id: Optional[int] = None
-    ) -> MessageResponse:
+    ) -> Message:
         
         chat = Chat(type=chat_type, id=chat_id)
         peer = self._resolve_peer(chat)
@@ -240,7 +240,8 @@ class Client:
             chat=chat
         )
         
-        return await self(call)
+        result: MessageResponse = await self(call)
+        return result.message
         
     def _resolve_peer_type(self, chat_type: ChatType) -> PeerType:
         if chat_type == ChatType.UNKNOWN:
@@ -429,7 +430,7 @@ class Client:
         limit: int = 20,
         offset_date: int = -1,
         load_mode: ListLoadMode = ListLoadMode.BACKWARD
-    ) -> HistoryResponse:
+    ) -> List[Message]:
         
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)

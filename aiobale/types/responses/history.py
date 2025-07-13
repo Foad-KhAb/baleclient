@@ -13,7 +13,7 @@ class HistoryResponse(BaleObject):
     
     @model_validator(mode="before")
     def validate_list(cls, data: Dict[str, Any]):
-        if not isinstance(data["1"], dict):
+        if not isinstance(data["1"], list):
             data["1"] = list(data["1"])
         
         return data

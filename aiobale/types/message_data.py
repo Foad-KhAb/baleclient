@@ -39,5 +39,4 @@ class MessageData(BaleObject):
             date=self.date,
             content=self.content,
             
-            
         ).as_(self.client)

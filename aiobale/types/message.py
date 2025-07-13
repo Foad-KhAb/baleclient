@@ -22,6 +22,7 @@ class Message(BaleObject):
     content: MessageContent = Field(..., alias="5")
     replied_to: Optional[QuotedMessage] = Field(None, alias="7")
     previous_message: Optional[OtherMessage] = Field(None, alias="9")
+    next_message: Optional[OtherMessage] = Field(None, exclude=None)
     
     if TYPE_CHECKING:
         def __init__(
