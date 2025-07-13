@@ -25,7 +25,7 @@ class MessageData(BaleObject):
     
     chat: Optional[Chat] = Field(None, exclude=True)
     
-    @property
+    
     def message(self) -> Message:
         from .message import Message
         
@@ -40,6 +40,6 @@ class MessageData(BaleObject):
             content=self.content,
             previous_message=self.previous_message,
             quoted_replied_to=self.replied_to,
-            replied_to=self.replied_to.message,
+            replied_to=self.replied_to.message if self.replied_to is not None else None,
             
         ).as_(self.client)
