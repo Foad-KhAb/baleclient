@@ -205,13 +205,13 @@ class Message(BaleObject):
         )
         
     async def load_full_chat(self) -> FullUser:
-        await self.client.load_full_user(
+        return await self.client.load_full_user(
             chat_id=self.chat.id,
             chat_type=self.chat.type
         )
         
     async def load_full_user(self) -> FullUser:
-        await self.client.load_full_user(
+        return await self.client.load_full_user(
             chat_id=self.sender_id,
             chat_type=ChatType.PRIVATE
         )
