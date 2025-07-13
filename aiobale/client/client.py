@@ -28,7 +28,8 @@ from ..methods import (
     PinMessage,
     UnPinMessages,
     LoadPinnedMessages,
-    LoadDialogs
+    LoadDialogs,
+    EditAbout
 )
 from ..types import (
     MessageContent,
@@ -586,6 +587,18 @@ class Client:
         call = EditNickName(
             nick_name=StringValue(
                 value=username
+            )
+        )
+        return await self(call)
+    
+    async def edit_about(
+        self,
+        about: str
+    ) -> DefaultResponse:
+        
+        call = EditAbout(
+            about=StringValue(
+                value=about
             )
         )
         return await self(call)

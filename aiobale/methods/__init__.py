@@ -19,7 +19,8 @@ from .auth import (
 from .user import (
     EditName,
     CheckNickName,
-    EditNickName
+    EditNickName,
+    EditAbout
 )
 from .presence import SetOnline
 from .base import BaleMethod, BaleType
@@ -45,5 +46,6 @@ __all__ = (
     "PinMessage",
     "UnPinMessages",
     "LoadPinnedMessages",
-    "LoadDialogs"
+    "LoadDialogs",
+    "EditAbout"
 )
