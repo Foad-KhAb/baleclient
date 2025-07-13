@@ -13,7 +13,6 @@ class FullUsersResponse(BaleObject):
     @model_validator(mode="before")
     @classmethod
     def validate_list(cls, data: Dict[str, Any]) -> Dict[str, Any]:
-        print(data)
         if "1" not in data:
             return data
         
