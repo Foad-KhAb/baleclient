@@ -1,7 +1,6 @@
 from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
-from ...types import Peer
 from ...types.responses import DialogResponse
 from ...enums import Services
 from ..base import BaleMethod
