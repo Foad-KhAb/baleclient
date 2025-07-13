@@ -533,6 +533,8 @@ class Client:
         )
         
         result: HistoryResponse = await self(call)
+        result.add_chat(chat)
+        
         return self._resolve_list_messages(result.data)
     
     async def edit_name(
