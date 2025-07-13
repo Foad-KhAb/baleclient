@@ -25,7 +25,7 @@ class MessageData(BaleObject):
     
     chat: Optional[Chat] = Field(None, exclude=True)
     
-    
+    @property
     def message(self) -> Message:
         from .message import Message
         
