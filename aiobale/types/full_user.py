@@ -32,6 +32,9 @@ class FullUser(BaleObject):
                 and len(value) == 1 and "1" in value:
                     data[key] = value["1"]
                     
+            elif not value:
+                data.pop(key)
+                    
             if key == "4" and not isinstance(value, List):
                 data[key] = [value]
                 
