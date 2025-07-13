@@ -1,23 +1,34 @@
+import json
+from typing import Any, Dict, Optional
 from blackboxprotobuf import decode_message, encode_message
 import base64
+import traceback
 
 
 class ProtoBuf:
-    def _try_dict_to_bytes(self, obj):
-        if isinstance(obj, dict):
-            try:
-                items = [(int(k), v) for k, v in obj.items()]
-            except ValueError:
-                return obj
+    def _fix_fields(self, data: bytes) -> Dict[str, Any]:
+        if isinstance(data, dict):
+            new_data = {}
+            for key, value in data.items():
+                if "-" in key:
+                    key = key.split("-")[0]
+                    
+                if key == "15" and isinstance(value, dict) and "1" in value:
+                    try:
+                        raw_bytes = self.encode(value)
+                        fixed = self.decode(raw_bytes, {"1": {"type": "str"}})
+                        new_data[key] = fixed
+                        continue
+                    except Exception as e:
+                        traceback.print_exception(e)
+                        pass
+                new_data[key] = self._fix_fields(value)
+            return new_data
+        elif isinstance(data, list):
+            return [self._fix_fields(item) for item in data]
+        return data
 
-            if all(isinstance(v, int) and 0 <= v <= 255 for _, v in items):
-                items.sort()
-                return bytes(v for _, v in items)
-        return obj
-
-    def _convert_bytes_to_string(self, obj):
-        obj = self._try_dict_to_bytes(obj)
-
+    def _convert_bytes_to_string(self, obj: bytes) -> Dict[str, Any]:
         if isinstance(obj, dict):
             return {k: self._convert_bytes_to_string(v) for k, v in obj.items()}
         elif isinstance(obj, list):
@@ -30,7 +41,7 @@ class ProtoBuf:
         else:
             return obj
 
-    def infer_typedef(self, message_dict):
+    def infer_typedef(self, message_dict) -> Dict[str, Any]:
         typedef = {}
         for field_num, value in message_dict.items():
             if isinstance(value, list):
@@ -63,14 +74,13 @@ class ProtoBuf:
 
         return typedef
     
-    def decode(self, value: str | bytes, b64: bool = False):
-        if b64:
-            value = base64.b64decode(value)
+    def decode(self, value: bytes, type_def: Optional[dict] = None) -> Dict[str, Any]:
+        decoded, _ = decode_message(value, type_def)
+        return self._convert_bytes_to_string(
+            self._fix_fields(decoded)
+        )
 
-        decoded, _ = decode_message(value)
-        return self._convert_bytes_to_string(decoded)
-
-    def encode(self, data: dict, force_raw: bool = True):
+    def encode(self, data: dict, force_raw: bool = True) -> bytes:
         typedef = self.infer_typedef(data)
         encoded = encode_message(data, typedef)
 

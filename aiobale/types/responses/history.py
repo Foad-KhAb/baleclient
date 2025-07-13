@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 
 from pydantic import Field, model_validator
 from typing import List, Dict, Any
@@ -15,7 +16,7 @@ class HistoryResponse(BaleObject):
     @classmethod
     def validate_list(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         if not isinstance(data["1"], list):
-            data["1"] = list(data["1"])
+            data["1"] = [data["1"]]
         
         return data
     
