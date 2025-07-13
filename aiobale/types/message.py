@@ -9,6 +9,7 @@ from ..enums import ChatType, ListLoadMode
 from .quoted_message import QuotedMessage
 from .message_content import MessageContent
 from .other_message import OtherMessage
+from .full_user import FullUser
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse
@@ -201,4 +202,16 @@ class Message(BaleObject):
         return await self.client.load_pinned_messages(
             chat_id=self.chat.id,
             chat_type=self.chat.type
+        )
+        
+    async def load_full_chat(self) -> FullUser:
+        await self.client.load_full_user(
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
+        )
+        
+    async def load_full_user(self) -> FullUser:
+        await self.client.load_full_user(
+            chat_id=self.sender_id,
+            chat_type=ChatType.PRIVATE
         )
