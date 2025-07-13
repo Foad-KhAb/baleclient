@@ -449,6 +449,7 @@ class Client:
         
         return self._resolve_list_messages(result.data)
     
+    @staticmethod
     def _resolve_list_messages(data: List[Union[MessageData, QuotedMessage]]) -> List[Message]:
         return [item.message for item in data]
     
