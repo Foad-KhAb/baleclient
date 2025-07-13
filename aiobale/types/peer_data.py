@@ -10,8 +10,8 @@ from .chat import Chat
 
 class PeerData(BaleObject):
     peer: Peer = Field(..., alias="1")
-    unread_count: int = Field(..., alias="2")
-    sort_date: int = Field(2, alias="3")
+    unread_count: int = Field(2, alias="2")
+    sort_date: int = Field(..., alias="3")
     sender_id: int = Field(..., alias="4")
     message_id: int = Field(..., alias="5")
     date: int = Field(..., alias="6")
