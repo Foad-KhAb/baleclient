@@ -65,7 +65,6 @@ class BaseSession(abc.ABC):
         return self.encoder(payload)
     
     def decode_result(self, result: Any, method: BaleMethod[BaleType]) -> Any:
-        result["client_cls"] = self.client
         result["method_data"] = method
         
         model_type = method.__returning__

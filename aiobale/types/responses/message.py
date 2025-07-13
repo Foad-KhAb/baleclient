@@ -8,7 +8,6 @@ from ...types import Message, OtherMessage, ExtData
 
 if TYPE_CHECKING:
     from ...methods import SendMessage
-    from ...client.client import Client
 
 
 class MessageResponse(DefaultResponse):
@@ -19,8 +18,8 @@ class MessageResponse(DefaultResponse):
     def add_message(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         if "message" in data:
             return data
-
-        client: Client = data.get("client_cls")
+        
+        client = cls.client
         method: SendMessage = data.get("method_data")
         exts = [ExtData.model_validate(value) for value in data.get("4", [])]
 
