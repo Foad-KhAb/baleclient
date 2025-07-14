@@ -11,6 +11,7 @@ from .load_blocked_users import LoadBlockedUsers
 from .search_contact import SearchContact
 from .import_contacts import ImportContacts
 from .reset_contacts import ResetContacts
+from .remove_contact import RemoveContact
 
 
 __all__ = (
@@ -26,5 +27,6 @@ __all__ = (
     "LoadBlockedUsers",
     "SearchContact",
     "ImportContacts",
-    "ResetContacts"
+    "ResetContacts",
+    "RemoveContact"
 )

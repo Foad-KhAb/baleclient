@@ -38,7 +38,8 @@ from ..methods import (
     LoadBlockedUsers,
     SearchContact,
     ImportContacts,
-    ResetContacts
+    ResetContacts,
+    RemoveContact
 )
 from ..types import (
     MessageContent,
@@ -600,6 +601,12 @@ class Client:
     
     async def reset_contacts(self) -> DefaultResponse:
         call = ResetContacts()
+        return await self(call)
+    
+    async def remove_contact(self, user_id: int) -> DefaultResponse:
+        call = RemoveContact(
+            user_id=user_id
+        )
         return await self(call)
 
     async def set_online(self, is_online: bool, timeout: int) -> DefaultResponse:
