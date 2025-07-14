@@ -30,7 +30,8 @@ from .user import (
     SearchContact,
     ImportContacts,
     ResetContacts,
-    RemoveContact
+    RemoveContact,
+    AddContact
 )
 from .presence import SetOnline
 from .base import BaleMethod, BaleType
@@ -67,5 +68,6 @@ __all__ = (
     "SearchContact",
     "ImportContacts",
     "ResetContacts",
-    "RemoveContact"
+    "RemoveContact",
+    "AddContact"
 )

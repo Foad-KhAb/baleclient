@@ -39,7 +39,8 @@ from ..methods import (
     SearchContact,
     ImportContacts,
     ResetContacts,
-    RemoveContact
+    RemoveContact,
+    AddContact
 )
 from ..types import (
     MessageContent,
@@ -605,6 +606,12 @@ class Client:
     
     async def remove_contact(self, user_id: int) -> DefaultResponse:
         call = RemoveContact(
+            user_id=user_id
+        )
+        return await self(call)
+    
+    async def add_contact(self, user_id: int) -> DefaultResponse:
+        call = AddContact(
             user_id=user_id
         )
         return await self(call)

@@ -12,6 +12,7 @@ from .search_contact import SearchContact
 from .import_contacts import ImportContacts
 from .reset_contacts import ResetContacts
 from .remove_contact import RemoveContact
+from .add_contact import AddContact
 
 
 __all__ = (
@@ -28,5 +29,6 @@ __all__ = (
     "SearchContact",
     "ImportContacts",
     "ResetContacts",
-    "RemoveContact"
+    "RemoveContact",
+    "AddContact"
 )

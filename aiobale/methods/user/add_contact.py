@@ -1,14 +1,14 @@
 from pydantic import Field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, List
 
 from ...types.responses import DefaultResponse
 from ...enums import Services
 from ..base import BaleMethod
 
 
-class RemoveContact(BaleMethod):
+class AddContact(BaleMethod):
     __service__ = Services.USER.value
-    __method__ = "RemoveContact"
+    __method__ = "AddContact"
     
     __returning__ = DefaultResponse
     
