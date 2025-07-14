@@ -10,6 +10,7 @@ from .info_changed import UsernameChanged, AboutChanged
 from .info_message import InfoMessage
 from .updated_message import UpdatedMessage
 from .block_updates import UserBlocked, UserUnblocked
+from .message_updates import GroupPinRemoved, GroupMessagePinned
 
 
 class Update(BaleObject):
@@ -21,8 +22,10 @@ class Update(BaleObject):
     message_edited: Optional[UpdatedMessage] = Field(None, alias="162")
     username_changed: Optional[UsernameChanged] = Field(None, alias="209")
     about_changed: Optional[AboutChanged] = Field(None, alias="210")
+    group_message_pinned: Optional[GroupMessagePinned] = Field(None, alias="721")
+    group_pin_removed: Optional[GroupPinRemoved] = Field(None, alias="722")
     user_blocked: Optional[UserBlocked] = Field(None, alias="2629")
-    user_unblocked: Optional[UserBlocked] = Field(None, alias="2630")
+    user_unblocked: Optional[UserUnblocked] = Field(None, alias="2630")
     
     @cached_property
     def current_event(self) -> Optional[Tuple[str, Any]]:

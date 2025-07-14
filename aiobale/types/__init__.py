@@ -24,6 +24,7 @@ from .info_peer import InfoPeer
 from .full_user import FullUser
 from .contact_request import ContactData
 from .block_updates import UserBlocked, UserUnblocked
+from .message_updates import GroupMessagePinned, GroupPinRemoved
 
 
 __all__ = (
@@ -63,5 +64,7 @@ __all__ = (
     "User",
     "ContactData",
     "UserBlocked",
-    "UserUnblocked"
+    "UserUnblocked",
+    "GroupMessagePinned",
+    "GroupPinRemoved"
 )

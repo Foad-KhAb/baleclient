@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pydantic import Field
-from typing import TYPE_CHECKING, Optional
+from pydantic import Field, model_validator
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from ..exceptions import AiobaleError
 from .other_message import OtherMessage
@@ -22,8 +22,18 @@ class MessageData(BaleObject):
     replied_to: Optional[QuotedMessage] = Field(None, alias="8")
     previous_message: Optional[OtherMessage] = Field(None, alias="10")
     next_message: Optional[OtherMessage] = Field(None, alias="11")
+    edited_at: Optional[int] = Field(None, alias="12")
     
     chat: Optional[Chat] = Field(None, exclude=True)
+    
+    @model_validator(mode="before")
+    @classmethod
+    def add_message(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        if "12" not in data:
+            return data
+        
+        data["12"] = data["12"]["1"]
+        return data
     
     @property
     def message(self) -> Message:
