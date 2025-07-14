@@ -234,3 +234,13 @@ class Message(BaleObject):
             name=name,
             user_id=self.sender_id
         )
+        
+    async def block(self) -> DefaultResponse:
+        return await self.client.block_user(
+            user_id=self.sender_id
+        )
+        
+    async def unblock(self) -> DefaultResponse:
+        return await self.client.unblock_user(
+            user_id=self.sender_id
+        )
