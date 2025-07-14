@@ -19,7 +19,7 @@ class Router:
         self.chat_cleared = self._observer.get_decorator("chat_cleared")
         self.username_changed = self._observer.get_decorator("username_changed")
         self.message_sent = self._observer.get_decorator("message_sent")
-        self.message_updated = self._observer.get_decorator("message_updated")
+        self.message_edited = self._observer.get_decorator("message_edited")
 
     def _register_default_event_types(self) -> None:
         for event_type in (
@@ -29,7 +29,7 @@ class Router:
             "chat_deleted",
             "username_changed",
             "message_sent",
-            "message_updated"
+            "message_edited"
         ):
             self._observer.register(event_type, self._make_event_decorator(event_type))
 
