@@ -35,6 +35,7 @@ from ..methods import (
     EditUserLocalName,
     BlockUser,
     UnblockUser,
+    LoadBlockedUsers
 )
 from ..types import (
     MessageContent,
@@ -53,7 +54,7 @@ from ..types import (
     PeerData,
     InfoPeer,
     FullUser,
-    User,
+    User
 )
 from ..types.responses import (
     MessageResponse,
@@ -65,6 +66,7 @@ from ..types.responses import (
     DialogResponse,
     FullUsersResponse,
     UsersResponse,
+    BlockedUsersResponse
 )
 from ..enums import ChatType, PeerType, SendCodeType, ListLoadMode
 from ..dispatcher.dispatcher import Dispatcher
@@ -568,6 +570,11 @@ class Client:
         call = UnblockUser(peer=info_peer)
 
         return await self(call)
+
+    async def load_blocked_users(self) -> List[InfoPeer]:
+        call = LoadBlockedUsers()
+        result: BlockedUsersResponse = await self(call)
+        return result.users
 
     async def set_online(self, is_online: bool, timeout: int) -> DefaultResponse:
         call = SetOnline(is_online=is_online, timeout=timeout)
