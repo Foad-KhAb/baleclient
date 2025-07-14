@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pydantic import Field, field_serializer
-from typing import TYPE_CHECKING, Optional
+from pydantic import Field
+from typing import TYPE_CHECKING
 
 from .base import BaleObject
 from .message_content import MessageContent
@@ -34,7 +34,7 @@ class UpdatedMessage(BaleObject):
             content=self.content,
                  
         ).as_(self.client)
-        
-    @field_serializer
-    def return_message(self) -> Message:
+    
+    @property
+    def fixed(self) -> Message:
         return self.message
