@@ -6,6 +6,7 @@ from .nickname_available import NickNameAvailable
 from .history import HistoryResponse
 from .dialogs import DialogResponse
 from .load_users import FullUsersResponse, UsersResponse
+from .blocked_users import BlockedUsersResponse
 
 
 __all__ = (
@@ -18,4 +19,5 @@ __all__ = (
     "DialogResponse",
     "FullUsersResponse",
     "UsersResponse",
+    "BlockedUsersResponse"
 )
