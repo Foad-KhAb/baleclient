@@ -12,7 +12,7 @@ class SearchContact(BaleMethod):
     
     __returning__ = ContactResponse
     
-    requst: str = Field(..., alias="1")
+    request: str = Field(..., alias="1")
     
     if TYPE_CHECKING:
         # Just For Type Helping
