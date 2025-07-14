@@ -28,7 +28,8 @@ from .user import (
     UnblockUser,
     LoadBlockedUsers,
     SearchContact,
-    ImportContacts
+    ImportContacts,
+    ResetContacts
 )
 from .presence import SetOnline
 from .base import BaleMethod, BaleType
@@ -63,5 +64,6 @@ __all__ = (
     "UnblockUser",
     "LoadBlockedUsers",
     "SearchContact",
-    "ImportContacts"
+    "ImportContacts",
+    "ResetContacts"
 )

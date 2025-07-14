@@ -10,6 +10,7 @@ from .unblock_user import UnblockUser
 from .load_blocked_users import LoadBlockedUsers
 from .search_contact import SearchContact
 from .import_contacts import ImportContacts
+from .reset_contacts import ResetContacts
 
 
 __all__ = (
@@ -24,5 +25,6 @@ __all__ = (
     "UnblockUser",
     "LoadBlockedUsers",
     "SearchContact",
-    "ImportContacts"
+    "ImportContacts",
+    "ResetContacts"
 )

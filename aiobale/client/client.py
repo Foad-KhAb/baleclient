@@ -38,6 +38,7 @@ from ..methods import (
     LoadBlockedUsers,
     SearchContact,
     ImportContacts,
+    ResetContacts
 )
 from ..types import (
     MessageContent,
@@ -595,6 +596,10 @@ class Client:
         ]
         
         call = ImportContacts(phones=contacts)
+        return await self(call)
+    
+    async def reset_contacts(self) -> DefaultResponse:
+        call = ResetContacts()
         return await self(call)
 
     async def set_online(self, is_online: bool, timeout: int) -> DefaultResponse:
