@@ -8,6 +8,7 @@ from .dialogs import DialogResponse
 from .load_users import FullUsersResponse, UsersResponse
 from .blocked_users import BlockedUsersResponse
 from .search_contact import ContactResponse
+from .contacts import ContactsResponse
 
 
 __all__ = (
@@ -21,5 +22,6 @@ __all__ = (
     "FullUsersResponse",
     "UsersResponse",
     "BlockedUsersResponse",
-    "ContactResponse"
+    "ContactResponse",
+    "ContactsResponse"
 )

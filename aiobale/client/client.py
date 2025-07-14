@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import List, Optional, Any, Type, Final, Union
+from typing import Dict, List, Optional, Any, Tuple, Type, Final, Union
 from types import TracebackType
 import os
 
@@ -36,7 +36,8 @@ from ..methods import (
     BlockUser,
     UnblockUser,
     LoadBlockedUsers,
-    SearchContact
+    SearchContact,
+    ImportContacts,
 )
 from ..types import (
     MessageContent,
@@ -55,7 +56,8 @@ from ..types import (
     PeerData,
     InfoPeer,
     FullUser,
-    User
+    User,
+    ContactData,
 )
 from ..types.responses import (
     MessageResponse,
@@ -68,7 +70,8 @@ from ..types.responses import (
     FullUsersResponse,
     UsersResponse,
     BlockedUsersResponse,
-    ContactResponse
+    ContactResponse,
+    ContactsResponse,
 )
 from ..enums import ChatType, PeerType, SendCodeType, ListLoadMode
 from ..dispatcher.dispatcher import Dispatcher
@@ -577,14 +580,22 @@ class Client:
         call = LoadBlockedUsers()
         result: BlockedUsersResponse = await self(call)
         return result.users
-    
+
     async def search_contact(self, phone_number: str) -> Optional[InfoPeer]:
         phone_number = phone_number.replace("+", "")
-        call = SearchContact(
-            request=phone_number
-        )
+        call = SearchContact(request=phone_number)
+        
         result: ContactResponse = await self(call)
         return result.data
+
+    async def import_contacts(self, contacts: List[Tuple[int, str]]) -> List[InfoPeer]:
+        contacts = [
+            ContactData(phone_number=contact[0], name=contact[1])
+            for contact in contacts
+        ]
+        
+        call = ImportContacts(phones=contacts)
+        return await self(call)
 
     async def set_online(self, is_online: bool, timeout: int) -> DefaultResponse:
         call = SetOnline(is_online=is_online, timeout=timeout)

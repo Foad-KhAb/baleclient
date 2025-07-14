@@ -22,6 +22,7 @@ from .updated_message import UpdatedMessage
 from .peer_data import PeerData
 from .info_peer import InfoPeer
 from .full_user import FullUser
+from .contact_request import ContactData
 
 
 __all__ = (
@@ -58,4 +59,5 @@ __all__ = (
     "FullUser",
     "ExtKeyValue",
     "User",
+    "ContactData"
 )
