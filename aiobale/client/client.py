@@ -32,7 +32,8 @@ from ..methods import (
     EditAbout,
     LoadFullUsers,
     LoadUsers,
-    EditUserLocalName
+    EditUserLocalName,
+    BlockUser
 )
 from ..types import (
     MessageContent,
@@ -686,6 +687,18 @@ class Client:
             user_id=user_id,
             name=name,
             access_hash=access_hash
+        )
+        
+        return await self(call)
+    
+    async def block_user(
+        self,
+        user_id: int
+    ) -> DefaultResponse:
+        
+        info_peer = InfoPeer(id=user_id, type=ChatType.PRIVATE)
+        call = BlockUser(
+            peer=info_peer
         )
         
         return await self(call)
