@@ -21,7 +21,8 @@ from .user import (
     CheckNickName,
     EditNickName,
     EditAbout,
-    LoadFullUsers
+    LoadFullUsers,
+    LoadUsers
 )
 from .presence import SetOnline
 from .base import BaleMethod, BaleType
@@ -49,5 +50,6 @@ __all__ = (
     "LoadPinnedMessages",
     "LoadDialogs",
     "EditAbout",
-    "LoadFullUsers"
+    "LoadFullUsers",
+    "LoadUsers"
 )

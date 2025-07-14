@@ -9,7 +9,7 @@ from .response import Response
 from .auth import AuthBody
 from .ext import ExtData, ExtValue, ExtKeyValue
 from .int_bool import IntBool
-from .user import UserAuth
+from .user import UserAuth, User
 from .update import Update, UpdateBody
 from .values import StringValue, IntValue, BytesValue
 from .info_message import InfoMessage
@@ -56,5 +56,6 @@ __all__ = (
     "PeerData",
     "InfoPeer",
     "FullUser",
-    "ExtKeyValue"
+    "ExtKeyValue",
+    "User",
 )

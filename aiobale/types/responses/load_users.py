@@ -5,6 +5,7 @@ from typing import List, Dict, Any
 
 from ..base import BaleObject
 from ..full_user import FullUser
+from ..user import User
 
 
 class FullUsersResponse(BaleObject):
@@ -23,7 +24,7 @@ class FullUsersResponse(BaleObject):
     
     
 class UsersResponse(BaleObject):
-    data: List[FullUser] = Field(..., alias="1")
+    data: List[User] = Field(..., alias="1")
     
     @model_validator(mode="before")
     @classmethod

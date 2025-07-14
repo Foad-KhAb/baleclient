@@ -3,6 +3,7 @@ from .edit_name import EditName
 from .edit_nickname import EditNickName
 from .edit_about import EditAbout
 from .load_full_users import LoadFullUsers
+from .load_users import LoadUsers
 
 
 __all__ = (
@@ -10,5 +11,6 @@ __all__ = (
     "EditNickName",
     "EditName",
     "EditAbout",
-    "LoadFullUsers"
+    "LoadFullUsers",
+    "LoadUsers",
 )

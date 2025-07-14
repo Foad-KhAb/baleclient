@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING, Any, List
 
 from ...types import InfoPeer
-from ...types.responses import FullUsersResponse
+from ...types.responses import UsersResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class LoadUsers(BaleMethod):
     __service__ = Services.USER.value
     __method__ = "LoadUsers"
     
-    __returning__ = FullUsersResponse
+    __returning__ = UsersResponse
     
     peers: List[InfoPeer] = Field(..., alias="1")
     
