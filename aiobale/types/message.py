@@ -228,3 +228,9 @@ class Message(BaleObject):
             chat_id=self.sender_id,
             chat_type=ChatType.PRIVATE
         )
+        
+    async def edit_local_name(self, name: str) -> DefaultResponse:
+        return await self.client.edit_user_local_name(
+            name=name,
+            user_id=self.sender_id
+        )
