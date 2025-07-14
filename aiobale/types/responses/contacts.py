@@ -16,8 +16,8 @@ class ContactsResponse(DefaultResponse):
         if "4" not in data:
             return data
 
-        if not isinstance(data["1"], list):
-            data["1"] = [data["1"]]
+        if not isinstance(data["4"], list):
+            data["4"] = [data["4"]]
             
         return data
     
