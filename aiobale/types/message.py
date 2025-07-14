@@ -244,3 +244,13 @@ class Message(BaleObject):
         return await self.client.unblock_user(
             user_id=self.sender_id
         )
+    
+    async def add_as_contact(self) -> DefaultResponse:
+        return await self.client.add_contact(
+            user_id=self.sender_id
+        )
+    
+    async def remove_contact(self) -> DefaultResponse:
+        return await self.client.remove_contact(
+            user_id=self.sender_id
+        )
