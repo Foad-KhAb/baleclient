@@ -6,6 +6,7 @@ from .load_full_users import LoadFullUsers
 from .load_users import LoadUsers
 from .edit_user_local_name import EditUserLocalName
 from .block_user import BlockUser
+from .unblock_user import UnblockUser
 
 
 __all__ = (
@@ -17,4 +18,5 @@ __all__ = (
     "LoadUsers",
     "EditUserLocalName",
     "BlockUser",
+    "UnblockUser"
 )
