@@ -10,6 +10,7 @@ from .quoted_message import QuotedMessage
 from .message_content import MessageContent
 from .other_message import OtherMessage
 from .full_user import FullUser
+from .user import User
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse
@@ -212,6 +213,18 @@ class Message(BaleObject):
         
     async def load_full_user(self) -> FullUser:
         return await self.client.load_full_user(
+            chat_id=self.sender_id,
+            chat_type=ChatType.PRIVATE
+        )
+        
+    async def load_chat(self) -> User:
+        return await self.client.load_user(
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
+        )
+        
+    async def load_user(self) -> User:
+        return await self.client.load_user(
             chat_id=self.sender_id,
             chat_type=ChatType.PRIVATE
         )
