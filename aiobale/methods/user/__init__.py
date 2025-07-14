@@ -8,6 +8,7 @@ from .edit_user_local_name import EditUserLocalName
 from .block_user import BlockUser
 from .unblock_user import UnblockUser
 from .load_blocked_users import LoadBlockedUsers
+from .search_contacts import SearchContact
 
 
 __all__ = (
@@ -20,5 +21,6 @@ __all__ = (
     "EditUserLocalName",
     "BlockUser",
     "UnblockUser",
-    "LoadBlockedUsers"
+    "LoadBlockedUsers",
+    "SearchContact",
 )

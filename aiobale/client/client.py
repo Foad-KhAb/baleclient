@@ -35,7 +35,8 @@ from ..methods import (
     EditUserLocalName,
     BlockUser,
     UnblockUser,
-    LoadBlockedUsers
+    LoadBlockedUsers,
+    SearchContact
 )
 from ..types import (
     MessageContent,
@@ -66,7 +67,8 @@ from ..types.responses import (
     DialogResponse,
     FullUsersResponse,
     UsersResponse,
-    BlockedUsersResponse
+    BlockedUsersResponse,
+    ContactResponse
 )
 from ..enums import ChatType, PeerType, SendCodeType, ListLoadMode
 from ..dispatcher.dispatcher import Dispatcher
@@ -575,6 +577,14 @@ class Client:
         call = LoadBlockedUsers()
         result: BlockedUsersResponse = await self(call)
         return result.users
+    
+    async def search_contact(self, phone_number: str) -> Optional[InfoPeer]:
+        phone_number = phone_number.replace("+", "")
+        call = SearchContact(
+            request=phone_number
+        )
+        result: ContactResponse = await self(call)
+        return result.data
 
     async def set_online(self, is_online: bool, timeout: int) -> DefaultResponse:
         call = SetOnline(is_online=is_online, timeout=timeout)
