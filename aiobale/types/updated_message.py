@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-from pydantic import Field
+from pydantic import Field, field_serializer
 from typing import TYPE_CHECKING, Optional
 
-from ..exceptions import AiobaleError
-from .other_message import OtherMessage
 from .base import BaleObject
 from .message_content import MessageContent
-from .quoted_message import QuotedMessage
 from .peer import Peer
 from .chat import Chat
 from .values import IntValue
@@ -37,3 +34,7 @@ class UpdatedMessage(BaleObject):
             content=self.content,
                  
         ).as_(self.client)
+        
+    @field_serializer
+    def return_message(self) -> Message:
+        return self.message

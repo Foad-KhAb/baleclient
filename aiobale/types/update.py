@@ -17,8 +17,8 @@ class Update(BaleObject):
     chat_cleared: Optional[ChatData] = Field(None, alias="47")
     chat_deleted: Optional[ChatData] = Field(None, alias="48")
     message: Optional[Message] = Field(None, alias="55")
-    username_changed: Optional[UsernameChanged] = Field(None, alias="209")
     message_updated: Optional[UpdatedMessage] = Field(None, alias="162")
+    username_changed: Optional[UsernameChanged] = Field(None, alias="209")
     
     @cached_property
     def current_event(self) -> Optional[Tuple[str, Any]]:
