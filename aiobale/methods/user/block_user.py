@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING, Any, List
 
 from ...types import InfoPeer
-from ...types.responses import UsersResponse
+from ...types.responses import DefaultResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class BlockUser(BaleMethod):
     __service__ = Services.USER.value
     __method__ = "BlockUser"
     
-    __returning__ = UsersResponse
+    __returning__ = DefaultResponse
     
     peer: InfoPeer = Field(..., alias="1")
     
