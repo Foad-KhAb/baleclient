@@ -10,10 +10,27 @@ from .ext import ExtKeyValue
 class ExInfo(BaleObject):
     expeer_type: ChatType = Field(..., alias="1")
     identified: IntBool = Field(False, alias="2")
+    
+
+class ContactInfo(BaleObject):
+    value: Optional[int] = Field(None, alias="3")
+    title: Optional[str] = Field(None, alias="4")
+    
+    @model_validator(mode="before")
+    @classmethod
+    def fix_fields(cls, data: Dict[str, Any]) -> Dict[str , Any]:
+        for key in list(data.keys()):
+            value = data[key]
+            
+            if isinstance(value, dict) and len(value) == 1 and "1" in value:
+                data[key] = value["1"]
+
+        return data
 
 
 class FullUser(BaleObject):
     id: int = Field(..., alias="1")
+    contact_info: Optional[List[ContactInfo]] = Field(None, alias="2")
     about: Optional[str] = Field(None, alias="3")
     languages: Optional[List[str]] = Field(None, alias="4")
     timezone: Optional[str] = Field(None, alias="5")
