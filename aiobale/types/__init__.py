@@ -23,6 +23,7 @@ from .peer_data import PeerData
 from .info_peer import InfoPeer
 from .full_user import FullUser
 from .contact_request import ContactData
+from .block_updates import UserBlocked, UserUnblocked
 
 
 __all__ = (
@@ -60,5 +61,7 @@ __all__ = (
     "FullUser",
     "ExtKeyValue",
     "User",
-    "ContactData"
+    "ContactData",
+    "UserBlocked",
+    "UserUnblocked"
 )

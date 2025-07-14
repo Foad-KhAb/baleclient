@@ -21,6 +21,8 @@ class Router:
         self.message_sent = self._observer.get_decorator("message_sent")
         self.message_edited = self._observer.get_decorator("message_edited")
         self.about_changed = self._observer.get_decorator("about_changed")
+        self.user_blocked = self._observer.get_decorator("user_blocked")
+        self.user_unblocked = self._observer.get_decorator("user_unblocked")
 
     def _register_default_event_types(self) -> None:
         for event_type in (
@@ -31,7 +33,9 @@ class Router:
             "username_changed",
             "message_sent",
             "message_edited",
-            "about_changed"
+            "about_changed",
+            "user_blocked",
+            "user_unblocked"
         ):
             self._observer.register(event_type, self._make_event_decorator(event_type))
 
