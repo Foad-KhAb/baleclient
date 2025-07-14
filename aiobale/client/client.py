@@ -590,7 +590,7 @@ class Client:
 
     async def import_contacts(self, contacts: List[Tuple[int, str]]) -> List[InfoPeer]:
         contacts = [
-            ContactData(phone_number=contact[0], name=contact[1])
+            ContactData(phone_number=contact[0], name=StringValue(value=contact[1]))
             for contact in contacts
         ]
         
