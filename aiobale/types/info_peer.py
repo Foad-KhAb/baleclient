@@ -7,7 +7,7 @@ from .base import BaleObject
 
 class InfoPeer(BaleObject):
     id: int = Field(..., alias="1")
-    type: ChatType = Field(..., alias="2")
+    type: Optional[ChatType] = Field(None, alias="2")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -16,7 +16,7 @@ class InfoPeer(BaleObject):
             __pydantic__self__,
             *,
             id: int,
-            type: ChatType,
+            type: Optional[ChatType] = None,
             **__pydantic_kwargs: Any
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins
