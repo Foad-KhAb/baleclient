@@ -13,12 +13,18 @@ class GroupMessagePinned(BaleObject):
     group_id: int = Field(..., alias="1")
     message_data: MessageData = Field(..., alias="2")
     
-    message: Optional[Message] = None
+    message: Optional[Message] = Field(None, exclude=None)
     
     @model_validator(mode="after")
     def validate(self):
-        self.message_data.chat = Chat(id=self.group_id, type=ChatType.GROUP)
-        self.message = self.message_data.message
+        chat = Chat(id=self.group_id, type=ChatType.GROUP)
+        self.message_data.chat = chat
+        
+        if self.message_data.replied_to is not None:
+            self.message_data.replied_to.chat = chat
+        
+        # Prevent infinite loop: bypass Pydantic
+        object.__setattr__(self, "message", self.message_data.message)
         return self
 
 
