@@ -4,6 +4,7 @@ from .edit_nickname import EditNickName
 from .edit_about import EditAbout
 from .load_full_users import LoadFullUsers
 from .load_users import LoadUsers
+from .edit_user_local_name import EditUserLocalName
 
 
 __all__ = (
@@ -13,4 +14,5 @@ __all__ = (
     "EditAbout",
     "LoadFullUsers",
     "LoadUsers",
+    "EditUserLocalName",
 )

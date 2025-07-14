@@ -22,7 +22,8 @@ from .user import (
     EditNickName,
     EditAbout,
     LoadFullUsers,
-    LoadUsers
+    LoadUsers,
+    EditUserLocalName
 )
 from .presence import SetOnline
 from .base import BaleMethod, BaleType
@@ -51,5 +52,6 @@ __all__ = (
     "LoadDialogs",
     "EditAbout",
     "LoadFullUsers",
-    "LoadUsers"
+    "LoadUsers",
+    "EditUserLocalName"
 )

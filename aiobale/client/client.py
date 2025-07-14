@@ -31,7 +31,8 @@ from ..methods import (
     LoadDialogs,
     EditAbout,
     LoadFullUsers,
-    LoadUsers
+    LoadUsers,
+    EditUserLocalName
 )
 from ..types import (
     MessageContent,
@@ -673,6 +674,21 @@ class Client:
         peers = [InfoPeer(id=self.id, type=ChatType.PRIVATE)]
         result = await self.load_users(peers=peers)
         return result[0]
+    
+    async def edit_user_local_name(
+        self,
+        name: str,
+        user_id: int,
+        access_hash: int = 1
+    ) -> DefaultResponse:
+        
+        call = EditUserLocalName(
+            user_id=user_id,
+            name=name,
+            access_hash=access_hash
+        )
+        
+        return await self(call)
     
     async def set_online(
         self,
