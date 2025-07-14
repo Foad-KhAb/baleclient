@@ -1,10 +1,12 @@
 from typing import Optional
 from pydantic import Field, model_validator
 
+from ..enums import ChatType
 from .base import BaleObject
 from .message_data import MessageData
 from .message import Message
 from .other_message import OtherMessage
+from .chat import Chat
 
 
 class GroupMessagePinned(BaleObject):
@@ -15,6 +17,7 @@ class GroupMessagePinned(BaleObject):
     
     @model_validator(mode="after")
     def validate(self):
+        self.message_data.chat = Chat(id=self.group_id, type=ChatType.GROUP)
         self.message = self.message_data.message
         return self
 
