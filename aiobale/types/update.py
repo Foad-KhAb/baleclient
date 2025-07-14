@@ -25,7 +25,7 @@ class Update(BaleObject):
         for field_name in self.__annotations__:
             value = getattr(self, field_name, None)
             if value is not None:
-                if hasattr(value, "fix"):
+                if hasattr(value, "fixed"):
                     value = value.fixed
                     
                 return field_name, value

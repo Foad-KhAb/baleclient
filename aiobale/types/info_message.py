@@ -13,7 +13,7 @@ class InfoMessage(BaleObject):
     peer: Peer = Field(..., alias="1")
     message_id: int = Field(..., alias="2")
     date: Union[IntValue, int] = Field(..., alias="3")
-    previous_message: Optional[OtherMessage] = Field(..., alias="4")
+    previous_message: Optional[OtherMessage] = Field(None, alias="4")
     
     if TYPE_CHECKING:
         # Just For Type Helping
