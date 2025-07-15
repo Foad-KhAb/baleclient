@@ -30,7 +30,7 @@ class ContactInfo(BaleObject):
 
 class FullUser(BaleObject):
     id: int = Field(..., alias="1")
-    contact_info: Optional[List[ContactInfo]] = Field(None, alias="2")
+    contact_info: Optional[ContactInfo] = Field(None, alias="2")
     about: Optional[str] = Field(None, alias="3")
     languages: Optional[List[str]] = Field(None, alias="4")
     timezone: Optional[str] = Field(None, alias="5")
