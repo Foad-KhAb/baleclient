@@ -14,13 +14,10 @@ class ContactsResponse(DefaultResponse):
     @classmethod
     def add_message(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         if "4" not in data:
+            data["4"] = []
             return data
 
         if not isinstance(data["4"], list):
             data["4"] = [data["4"]]
             
         return data
-    
-    @field_serializer(mode="plain")
-    def serializer(self):
-        return self.peers

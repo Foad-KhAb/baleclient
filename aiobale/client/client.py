@@ -608,7 +608,8 @@ class Client:
         ]
         
         call = ImportContacts(phones=contacts)
-        return await self(call)
+        result: ContactsResponse = await self(call)
+        return result.peers
     
     async def reset_contacts(self) -> DefaultResponse:
         call = ResetContacts()
