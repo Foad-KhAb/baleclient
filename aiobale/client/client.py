@@ -40,7 +40,8 @@ from ..methods import (
     ImportContacts,
     ResetContacts,
     RemoveContact,
-    AddContact
+    AddContact,
+    GetContacts
 )
 from ..types import (
     MessageContent,
@@ -581,6 +582,11 @@ class Client:
 
     async def load_blocked_users(self) -> List[InfoPeer]:
         call = LoadBlockedUsers()
+        result: BlockedUsersResponse = await self(call)
+        return result.users
+
+    async def load_contacts(self) -> List[InfoPeer]:
+        call = GetContacts()
         result: BlockedUsersResponse = await self(call)
         return result.users
 
