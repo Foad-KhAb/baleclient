@@ -595,7 +595,11 @@ class Client:
         call = SearchContact(request=phone_number)
         
         result: ContactResponse = await self(call)
-        return result.data
+        return result.user
+
+    async def search_username(self, username: str) -> ContactResponse:
+        call = SearchContact(request=username)
+        return await self(call)
 
     async def import_contacts(self, contacts: List[Tuple[int, str]]) -> List[InfoPeer]:
         contacts = [

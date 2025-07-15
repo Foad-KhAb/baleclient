@@ -25,6 +25,7 @@ from .full_user import FullUser
 from .contact_request import ContactData
 from .block_updates import UserBlocked, UserUnblocked
 from .message_updates import GroupMessagePinned, GroupPinRemoved
+from .group import Group
 
 
 __all__ = (
@@ -66,5 +67,6 @@ __all__ = (
     "UserBlocked",
     "UserUnblocked",
     "GroupMessagePinned",
-    "GroupPinRemoved"
+    "GroupPinRemoved",
+    "Group"
 )

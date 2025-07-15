@@ -8,4 +8,5 @@ from ..info_peer import InfoPeer
 
 
 class ContactResponse(BaleObject):
-    data: Optional[InfoPeer] = Field(None, alias="2")
+    user: Optional[InfoPeer] = Field(None, alias="2")
+    group: Optional[InfoPeer]
