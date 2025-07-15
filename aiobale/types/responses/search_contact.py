@@ -8,4 +8,4 @@ from ..info_peer import InfoPeer
 
 
 class ContactResponse(BaleObject):
-    data: Optional[InfoPeer] = Field(..., alias="2")
+    data: Optional[InfoPeer] = Field(None, alias="2")
