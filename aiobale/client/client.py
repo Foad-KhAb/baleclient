@@ -363,7 +363,7 @@ class Client:
         return await self(call)
 
     def _ensure_info_message(self, message: Union[Message, InfoMessage]) -> InfoMessage:
-        """Ensures that a message is converted to ForwardedMessage if it's not already one."""
+        """Ensures that a message is converted to InfoMessage if it's not already one."""
         if isinstance(message, InfoMessage):
             return message
 
@@ -373,6 +373,22 @@ class Client:
             peer=origin_peer,
             message_id=message.message_id,
             date=IntValue(value=message.date),
+        )
+        
+    def _ensure_other_message(
+        self, message: Union[Message, InfoMessage, OtherMessage], seq: Optional[int] = None
+    ) -> InfoMessage:
+        """Ensures that a message is converted to OtherMessage if it's not already one."""
+        if isinstance(message, OtherMessage):
+            if seq is not None:
+                message.seq = seq
+            
+            return message
+
+        return OtherMessage(
+            message_id=message.message_id,
+            data=message.data,
+            seq=seq
         )
 
     async def forward_message(
@@ -649,5 +665,22 @@ class Client:
             source=PeerSource.DIALOGS, peer=Peer(id=chat_id, type=chat_type)
         )
         report = Report(kind=kind, description=reason, peer_report=peer_report)
+        call = SendReport(report_body=report)
+        return await self(call)
+
+    async def report_messages(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        messages: List[Union[Message, InfoMessage, OtherMessage]],
+        reason: Optional[str] = None,
+        kind: ReportKind = ReportKind.SPAM,
+    ) -> DefaultResponse:
+        other_messages = [self._ensure_other_message(message) for message in messages]
+        
+        message_report = MessageReport(
+            messages=other_messages, peer=Peer(id=chat_id, type=chat_type)
+        )
+        report = Report(kind=kind, description=reason, message_report=message_report)
         call = SendReport(report_body=report)
         return await self(call)
