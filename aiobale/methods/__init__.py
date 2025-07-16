@@ -34,6 +34,7 @@ from .user import (
     AddContact,
     GetContacts
 )
+from .report import SendReport
 from .presence import SetOnline
 from .base import BaleMethod, BaleType
 
@@ -71,5 +72,6 @@ __all__ = (
     "ResetContacts",
     "RemoveContact",
     "AddContact",
-    "GetContacts"
+    "GetContacts",
+    "SendReport"
 )

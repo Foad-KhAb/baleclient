@@ -4,6 +4,8 @@ from .services import Services
 from .send_code import SendCodeType
 from .list_load_mode import ListLoadMode
 from .privacy_mode import PrivacyMode
+from .report_kind import ReportKind
+from .peer_source import PeerSource
 
 __all__ = (
     "ChatType",
@@ -12,4 +14,6 @@ __all__ = (
     "SendCodeType",
     "ListLoadMode",
     "PrivacyMode",
+    "ReportKind",
+    "PeerSource"
 )

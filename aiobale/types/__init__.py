@@ -26,6 +26,9 @@ from .contact_request import ContactData
 from .block_updates import UserBlocked, UserUnblocked
 from .message_updates import GroupMessagePinned, GroupPinRemoved
 from .group import Group
+from .report import Report
+from .peer_report import PeerReport
+from .message_report import MessageReport
 
 
 __all__ = (
@@ -68,5 +71,8 @@ __all__ = (
     "UserUnblocked",
     "GroupMessagePinned",
     "GroupPinRemoved",
-    "Group"
+    "Group",
+    "Report",
+    "PeerReport",
+    "MessageReport"
 )

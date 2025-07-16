@@ -41,7 +41,8 @@ from ..methods import (
     ResetContacts,
     RemoveContact,
     AddContact,
-    GetContacts
+    GetContacts,
+    SendReport,
 )
 from ..types import (
     MessageContent,
@@ -62,6 +63,9 @@ from ..types import (
     FullUser,
     User,
     ContactData,
+    Report,
+    PeerReport,
+    MessageReport,
 )
 from ..types.responses import (
     MessageResponse,
@@ -77,7 +81,14 @@ from ..types.responses import (
     ContactResponse,
     ContactsResponse,
 )
-from ..enums import ChatType, PeerType, SendCodeType, ListLoadMode
+from ..enums import (
+    ChatType,
+    PeerType,
+    SendCodeType,
+    ListLoadMode,
+    PeerSource,
+    ReportKind,
+)
 from ..dispatcher.dispatcher import Dispatcher
 from .auth_cli import PhoneLoginCLI
 
@@ -593,7 +604,7 @@ class Client:
     async def search_contact(self, phone_number: str) -> Optional[InfoPeer]:
         phone_number = phone_number.replace("+", "")
         call = SearchContact(request=phone_number)
-        
+
         result: ContactResponse = await self(call)
         return result.user
 
@@ -606,27 +617,37 @@ class Client:
             ContactData(phone_number=contact[0], name=StringValue(value=contact[1]))
             for contact in contacts
         ]
-        
+
         call = ImportContacts(phones=contacts)
         result: ContactsResponse = await self(call)
         return result.peers
-    
+
     async def reset_contacts(self) -> DefaultResponse:
         call = ResetContacts()
         return await self(call)
-    
+
     async def remove_contact(self, user_id: int) -> DefaultResponse:
-        call = RemoveContact(
-            user_id=user_id
-        )
+        call = RemoveContact(user_id=user_id)
         return await self(call)
-    
+
     async def add_contact(self, user_id: int) -> DefaultResponse:
-        call = AddContact(
-            user_id=user_id
-        )
+        call = AddContact(user_id=user_id)
         return await self(call)
 
     async def set_online(self, is_online: bool, timeout: int) -> DefaultResponse:
         call = SetOnline(is_online=is_online, timeout=timeout)
+        return await self(call)
+
+    async def report_chat(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        reason: Optional[str] = None,
+        kind: ReportKind = ReportKind.SPAM,
+    ) -> DefaultResponse:
+        peer_report = PeerReport(
+            source=PeerSource.DIALOGS, peer=Peer(id=chat_id, type=chat_type)
+        )
+        report = Report(kind=kind, description=reason, peer_report=peer_report)
+        call = SendReport(report_body=report)
         return await self(call)
