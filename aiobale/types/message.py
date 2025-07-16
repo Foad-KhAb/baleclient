@@ -254,3 +254,8 @@ class Message(BaleObject):
         return await self.client.remove_contact(
             user_id=self.sender_id
         )
+        
+    async def report(self) -> DefaultResponse:
+        return await self.client.remove_contact(
+            user_id=self.sender_id
+        )

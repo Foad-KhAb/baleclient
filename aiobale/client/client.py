@@ -684,3 +684,19 @@ class Client:
         report = Report(kind=kind, description=reason, message_report=message_report)
         call = SendReport(report_body=report)
         return await self(call)
+    
+    async def report_message(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        message: Union[Message, InfoMessage, OtherMessage],
+        reason: Optional[str] = None,
+        kind: ReportKind = ReportKind.SPAM,
+    ) -> DefaultResponse:
+        return await self.report_messages(
+            chat_id=chat_id,
+            chat_type=chat_type,
+            messages=[message],
+            reason=reason,
+            kind=kind
+        )
