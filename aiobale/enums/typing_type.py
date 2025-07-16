@@ -1,0 +1,17 @@
+from enum import Enum
+
+
+class TypingMode(int, Enum):
+    UNKNOWN = 0
+    TEXT = 1
+    VOICERECODRING = 2
+    SENDINGVOICE = 3
+    SENDINGFILE = 4
+    SENDINGPHOTO = 5
+    SENDINGVIDEO = 6
+    SENDINGMUSIC = 7
+    CHOOSINGSTICKER = 8
+    CHOSINGGIF = 9
+    CREATINGGIFTPACKET = 10
+    SENDINGALBUM = 11
+    CHOSINGEMOJI = 12

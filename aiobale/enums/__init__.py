@@ -6,6 +6,7 @@ from .list_load_mode import ListLoadMode
 from .privacy_mode import PrivacyMode
 from .report_kind import ReportKind
 from .peer_source import PeerSource
+from .typing_type import TypingMode
 
 __all__ = (
     "ChatType",

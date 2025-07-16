@@ -43,6 +43,8 @@ from ..methods import (
     AddContact,
     GetContacts,
     SendReport,
+    StopTyping,
+    Typing
 )
 from ..types import (
     MessageContent,
@@ -88,6 +90,7 @@ from ..enums import (
     ListLoadMode,
     PeerSource,
     ReportKind,
+    TypingMode
 )
 from ..dispatcher.dispatcher import Dispatcher
 from .auth_cli import PhoneLoginCLI
@@ -700,3 +703,25 @@ class Client:
             reason=reason,
             kind=kind
         )
+        
+    async def start_typing(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        typing_mode: TypingMode = TypingMode.TEXT
+    ) -> DefaultResponse:
+        call = Typing(
+            peer=Peer(id=chat_id, type=chat_type), typing_type=typing_mode
+        )
+        return await self(call)
+        
+    async def stop_typing(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        typing_mode: TypingMode = TypingMode.TEXT
+    ) -> DefaultResponse:
+        call = StopTyping(
+            peer=Peer(id=chat_id, type=chat_type), typing_type=typing_mode
+        )
+        return await self(call)

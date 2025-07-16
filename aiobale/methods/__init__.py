@@ -35,7 +35,7 @@ from .user import (
     GetContacts
 )
 from .report import SendReport
-from .presence import SetOnline
+from .presence import SetOnline, StopTyping, Typing
 from .base import BaleMethod, BaleType
 
 
@@ -73,5 +73,7 @@ __all__ = (
     "RemoveContact",
     "AddContact",
     "GetContacts",
-    "SendReport"
+    "SendReport",
+    "Typing",
+    "StopTyping"
 )
