@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from .chat import Chat
 from .base import BaleObject
-from ..enums import ChatType, ListLoadMode, ReportKind
+from ..enums import ChatType, ListLoadMode, ReportKind, TypingMode
 from .quoted_message import QuotedMessage
 from .message_content import MessageContent
 from .other_message import OtherMessage
@@ -227,13 +227,24 @@ class Message(BaleObject):
             kind=kind,
             reason=reason,
         )
-        
+
     async def report_chat(
-        self, kind: ReportKind = ReportKind.SPAM, reason: Optional[str] = None
+        self, reason: Optional[str] = None, kind: ReportKind = ReportKind.SPAM
     ) -> DefaultResponse:
         return await self.client.report_chat(
-            chat_id=self.chat.id,
-            chat_type=self.chat.type,
-            kind=kind,
-            reason=reason
+            chat_id=self.chat.id, chat_type=self.chat.type, kind=kind, reason=reason
+        )
+
+    async def start_typing(
+        self, typing_mode: TypingMode = TypingMode.TEXT
+    ) -> DefaultResponse:
+        return await self.client.start_typing(
+            chat_id=self.chat.id, chat_type=self.chat.type, typing_mode=typing_mode
+        )
+
+    async def stop_typing(
+        self, typing_mode: TypingMode = TypingMode.TEXT
+    ) -> DefaultResponse:
+        return await self.client.stop_typing(
+            chat_id=self.chat.id, chat_type=self.chat.type, typing_mode=typing_mode
         )
