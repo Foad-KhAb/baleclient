@@ -227,3 +227,13 @@ class Message(BaleObject):
             kind=kind,
             reason=reason,
         )
+        
+    async def report_chat(
+        self, kind: ReportKind = ReportKind.SPAM, reason: Optional[str] = None
+    ) -> DefaultResponse:
+        return await self.client.report_chat(
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            kind=kind,
+            reason=reason
+        )
