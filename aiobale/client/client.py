@@ -387,7 +387,7 @@ class Client:
 
         return OtherMessage(
             message_id=message.message_id,
-            data=message.date,
+            date=message.date,
             seq=seq
         )
 
