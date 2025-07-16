@@ -3,7 +3,7 @@ from enum import Enum
 
 class ReportKind(int, Enum):
     UNKNOWN = 0
-    SPAM = 1
+    SCAM = 1
     INAPPROPRIATE_CONTENT = 2
     OTHER = 3
     VIOLENCE = 4
