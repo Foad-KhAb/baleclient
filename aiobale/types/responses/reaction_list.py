@@ -8,7 +8,7 @@ from ..reaction_data import ReactionData
 
 
 class ReactionListResponse(BaleObject):
-    list: List[ReactionData] = Field([], alias="1")
+    data: List[ReactionData] = Field([], alias="1")
     
     @model_validator(mode="before")
     @classmethod

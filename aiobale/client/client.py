@@ -793,7 +793,7 @@ class Client:
             limit=limit,
         )
         result: ReactionListResponse = await self(call)
-        return result.list
+        return result.data
 
     async def set_reaction(
         self,

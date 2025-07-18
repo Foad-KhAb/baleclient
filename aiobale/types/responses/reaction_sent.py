@@ -3,11 +3,11 @@ from __future__ import annotations
 from pydantic import Field, model_validator
 from typing import List, Any, Dict
 
-from .default import DefaultResponse
+from ..base import BaleObject
 from ..reaction import Reaction
 
 
-class ReactionSentResponse(DefaultResponse):
+class ReactionSentResponse(BaleObject):
     reactions: List[Reaction] = Field([], alias="2")
     
     @model_validator(mode="before")
