@@ -44,7 +44,9 @@ from ..methods import (
     GetContacts,
     SendReport,
     StopTyping,
-    Typing
+    Typing,
+    GetParameters,
+    EditParameter
 )
 from ..types import (
     MessageContent,
@@ -68,6 +70,7 @@ from ..types import (
     Report,
     PeerReport,
     MessageReport,
+    ExtKeyValue
 )
 from ..types.responses import (
     MessageResponse,
@@ -82,6 +85,7 @@ from ..types.responses import (
     BlockedUsersResponse,
     ContactResponse,
     ContactsResponse,
+    ParametersResponse
 )
 from ..enums import (
     ChatType,
@@ -724,4 +728,13 @@ class Client:
         call = StopTyping(
             peer=Peer(id=chat_id, type=chat_type), typing_type=typing_mode
         )
+        return await self(call)
+    
+    async def get_parameters(self) -> List[ExtKeyValue]:
+        call = GetParameters()
+        result: ParametersResponse = await self(call)
+        return result.params
+    
+    async def edit_parameter(self, key: str, value: str) -> DefaultResponse:
+        call = EditParameter(key=key, value=value)
         return await self(call)

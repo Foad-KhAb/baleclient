@@ -1,7 +1,7 @@
 from pydantic import Field
 from typing import TYPE_CHECKING
 
-from ...types.responses import ParametersResponse
+from ...types.responses import DefaultResponse
 from ...types import StringValue
 from ...enums import Services
 from ..base import BaleMethod
@@ -11,7 +11,7 @@ class EditParameter(BaleMethod):
     __service__ = Services.CONFIGS.value
     __method__ = "EditParameter"
     
-    __returning__ = ParametersResponse
+    __returning__ = DefaultResponse
     
     key: str = Field(..., alias="1")
     value: StringValue = Field(..., alias="2")
