@@ -8,14 +8,16 @@ from .base import BaleObject
 
 
 class Reaction(BaleObject):
-    users: List[int] = Field(..., alias="1")
+    users: List[int] = Field([], alias="1")
     emojy: str = Field(..., alias="2")
     count: int = Field(..., alias="3")
     
     @model_validator(mode="before")
     @classmethod
     def validate_input(cls, data: Dict[str, Any]) -> Dict[str, Any]:
-        data["1"] = Int64VarintCodec.decode_list(data["1"])
+        if "1" in data:
+            data["1"] = Int64VarintCodec.decode_list(data["1"])
+            
         data["3"] = data["3"]["1"]
         
         return data
