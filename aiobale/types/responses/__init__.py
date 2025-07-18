@@ -10,6 +10,7 @@ from .blocked_users import BlockedUsersResponse
 from .search_contact import ContactResponse
 from .contacts import ContactsResponse
 from .parameters import ParametersResponse
+from .messages_reactions import ReactionsResponse
 
 
 __all__ = (
@@ -26,4 +27,5 @@ __all__ = (
     "ContactResponse",
     "ContactsResponse",
     "ParametersResponse",
+    "ReactionsResponse"
 )

@@ -29,6 +29,8 @@ from .group import Group
 from .report import Report
 from .peer_report import PeerReport
 from .message_report import MessageReport
+from .reaction import Reaction
+from .message_reaction import MessageReactions
 
 
 __all__ = (
@@ -74,5 +76,7 @@ __all__ = (
     "Group",
     "Report",
     "PeerReport",
-    "MessageReport"
+    "MessageReport",
+    "Reaction",
+    "MessageReactions"
 )

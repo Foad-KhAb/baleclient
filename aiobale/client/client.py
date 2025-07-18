@@ -46,7 +46,8 @@ from ..methods import (
     StopTyping,
     Typing,
     GetParameters,
-    EditParameter
+    EditParameter,
+    GetMessagesReactions
 )
 from ..types import (
     MessageContent,
@@ -70,7 +71,8 @@ from ..types import (
     Report,
     PeerReport,
     MessageReport,
-    ExtKeyValue
+    ExtKeyValue,
+    MessageReactions
 )
 from ..types.responses import (
     MessageResponse,
@@ -85,7 +87,8 @@ from ..types.responses import (
     BlockedUsersResponse,
     ContactResponse,
     ContactsResponse,
-    ParametersResponse
+    ParametersResponse,
+    ReactionsResponse
 )
 from ..enums import (
     ChatType,
@@ -738,3 +741,34 @@ class Client:
     async def edit_parameter(self, key: str, value: str) -> DefaultResponse:
         call = EditParameter(key=key, value=value)
         return await self(call)
+    
+    async def get_messages_reactions(
+        self,
+        messages: List[Union[Message, InfoMessage, OtherMessage]],
+        chat_id: int,
+        chat_type: ChatType,
+    ) -> List[MessageReactions]:
+        other_messages = [self._ensure_other_message(message) for message in messages]
+        peer = Peer(id=chat_id, type=chat_type)
+        
+        call = GetMessagesReactions(
+            peer=peer,
+            message_ids=other_messages,
+            origin_peer=peer,
+            origin_message_ids=other_messages
+        )
+        result: ReactionsResponse = await self(call)
+        return result.messages
+    
+    async def get_message_reactions(
+        self,
+        message: Union[Message, InfoMessage, OtherMessage],
+        chat_id: int,
+        chat_type: ChatType
+    ) -> Optional[MessageReactions]:
+        result = await self.get_messages_reactions(
+            messages=[message],
+            chat_id=chat_id,
+            chat_type=chat_type
+        )
+        return result[0] if result else None
