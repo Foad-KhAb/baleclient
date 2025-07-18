@@ -843,3 +843,13 @@ class Client:
         call = GetMessagesViews(peer=peer, message_ids=other_messages)
         result: ViewsResponse = await self(call)
         return result.messages
+    
+    async def get_message_views(
+        self,
+        message: Union[Message, InfoMessage, OtherMessage],
+        chat_id: int
+    ) -> List[MessageViews]:
+        return await self.get_messages_views(
+            messages=[message],
+            chat_id=chat_id
+        )
