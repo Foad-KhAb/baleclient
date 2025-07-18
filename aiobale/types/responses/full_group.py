@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from pydantic import Field, model_validator
-from typing import Dict, Any, Optional
+from pydantic import Field
 
 from ..base import BaleObject
 from ..full_group import FullGroup
