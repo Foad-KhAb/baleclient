@@ -13,6 +13,7 @@ from .parameters import ParametersResponse
 from .messages_reactions import ReactionsResponse
 from .reaction_list import ReactionListResponse
 from .reaction_sent import ReactionSentResponse
+from .views_response import ViewsResponse
 
 
 __all__ = (
@@ -32,4 +33,5 @@ __all__ = (
     "ReactionsResponse",
     "ReactionListResponse",
     "ReactionSentResponse",
+    "ViewsResponse"
 )

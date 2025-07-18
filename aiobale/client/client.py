@@ -50,7 +50,8 @@ from ..methods import (
     GetMessagesReactions,
     GetMessageReactionsList,
     MessageSetReaction,
-    MessageRemoveReaction
+    MessageRemoveReaction,
+    GetMessagesViews
 )
 from ..types import (
     MessageContent,
@@ -77,7 +78,8 @@ from ..types import (
     ExtKeyValue,
     MessageReactions,
     ReactionData,
-    Reaction
+    Reaction,
+    MessageViews
 )
 from ..types.responses import (
     MessageResponse,
@@ -95,7 +97,8 @@ from ..types.responses import (
     ParametersResponse,
     ReactionsResponse,
     ReactionListResponse,
-    ReactionSentResponse
+    ReactionSentResponse,
+    ViewsResponse
 )
 from ..enums import (
     ChatType,
@@ -828,3 +831,15 @@ class Client:
         )
         result: ReactionSentResponse = await self(call)
         return result.reactions
+    
+    async def get_messages_views(
+        self,
+        messages: List[Union[Message, InfoMessage, OtherMessage]],
+        chat_id: int
+    ) -> List[MessageViews]:
+        other_messages = [self._ensure_other_message(message) for message in messages]
+        peer = Peer(id=chat_id, type=2)
+        
+        call = GetMessagesViews(peer=peer, message_ids=other_messages)
+        result: ViewsResponse = await self(call)
+        return result.messages

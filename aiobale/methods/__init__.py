@@ -36,6 +36,7 @@ from .abacus import (
     GetMessageReactionsList,
     MessageSetReaction,
     MessageRemoveReaction,
+    GetMessagesViews
 )
 from .configs import EditParameter, GetParameters
 from .report import SendReport
@@ -85,5 +86,6 @@ __all__ = (
     "GetMessagesReactions",
     "GetMessageReactionsList",
     "MessageSetReaction",
-    "MessageRemoveReaction"
+    "MessageRemoveReaction",
+    "GetMessagesViews"
 )

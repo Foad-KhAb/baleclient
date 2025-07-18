@@ -1,22 +1,20 @@
 from pydantic import Field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
-from ...types import Peer
-from ...types.responses import ReactionSentResponse
+from ...types import Peer, OtherMessage
+from ...types.responses import ViewsResponse
 from ...enums import Services
 from ..base import BaleMethod
 
 
-class MessageSetReaction(BaleMethod):
+class GetMessagesViews(BaleMethod):
     __service__ = Services.ABACUS.value
-    __method__ = "MessageSetReaction"
+    __method__ = "GetMessagesViews"
     
-    __returning__ = ReactionSentResponse
+    __returning__ = ViewsResponse
     
     peer: Peer = Field(..., alias="1")
-    message_id: int = Field(..., alias="2")
-    emojy: str = Field(..., alias="3")
-    date: int = Field(..., alias="4")
+    message_ids: List[OtherMessage] = Field(..., alias="2")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -25,17 +23,13 @@ class MessageSetReaction(BaleMethod):
             __pydantic__self__,
             *,
             peer: Peer,
-            message_id: int,
-            date: int,
-            emojy: str,
+            message_ids: List[OtherMessage],
             **__pydantic_kwargs
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins
             
             super().__init__(
                 peer=peer,
-                message_id=message_id,
-                date=date,
-                emojy=emojy,
+                message_ids=message_ids,
                 **__pydantic_kwargs
             )

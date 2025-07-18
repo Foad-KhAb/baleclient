@@ -32,6 +32,7 @@ from .message_report import MessageReport
 from .reaction import Reaction
 from .message_reaction import MessageReactions
 from .reaction_data import ReactionData
+from .message_views import MessageViews
 
 
 __all__ = (
@@ -80,5 +81,6 @@ __all__ = (
     "MessageReport",
     "Reaction",
     "MessageReactions",
-    "ReactionData"
+    "ReactionData",
+    "MessageViews"
 )
