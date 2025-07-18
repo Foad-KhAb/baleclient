@@ -2,16 +2,12 @@ from __future__ import annotations
 
 import aiohttp
 import asyncio
-from typing import Callable, Any, Optional, Dict, Coroutine, TYPE_CHECKING, Union
+from typing import Optional, Dict, Union
 
 from ...methods import BaleMethod, BaleType
-from ...types import Response
 from ...utils import add_header, clean_grpc
-from ...exceptions import BaleError, AiobaleError
+from ...exceptions import AiobaleError
 from .base import BaseSession
-
-if TYPE_CHECKING:
-    from ..client import Client
 
 
 DEFAULT_USER_AGENT = (
@@ -33,12 +29,6 @@ class AiohttpSession(BaseSession):
         self._running = False
 
         self.user_agent = user_agent or DEFAULT_USER_AGENT
-
-        self.handlers: Dict[str, Callable[[dict], Coroutine]] = {}
-        self._pending_requests: Dict[int, asyncio.Future] = {}
-
-    def add_handler(self, message_type: str, handler: Callable[[dict], Coroutine]):
-        self.handlers[message_type] = handler
 
     def _build_headers(self, token: str) -> Dict[str, str]:
         return {
@@ -68,28 +58,7 @@ class AiohttpSession(BaseSession):
                 if msg.type != aiohttp.WSMsgType.BINARY:
                     continue
                 
-                try:
-                    data = self.decoder(msg.data)
-                    received = Response.model_validate(data, context={"client": self.client})
-                except:
-                    continue
-                
-                if received.update is not None:
-                    asyncio.create_task(self._handle_update(received.update.body))
-                    continue
-
-                response = received.response
-                if response is None:
-                    continue
-
-                future = self._pending_requests.pop(response.number, None)
-                if future is None or future.done():
-                    continue
-
-                if response.error:
-                    raise BaleError(response.error.message, response.error.topic)
-
-                future.set_result(response.result)
+                asyncio.create_task(self._handle_received_data(msg.data))
 
         except Exception as e:
             print(f"WebSocket listening failed: {e}")

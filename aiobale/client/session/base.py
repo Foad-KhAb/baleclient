@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Final, Callable, Any, Optional, List, TYPE_CHECKING
+import asyncio
+from typing import Dict, Final, Callable, Any, Optional, List, TYPE_CHECKING
 import abc
 import time
 
@@ -13,8 +14,10 @@ from ...types import (
     ExtData, 
     ExtValue, 
     MetaList,
-    UpdateBody
+    UpdateBody,
+    Response
 )
+from ...exceptions import BaleError
 
 if TYPE_CHECKING:
     from ..client import Client
@@ -46,6 +49,7 @@ class BaseSession(abc.ABC):
         self.session_id = int(time.time() * 1000)
         
         self.client: Optional[Client] = None
+        self._pending_requests: Dict[int, asyncio.Future] = {}
         
     def _bind_client(self, client: Client) -> None:
         self.client = client
@@ -126,6 +130,27 @@ class BaseSession(abc.ABC):
         
         dp = self.client.dispatcher
         await dp.dispatch(event_type, event)
+        
+    async def _handle_received_data(self, data: bytes) -> None:
+        data = self.decoder(data)
+        received = Response.model_validate(data, context={"client": self.client})
+        
+        if received.update is not None:
+            await self._handle_update(received.update.body)
+            return
+
+        response = received.response
+        if response is None:
+            return
+
+        future = self._pending_requests.pop(response.number, None)
+        if future is None or future.done():
+            return
+
+        if response.error:
+            raise BaleError(response.error.message, response.error.topic)
+
+        future.set_result(response.result)
         
     @abc.abstractmethod
     async def close(self) -> None:
