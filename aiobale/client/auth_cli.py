@@ -67,7 +67,7 @@ class PhoneLoginCLI:
                 remaining_time = expiration_timestamp - time.time()
                 cooldown = resp.code_timeout.value
                 elapsed = time.time() - last_sent_time
-                
+
                 print(Fore.YELLOW + f"⏳ Time left before expiration: {int(remaining_time)} sec")
                 print(Fore.YELLOW + f"⌛ New code timeout: {int(cooldown - elapsed)} sec\n")
 
@@ -87,14 +87,11 @@ class PhoneLoginCLI:
                     return False
 
                 if code == "resend":
-                    cooldown = resp.code_timeout.value
-                    elapsed = time.time() - last_sent_time
-
                     if elapsed < cooldown:
                         wait_seconds = int(cooldown - elapsed)
                         print(Fore.RED + f"⚠️ Wait {wait_seconds} sec before requesting a new code.\n")
                         continue
-                    
+
                     if next_code_type is None:
                         print(Fore.RED + f"⚠️ Resend is not available.\n")
                         continue
@@ -103,7 +100,6 @@ class PhoneLoginCLI:
                         resp = await self._send_login_request(phone_number, code_type=next_code_type)
                         last_sent_time = time.time()
                         expiration_timestamp = resp.code_expiration_date.value / 1000
-                        
                         print(Fore.GREEN + "✅ Code resent!\n")
                     except AiobaleError:
                         print(Fore.RED + "🚫 Phone number is banned. Restarting phone entry...\n")
@@ -113,9 +109,11 @@ class PhoneLoginCLI:
                 # Validate the code
                 try:
                     res = await self.client.validate_code(code, resp.transaction_hash)
-                    print(Fore.GREEN + f"🎉 Login successful! Welcome {res.user.name}")
+                    await self.on_login_success(res)
                     return True
-                except AiobaleError:
+                except AiobaleError as e:
+                    if str(e) == "Password needed for login":
+                        return await self._handle_password_entry(resp.transaction_hash)
                     print(Fore.RED + "❌ Incorrect code. Please try again.\n")
                     attempts += 1
                     if attempts >= max_attempts:
@@ -125,3 +123,36 @@ class PhoneLoginCLI:
             except Exception as e:
                 print(Fore.RED + f"⚠️ Unexpected error: {e}\n")
                 return False
+            
+    async def _handle_password_entry(self, transaction_hash: str):
+        max_attempts = 3
+        attempts = 0
+        print(Fore.MAGENTA + "🔐 This account requires a password.\n")
+
+        while attempts < max_attempts:
+            try:
+                password = await asyncio.wait_for(
+                    asyncio.to_thread(input, Fore.BLUE + "Enter password: "),
+                    timeout=60  # You can adjust the timeout if needed
+                )
+            except asyncio.TimeoutError:
+                print(Fore.RED + "⏰ Password entry timed out. Restarting...\n")
+                return False
+
+            try:
+                res = await self.client.validate_password(password.strip(), transaction_hash)
+                await self.on_login_success(res)
+                return True
+            except AiobaleError as e:
+                if str(e) == "Wrong password specified.":
+                    print(Fore.RED + "❌ Incorrect password. Try again.\n")
+                    attempts += 1
+                else:
+                    print(Fore.RED + f"⚠️ Error: {e}\n")
+                    return False
+
+        print(Fore.RED + "❌ Too many failed password attempts. Restarting...\n")
+        return False
+    
+    async def on_login_success(self, res):
+        print(Fore.GREEN + f"🎉 Login successful! Welcome {res.user.name}")

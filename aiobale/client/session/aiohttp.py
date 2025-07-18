@@ -92,7 +92,7 @@ class AiohttpSession(BaseSession):
         payload = self.get_handshake_payload()
         await self.ws.send_bytes(payload)
         
-    async def post(self, method: BaleMethod[BaleType]) -> Union[bytes, BaleType]:
+    async def post(self, method: BaleMethod[BaleType]) -> Union[bytes, str, BaleType]:
         if not self.session:
             self.session = aiohttp.ClientSession()
             
@@ -109,6 +109,9 @@ class AiohttpSession(BaseSession):
         
         req = await self.session.post(url=url, headers=headers, data=payload)
         content = await req.read()
+        grpc_message = req.headers.get("grpc-message")
+        if grpc_message is not None:
+            return grpc_message
         
         if method.__returning__ is None:
             return content

@@ -12,7 +12,7 @@ from .messaging import (
     LoadPinnedMessages,
     LoadDialogs,
 )
-from .auth import StartPhoneAuth, ValidateCode
+from .auth import StartPhoneAuth, ValidateCode, ValidatePassword
 from .user import (
     EditName,
     CheckNickName,
@@ -87,5 +87,6 @@ __all__ = (
     "GetMessageReactionsList",
     "MessageSetReaction",
     "MessageRemoveReaction",
-    "GetMessagesViews"
+    "GetMessagesViews",
+    "ValidatePassword",
 )

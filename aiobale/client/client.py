@@ -51,7 +51,8 @@ from ..methods import (
     GetMessageReactionsList,
     MessageSetReaction,
     MessageRemoveReaction,
-    GetMessagesViews
+    GetMessagesViews,
+    ValidatePassword,
 )
 from ..types import (
     MessageContent,
@@ -79,7 +80,7 @@ from ..types import (
     MessageReactions,
     ReactionData,
     Reaction,
-    MessageViews
+    MessageViews,
 )
 from ..types.responses import (
     MessageResponse,
@@ -98,7 +99,7 @@ from ..types.responses import (
     ReactionsResponse,
     ReactionListResponse,
     ReactionSentResponse,
-    ViewsResponse
+    ViewsResponse,
 )
 from ..enums import (
     ChatType,
@@ -256,8 +257,34 @@ class Client:
         call = ValidateCode(code=code, transaction_hash=transaction_hash)
 
         content = await self.session.post(call)
-        if not content:
-            raise AiobaleError("Invalid code specified.")
+        if isinstance(content, str):
+            match content:
+                case "PHONE_CODE_INVALID":
+                    raise AiobaleError("Invalid code specified.")
+                case "password needed for login":
+                    raise AiobaleError("Password needed for login")
+                case _:
+                    raise AiobaleError("Unknown Error")
+
+        try:
+            self._write_session_content(content)
+            return self._parse_session_content(content)
+
+        except Exception as e:
+            raise AiobaleError("Error while parsing data.") from e
+
+    async def validate_password(
+        self, password: str, transaction_hash: str
+    ) -> ValidateCodeResponse:
+        call = ValidatePassword(password=password, transaction_hash=transaction_hash)
+
+        content = await self.session.post(call)
+        if isinstance(content, str):
+            match content:
+                case "wrong password":
+                    raise AiobaleError("Wrong password specified.")
+                case _:
+                    raise AiobaleError("Unknown Error")
 
         try:
             self._write_session_content(content)
@@ -803,14 +830,11 @@ class Client:
         emojy: str,
         message: Union[Message, InfoMessage, OtherMessage],
         chat_id: int,
-        chat_type: ChatType
+        chat_type: ChatType,
     ) -> List[Reaction]:
         peer = Peer(id=chat_id, type=chat_type)
         call = MessageSetReaction(
-            peer=peer,
-            message_id=message.message_id,
-            date=message.date,
-            emojy=emojy
+            peer=peer, message_id=message.message_id, date=message.date, emojy=emojy
         )
         result: ReactionSentResponse = await self(call)
         return result.reactions
@@ -820,36 +844,26 @@ class Client:
         emojy: str,
         message: Union[Message, InfoMessage, OtherMessage],
         chat_id: int,
-        chat_type: ChatType
+        chat_type: ChatType,
     ) -> List[Reaction]:
         peer = Peer(id=chat_id, type=chat_type)
         call = MessageRemoveReaction(
-            peer=peer,
-            message_id=message.message_id,
-            date=message.date,
-            emojy=emojy
+            peer=peer, message_id=message.message_id, date=message.date, emojy=emojy
         )
         result: ReactionSentResponse = await self(call)
         return result.reactions
-    
+
     async def get_messages_views(
-        self,
-        messages: List[Union[Message, InfoMessage, OtherMessage]],
-        chat_id: int
+        self, messages: List[Union[Message, InfoMessage, OtherMessage]], chat_id: int
     ) -> List[MessageViews]:
         other_messages = [self._ensure_other_message(message) for message in messages]
         peer = Peer(id=chat_id, type=2)
-        
+
         call = GetMessagesViews(peer=peer, message_ids=other_messages)
         result: ViewsResponse = await self(call)
         return result.messages
-    
+
     async def get_message_views(
-        self,
-        message: Union[Message, InfoMessage, OtherMessage],
-        chat_id: int
+        self, message: Union[Message, InfoMessage, OtherMessage], chat_id: int
     ) -> List[MessageViews]:
-        return await self.get_messages_views(
-            messages=[message],
-            chat_id=chat_id
-        )
+        return await self.get_messages_views(messages=[message], chat_id=chat_id)
