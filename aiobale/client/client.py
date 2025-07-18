@@ -54,6 +54,7 @@ from ..methods import (
     GetMessagesViews,
     ValidatePassword,
     GetFullGroup,
+    LoadMembers,
 )
 from ..types import (
     MessageContent,
@@ -83,7 +84,8 @@ from ..types import (
     Reaction,
     MessageViews,
     FullGroup,
-    GroupPeer
+    GroupPeer,
+    Member
 )
 from ..types.responses import (
     MessageResponse,
@@ -104,6 +106,7 @@ from ..types.responses import (
     ReactionSentResponse,
     ViewsResponse,
     FullGroupResponse,
+    MembersResponse
 )
 from ..enums import (
     ChatType,
@@ -875,6 +878,15 @@ class Client:
     async def get_full_group(self, chat_id: int) -> FullGroup:
         peer = GroupPeer(id=chat_id, access_hash=1)
         call = GetFullGroup(group=peer)
-        
+
         result: FullGroupResponse = await self(call)
         return result.fullgroup
+
+    async def load_members(
+        self, chat_id: int, limit: int = 20, next: Optional[int] = None
+    ) -> List[Member]:
+        peer = GroupPeer(id=chat_id, access_hash=1)
+        call = LoadMembers(group=peer, limit=limit, next=next)
+
+        result: MembersResponse = await self(call)
+        return result.members

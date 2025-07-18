@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Any
 
 from .base import BaleObject
 from .int_bool import IntBool
-from .full_user import ExInfo
+from .permissions import Permissions
     
 
 class Member(BaleObject):
@@ -13,6 +13,7 @@ class Member(BaleObject):
     is_admin: IntBool = Field(False, alias="4")
     promoted_by: Optional[int] = Field(None, alias="5")
     promoted_at: Optional[int] = Field(None, alias="6")
+    permissions: Optional[List[Permissions]] = Field(None, alias="7")
     
     @model_validator(mode="before")
     @classmethod

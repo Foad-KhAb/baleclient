@@ -35,6 +35,7 @@ from .reaction_data import ReactionData
 from .message_views import MessageViews
 from .full_group import FullGroup
 from .permissions import Permissions
+from .member import Member
 
 
 __all__ = (
@@ -86,5 +87,6 @@ __all__ = (
     "ReactionData",
     "MessageViews",
     "FullGroup",
-    "Permissions"
+    "Permissions",
+    "Member"
 )
