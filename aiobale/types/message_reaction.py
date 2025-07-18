@@ -16,6 +16,9 @@ class MessageReactions(BaleObject):
     @model_validator(mode="before")
     @classmethod
     def validate_list(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        if "3" not in data:
+            return data
+        
         if not isinstance(data["3"], list):
             data["3"] = [data["3"]]
         
