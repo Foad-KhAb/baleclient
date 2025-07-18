@@ -26,7 +26,7 @@ class FullGroup(BaleObject):
     about: Optional[str] = Field(None, alias="16")
     members: Optional[List[Member]] = Field(None, alias="17")
     ex_info: ExInfo = Field(..., alias="18")
-    available_reactions: List[str] = Field([], alias="20")
+    available_reactions: List[str] = Field([], alias="24")
     is_suspend: IntBool = Field(False, alias="25")
     privacy_mode: PrivacyMode = Field(..., alias="28")
     
