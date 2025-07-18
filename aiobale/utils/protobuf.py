@@ -26,7 +26,7 @@ def _is_valid_text(s: str) -> bool:
     if total_chars == 0:
         return False
 
-    return (printable_chars / total_chars) > 0.8
+    return (printable_chars / total_chars) > 0.9
 
 
 class ProtoBuf:
