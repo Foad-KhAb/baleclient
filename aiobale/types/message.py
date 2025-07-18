@@ -13,6 +13,7 @@ from .full_user import FullUser
 from .user import User
 from .message_reaction import MessageReactions
 from .reaction_data import ReactionData
+from .reaction import Reaction
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse
@@ -250,19 +251,14 @@ class Message(BaleObject):
         return await self.client.stop_typing(
             chat_id=self.chat.id, chat_type=self.chat.type, typing_mode=typing_mode
         )
-        
+
     async def get_reactions(self) -> MessageReactions:
         return await self.client.get_message_reactions(
-            message=self,
-            chat_id=self.chat.id,
-            chat_type=self.chat.type
+            message=self, chat_id=self.chat.id, chat_type=self.chat.type
         )
-        
+
     async def get_reaction_list(
-        self,
-        emojy: str,
-        page: int = 1,
-        limit: int = 20
+        self, emojy: str, page: int = 1, limit: int = 20
     ) -> List[ReactionData]:
         return await self.client.get_reaction_list(
             emojy=emojy,
@@ -270,5 +266,21 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             limit=limit,
-            page=page
+            page=page,
+        )
+
+    async def react(self, emojy: str) -> List[Reaction]:
+        return await self.client.set_reaction(
+            emojy=emojy,
+            message=self,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
+        )
+
+    async def remove_reaction(self, emojy: str) -> List[Reaction]:
+        return await self.client.remove_reaction(
+            emojy=emojy,
+            message=self,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
         )
