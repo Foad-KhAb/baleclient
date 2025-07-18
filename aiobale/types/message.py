@@ -12,6 +12,7 @@ from .other_message import OtherMessage
 from .full_user import FullUser
 from .user import User
 from .message_reaction import MessageReactions
+from .reaction_data import ReactionData
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse
@@ -255,4 +256,19 @@ class Message(BaleObject):
             message=self,
             chat_id=self.chat.id,
             chat_type=self.chat.type
+        )
+        
+    async def get_reaction_list(
+        self,
+        emojy: str,
+        page: int = 1,
+        limit: int = 20
+    ) -> List[ReactionData]:
+        return await self.client.get_reaction_list(
+            emojy=emojy,
+            message=self,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            limit=limit,
+            page=page
         )

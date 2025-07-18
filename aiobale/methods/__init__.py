@@ -10,12 +10,9 @@ from .messaging import (
     PinMessage,
     UnPinMessages,
     LoadPinnedMessages,
-    LoadDialogs
+    LoadDialogs,
 )
-from .auth import (
-    StartPhoneAuth,
-    ValidateCode
-)
+from .auth import StartPhoneAuth, ValidateCode
 from .user import (
     EditName,
     CheckNickName,
@@ -32,9 +29,14 @@ from .user import (
     ResetContacts,
     RemoveContact,
     AddContact,
-    GetContacts
+    GetContacts,
 )
-from .abacus import GetMessagesReactions, GetMessageReactionsList
+from .abacus import (
+    GetMessagesReactions,
+    GetMessageReactionsList,
+    MessageSetReaction,
+    MessageRemoveReaction,
+)
 from .configs import EditParameter, GetParameters
 from .report import SendReport
 from .presence import SetOnline, StopTyping, Typing
@@ -81,5 +83,7 @@ __all__ = (
     "GetParameters",
     "EditParameter",
     "GetMessagesReactions",
-    "GetMessageReactionsList"
+    "GetMessageReactionsList",
+    "MessageSetReaction",
+    "MessageRemoveReaction"
 )

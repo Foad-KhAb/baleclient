@@ -48,7 +48,9 @@ from ..methods import (
     GetParameters,
     EditParameter,
     GetMessagesReactions,
-    GetMessageReactionsList
+    GetMessageReactionsList,
+    MessageSetReaction,
+    MessageRemoveReaction
 )
 from ..types import (
     MessageContent,
@@ -74,7 +76,8 @@ from ..types import (
     MessageReport,
     ExtKeyValue,
     MessageReactions,
-    ReactionData
+    ReactionData,
+    Reaction
 )
 from ..types.responses import (
     MessageResponse,
@@ -91,7 +94,8 @@ from ..types.responses import (
     ContactsResponse,
     ParametersResponse,
     ReactionsResponse,
-    ReactionListResponse
+    ReactionListResponse,
+    ReactionSentResponse
 )
 from ..enums import (
     ChatType,
@@ -100,7 +104,7 @@ from ..enums import (
     ListLoadMode,
     PeerSource,
     ReportKind,
-    TypingMode
+    TypingMode,
 )
 from ..dispatcher.dispatcher import Dispatcher
 from .auth_cli import PhoneLoginCLI
@@ -387,22 +391,20 @@ class Client:
             message_id=message.message_id,
             date=IntValue(value=message.date),
         )
-        
+
     def _ensure_other_message(
-        self, message: Union[Message, InfoMessage, OtherMessage], seq: Optional[int] = None
+        self,
+        message: Union[Message, InfoMessage, OtherMessage],
+        seq: Optional[int] = None,
     ) -> InfoMessage:
         """Ensures that a message is converted to OtherMessage if it's not already one."""
         if isinstance(message, OtherMessage):
             if seq is not None:
                 message.seq = seq
-            
+
             return message
 
-        return OtherMessage(
-            message_id=message.message_id,
-            date=message.date,
-            seq=seq
-        )
+        return OtherMessage(message_id=message.message_id, date=message.date, seq=seq)
 
     async def forward_message(
         self,
@@ -690,14 +692,14 @@ class Client:
         kind: ReportKind = ReportKind.SPAM,
     ) -> DefaultResponse:
         other_messages = [self._ensure_other_message(message) for message in messages]
-        
+
         message_report = MessageReport(
             messages=other_messages, peer=Peer(id=chat_id, type=chat_type)
         )
         report = Report(kind=kind, description=reason, message_report=message_report)
         call = SendReport(report_body=report)
         return await self(call)
-    
+
     async def report_message(
         self,
         chat_id: int,
@@ -711,40 +713,38 @@ class Client:
             chat_type=chat_type,
             messages=[message],
             reason=reason,
-            kind=kind
+            kind=kind,
         )
-        
+
     async def start_typing(
         self,
         chat_id: int,
         chat_type: ChatType,
-        typing_mode: TypingMode = TypingMode.TEXT
+        typing_mode: TypingMode = TypingMode.TEXT,
     ) -> DefaultResponse:
-        call = Typing(
-            peer=Peer(id=chat_id, type=chat_type), typing_type=typing_mode
-        )
+        call = Typing(peer=Peer(id=chat_id, type=chat_type), typing_type=typing_mode)
         return await self(call)
-        
+
     async def stop_typing(
         self,
         chat_id: int,
         chat_type: ChatType,
-        typing_mode: TypingMode = TypingMode.TEXT
+        typing_mode: TypingMode = TypingMode.TEXT,
     ) -> DefaultResponse:
         call = StopTyping(
             peer=Peer(id=chat_id, type=chat_type), typing_type=typing_mode
         )
         return await self(call)
-    
+
     async def get_parameters(self) -> List[ExtKeyValue]:
         call = GetParameters()
         result: ParametersResponse = await self(call)
         return result.params
-    
+
     async def edit_parameter(self, key: str, value: str) -> DefaultResponse:
         call = EditParameter(key=key, value=value)
         return await self(call)
-    
+
     async def get_messages_reactions(
         self,
         messages: List[Union[Message, InfoMessage, OtherMessage]],
@@ -753,26 +753,24 @@ class Client:
     ) -> List[MessageReactions]:
         other_messages = [self._ensure_other_message(message) for message in messages]
         peer = Peer(id=chat_id, type=chat_type)
-        
+
         call = GetMessagesReactions(
             peer=peer,
             message_ids=other_messages,
             origin_peer=peer,
-            origin_message_ids=other_messages
+            origin_message_ids=other_messages,
         )
         result: ReactionsResponse = await self(call)
         return result.messages
-    
+
     async def get_message_reactions(
         self,
         message: Union[Message, InfoMessage, OtherMessage],
         chat_id: int,
-        chat_type: ChatType
+        chat_type: ChatType,
     ) -> Optional[MessageReactions]:
         result = await self.get_messages_reactions(
-            messages=[message],
-            chat_id=chat_id,
-            chat_type=chat_type
+            messages=[message], chat_id=chat_id, chat_type=chat_type
         )
         return result[0] if result else None
 
@@ -783,7 +781,7 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
         page: int = 1,
-        limit: int = 20
+        limit: int = 20,
     ) -> List[ReactionData]:
         peer = Peer(id=chat_id, type=chat_type)
         call = GetMessageReactionsList(
@@ -792,7 +790,41 @@ class Client:
             date=message.date,
             emojy=emojy,
             page=page,
-            limit=limit
+            limit=limit,
         )
         result: ReactionListResponse = await self(call)
         return result.list
+
+    async def set_reaction(
+        self,
+        emojy: str,
+        message: Union[Message, InfoMessage, OtherMessage],
+        chat_id: int,
+        chat_type: ChatType
+    ) -> List[Reaction]:
+        peer = Peer(id=chat_id, type=chat_type)
+        call = MessageSetReaction(
+            peer=peer,
+            message_id=message.message_id,
+            date=message.date,
+            emojy=emojy
+        )
+        result: ReactionSentResponse = await self(call)
+        return result.reactions
+
+    async def remove_reaction(
+        self,
+        emojy: str,
+        message: Union[Message, InfoMessage, OtherMessage],
+        chat_id: int,
+        chat_type: ChatType
+    ) -> List[Reaction]:
+        peer = Peer(id=chat_id, type=chat_type)
+        call = MessageRemoveReaction(
+            peer=peer,
+            message_id=message.message_id,
+            date=message.date,
+            emojy=emojy
+        )
+        result: ReactionSentResponse = await self(call)
+        return result.reactions

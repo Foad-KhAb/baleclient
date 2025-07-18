@@ -12,6 +12,7 @@ from .contacts import ContactsResponse
 from .parameters import ParametersResponse
 from .messages_reactions import ReactionsResponse
 from .reaction_list import ReactionListResponse
+from .reaction_sent import ReactionSentResponse
 
 
 __all__ = (
@@ -29,5 +30,6 @@ __all__ = (
     "ContactsResponse",
     "ParametersResponse",
     "ReactionsResponse",
-    "ReactionListResponse"
+    "ReactionListResponse",
+    "ReactionSentResponse",
 )
