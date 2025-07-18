@@ -11,6 +11,7 @@ from .message_content import MessageContent
 from .other_message import OtherMessage
 from .full_user import FullUser
 from .user import User
+from .message_reaction import MessageReactions
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse
@@ -247,4 +248,11 @@ class Message(BaleObject):
     ) -> DefaultResponse:
         return await self.client.stop_typing(
             chat_id=self.chat.id, chat_type=self.chat.type, typing_mode=typing_mode
+        )
+        
+    async def get_reactions(self) -> MessageReactions:
+        return await self.client.get_message_reactions(
+            message=self,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type
         )
