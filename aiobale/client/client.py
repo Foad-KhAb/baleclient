@@ -872,7 +872,7 @@ class Client:
     ) -> List[MessageViews]:
         return await self.get_messages_views(messages=[message], chat_id=chat_id)
 
-    async def get_full_group(self, chat_id: int) -> Optional[FullGroup]:
+    async def get_full_group(self, chat_id: int) -> FullGroup:
         peer = GroupPeer(id=chat_id, access_hash=1)
         call = GetFullGroup(group=peer)
         
