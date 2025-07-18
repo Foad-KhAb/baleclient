@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING, List, Optional
 
 from ...types import ShortPeer, StringValue
-from ...types.responses import FullGroupResponse
+from ...types.responses import GroupCreatedResponse
 from ...enums import Services, GroupType, Restriction
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class CreateGroup(BaleMethod):
     __service__ = Services.GROUPS.value
     __method__ = "CreateGroup"
     
-    __returning__ = FullGroupResponse
+    __returning__ = GroupCreatedResponse
     
     random_id: int = Field(..., alias="1")
     title: str = Field(..., alias="2")
