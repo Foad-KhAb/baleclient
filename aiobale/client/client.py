@@ -910,7 +910,7 @@ class Client:
             random_id=random_id,
             title=title,
             users=users,
-            username=username,
+            username=StringValue(value=username),
             group_type=group_type,
             restriction=restriction,
         )
