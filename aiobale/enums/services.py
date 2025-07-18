@@ -7,3 +7,4 @@ class Services(str, Enum):
     USER = "bale.users.v1.Users"
     PRESENCE = "bale.presence.v1.Presence"
     REPORT = "bale.report.v1.Report"
+    CONFIGS = "bale.v1.Configs"

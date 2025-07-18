@@ -1,7 +1,6 @@
 from pydantic import Field
 from typing import Optional, List
 
-from ..ext import ExtData
 from ..base import BaleObject
 
 
