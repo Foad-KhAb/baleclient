@@ -25,7 +25,7 @@ from .full_user import FullUser
 from .contact_request import ContactData
 from .block_updates import UserBlocked, UserUnblocked
 from .message_updates import GroupMessagePinned, GroupPinRemoved
-from .group import Group
+from .group_peer import GroupPeer
 from .report import Report
 from .peer_report import PeerReport
 from .message_report import MessageReport
@@ -33,6 +33,8 @@ from .reaction import Reaction
 from .message_reaction import MessageReactions
 from .reaction_data import ReactionData
 from .message_views import MessageViews
+from .full_group import FullGroup
+from .permissions import Permissions
 
 
 __all__ = (
@@ -75,12 +77,14 @@ __all__ = (
     "UserUnblocked",
     "GroupMessagePinned",
     "GroupPinRemoved",
-    "Group",
+    "GroupPeer",
     "Report",
     "PeerReport",
     "MessageReport",
     "Reaction",
     "MessageReactions",
     "ReactionData",
-    "MessageViews"
+    "MessageViews",
+    "FullGroup",
+    "Permissions"
 )

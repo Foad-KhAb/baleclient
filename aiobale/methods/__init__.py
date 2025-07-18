@@ -38,6 +38,7 @@ from .abacus import (
     MessageRemoveReaction,
     GetMessagesViews
 )
+from .groups import GetFullGroup
 from .configs import EditParameter, GetParameters
 from .report import SendReport
 from .presence import SetOnline, StopTyping, Typing
@@ -89,4 +90,5 @@ __all__ = (
     "MessageRemoveReaction",
     "GetMessagesViews",
     "ValidatePassword",
+    "GetFullGroup",
 )

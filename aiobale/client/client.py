@@ -53,6 +53,7 @@ from ..methods import (
     MessageRemoveReaction,
     GetMessagesViews,
     ValidatePassword,
+    GetFullGroup,
 )
 from ..types import (
     MessageContent,
@@ -81,6 +82,8 @@ from ..types import (
     ReactionData,
     Reaction,
     MessageViews,
+    FullGroup,
+    GroupPeer
 )
 from ..types.responses import (
     MessageResponse,
@@ -100,6 +103,7 @@ from ..types.responses import (
     ReactionListResponse,
     ReactionSentResponse,
     ViewsResponse,
+    FullGroupResponse,
 )
 from ..enums import (
     ChatType,
@@ -867,3 +871,10 @@ class Client:
         self, message: Union[Message, InfoMessage, OtherMessage], chat_id: int
     ) -> List[MessageViews]:
         return await self.get_messages_views(messages=[message], chat_id=chat_id)
+
+    async def get_full_group(self, chat_id: int) -> Optional[FullGroup]:
+        peer = GroupPeer(id=chat_id, access_hash=1)
+        call = GetFullGroup(group=peer)
+        
+        result: FullGroupResponse = await self(call)
+        return result.fullgroup

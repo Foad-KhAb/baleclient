@@ -9,3 +9,4 @@ class Services(str, Enum):
     REPORT = "bale.report.v1.Report"
     CONFIGS = "bale.v1.Configs"
     ABACUS = "bale.abacus.v1.Abacus"
+    GROUPS = "bale.groups.v1.Groups"

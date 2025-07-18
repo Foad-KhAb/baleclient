@@ -7,6 +7,8 @@ from .privacy_mode import PrivacyMode
 from .report_kind import ReportKind
 from .peer_source import PeerSource
 from .typing_type import TypingMode
+from .group_type import GroupType
+
 
 __all__ = (
     "ChatType",
@@ -16,5 +18,7 @@ __all__ = (
     "ListLoadMode",
     "PrivacyMode",
     "ReportKind",
-    "PeerSource"
+    "PeerSource",
+    "TypingMode",
+    "GroupType"
 )
