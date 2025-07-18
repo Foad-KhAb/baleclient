@@ -47,7 +47,8 @@ from ..methods import (
     Typing,
     GetParameters,
     EditParameter,
-    GetMessagesReactions
+    GetMessagesReactions,
+    GetMessageReactionsList
 )
 from ..types import (
     MessageContent,
@@ -72,7 +73,8 @@ from ..types import (
     PeerReport,
     MessageReport,
     ExtKeyValue,
-    MessageReactions
+    MessageReactions,
+    ReactionData
 )
 from ..types.responses import (
     MessageResponse,
@@ -88,7 +90,8 @@ from ..types.responses import (
     ContactResponse,
     ContactsResponse,
     ParametersResponse,
-    ReactionsResponse
+    ReactionsResponse,
+    ReactionListResponse
 )
 from ..enums import (
     ChatType,
@@ -772,3 +775,24 @@ class Client:
             chat_type=chat_type
         )
         return result[0] if result else None
+
+    async def get_reaction_list(
+        self,
+        emojy: str,
+        message: Union[Message, InfoMessage, OtherMessage],
+        chat_id: int,
+        chat_type: ChatType,
+        page: int = 1,
+        limit: int = 20
+    ) -> List[ReactionData]:
+        peer = Peer(id=chat_id, type=chat_type)
+        call = GetMessageReactionsList(
+            peer=peer,
+            message_id=message.message_id,
+            date=message.date,
+            emojy=emojy,
+            page=page,
+            limit=limit
+        )
+        result: ReactionListResponse = await self(call)
+        return result.list

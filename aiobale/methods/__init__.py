@@ -34,7 +34,7 @@ from .user import (
     AddContact,
     GetContacts
 )
-from .abacus import GetMessagesReactions
+from .abacus import GetMessagesReactions, GetMessageReactionsList
 from .configs import EditParameter, GetParameters
 from .report import SendReport
 from .presence import SetOnline, StopTyping, Typing
@@ -80,5 +80,6 @@ __all__ = (
     "StopTyping",
     "GetParameters",
     "EditParameter",
-    "GetMessagesReactions"
+    "GetMessagesReactions",
+    "GetMessageReactionsList"
 )
