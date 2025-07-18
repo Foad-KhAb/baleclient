@@ -16,6 +16,7 @@ from .reaction_sent import ReactionSentResponse
 from .views_response import ViewsResponse
 from .full_group import FullGroupResponse
 from .load_members import MembersResponse
+from .create_group import GroupCreatedResponse
 
 
 __all__ = (
@@ -37,5 +38,6 @@ __all__ = (
     "ReactionSentResponse",
     "ViewsResponse",
     "FullGroupResponse",
-    "MembersResponse"
+    "MembersResponse",
+    "GroupCreatedResponse"
 )

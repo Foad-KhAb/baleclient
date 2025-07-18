@@ -8,7 +8,7 @@ from ..member import Member
 
 
 class MembersResponse(BaleObject):
-    members: List[Member] = Field(..., alias="1")
+    members: List[Member] = Field(default_factory=list, alias="1")
     
     @model_validator(mode="before")
     @classmethod

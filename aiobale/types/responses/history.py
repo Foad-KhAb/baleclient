@@ -9,7 +9,7 @@ from ..chat import Chat
 
 
 class HistoryResponse(BaleObject):
-    data: List[MessageData] = Field(..., alias="1")
+    data: List[MessageData] = Field(default_factory=list, alias="1")
     
     @model_validator(mode="before")
     @classmethod

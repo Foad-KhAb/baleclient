@@ -1,7 +1,7 @@
 from pydantic import Field
 from typing import TYPE_CHECKING, List
 
-from ...types import GroupPeer
+from ...types import ShortPeer
 from ...types.responses import FullGroupResponse
 from ...enums import Services
 from ..base import BaleMethod
@@ -13,7 +13,7 @@ class LoadMembers(BaleMethod):
     
     __returning__ = FullGroupResponse
     
-    group: GroupPeer = Field(..., alias="1")
+    group: ShortPeer = Field(..., alias="1")
     limit: int = Field(..., alias="2")
     next: int = Field(..., alias="3")
     
@@ -23,7 +23,7 @@ class LoadMembers(BaleMethod):
         def __init__(
             __pydantic__self__,
             *,
-            group: GroupPeer,
+            group: ShortPeer,
             limit: int,
             next: int,
             **__pydantic_kwargs
@@ -33,6 +33,6 @@ class LoadMembers(BaleMethod):
             super().__init__(
                 group=group,
                 limit=limit,
-                next=next
+                next=next,
                 **__pydantic_kwargs
             )

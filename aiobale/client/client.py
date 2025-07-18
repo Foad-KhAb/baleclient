@@ -55,6 +55,7 @@ from ..methods import (
     ValidatePassword,
     GetFullGroup,
     LoadMembers,
+    CreateGroup,
 )
 from ..types import (
     MessageContent,
@@ -84,8 +85,8 @@ from ..types import (
     Reaction,
     MessageViews,
     FullGroup,
-    GroupPeer,
-    Member
+    ShortPeer,
+    Member,
 )
 from ..types.responses import (
     MessageResponse,
@@ -106,7 +107,8 @@ from ..types.responses import (
     ReactionSentResponse,
     ViewsResponse,
     FullGroupResponse,
-    MembersResponse
+    MembersResponse,
+    GroupCreatedResponse,
 )
 from ..enums import (
     ChatType,
@@ -116,6 +118,8 @@ from ..enums import (
     PeerSource,
     ReportKind,
     TypingMode,
+    Restriction,
+    GroupType,
 )
 from ..dispatcher.dispatcher import Dispatcher
 from .auth_cli import PhoneLoginCLI
@@ -876,7 +880,7 @@ class Client:
         return await self.get_messages_views(messages=[message], chat_id=chat_id)
 
     async def get_full_group(self, chat_id: int) -> FullGroup:
-        peer = GroupPeer(id=chat_id, access_hash=1)
+        peer = ShortPeer(id=chat_id, access_hash=1)
         call = GetFullGroup(group=peer)
 
         result: FullGroupResponse = await self(call)
@@ -885,8 +889,37 @@ class Client:
     async def load_members(
         self, chat_id: int, limit: int = 20, next: Optional[int] = None
     ) -> List[Member]:
-        peer = GroupPeer(id=chat_id, access_hash=1)
+        peer = ShortPeer(id=chat_id, access_hash=1)
         call = LoadMembers(group=peer, limit=limit, next=next)
 
         result: MembersResponse = await self(call)
         return result.members
+
+    async def create_group(
+        self,
+        title: str,
+        username: Optional[str] = None,
+        users: Tuple[int] = (),
+        group_type: GroupType = GroupType.GROUP,
+    ) -> GroupCreatedResponse:
+        random_id = generate_id()
+        users = [ShortPeer(id=v, access_hash=1) for v in users]
+        restriction = Restriction.PUBLIC if username else Restriction.PRIVATE
+
+        call = CreateGroup(
+            random_id=random_id,
+            title=title,
+            users=users,
+            username=username,
+            group_type=group_type,
+            restriction=restriction,
+        )
+
+        return await self(call)
+
+    async def create_channel(
+        self, title: str, username: Optional[str] = None, users: Tuple[int] = ()
+    ) -> GroupCreatedResponse:
+        return await self.create_group(
+            title=title, username=username, users=users, group_type=GroupType.CHANNEL
+        )

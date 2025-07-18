@@ -8,7 +8,7 @@ from ..message_reaction import MessageReactions
 
 
 class ReactionsResponse(BaleObject):
-    messages: List[MessageReactions] = Field([], alias="1")
+    messages: List[MessageReactions] = Field(default_factory=list, alias="1")
     
     @model_validator(mode="before")
     @classmethod

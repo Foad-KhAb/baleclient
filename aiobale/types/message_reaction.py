@@ -10,7 +10,7 @@ from .reaction import Reaction
 class MessageReactions(BaleObject):
     id: int = Field(..., alias="1")
     date: int = Field(..., alias="2")
-    reactions: List[Reaction] = Field([], alias="3")
+    reactions: List[Reaction] = Field(default_factory=list, alias="3")
     
     
     @model_validator(mode="before")

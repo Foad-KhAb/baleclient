@@ -6,4 +6,4 @@ from ..ext import ExtKeyValue
 
 
 class ParametersResponse(BaleObject):
-    params: List[ExtKeyValue] = Field([], alias="1")
+    params: List[ExtKeyValue] = Field(default_factory=list, alias="1")

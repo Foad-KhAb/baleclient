@@ -17,7 +17,7 @@ class FullGroup(BaleObject):
     created_at: int = Field(..., alias="6")
     group_type: GroupType = Field(GroupType.GROUP, alias="7")
     is_joined: IntBool = Field(False, alias="7")
-    member_count: int = Field(..., alias="10")
+    members_count: int = Field(..., alias="10")
     username: Optional[str] = Field(None, alias="11")
     is_orphaned: IntBool = Field(False, alias="12")
     permissions: Permissions = Field(..., alias="13")
@@ -26,7 +26,7 @@ class FullGroup(BaleObject):
     about: Optional[str] = Field(None, alias="16")
     members: Optional[List[Member]] = Field(None, alias="17")
     ex_info: ExInfo = Field(..., alias="18")
-    available_reactions: List[str] = Field([], alias="24")
+    available_reactions: List[str] = Field(default_factory=list, alias="24")
     is_suspend: IntBool = Field(False, alias="25")
     privacy_mode: PrivacyMode = Field(..., alias="28")
     

@@ -8,7 +8,7 @@ from ..base import BaleObject
 
 
 class DialogResponse(BaleObject):
-    dialogs: List[PeerData] = Field(..., alias="3")
+    dialogs: List[PeerData] = Field(default_factory=list, alias="3")
     
     @model_validator(mode="before")
     @classmethod

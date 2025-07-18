@@ -8,7 +8,7 @@ from .base import BaleObject
 
 
 class Reaction(BaleObject):
-    users: List[int] = Field([], alias="1")
+    users: List[int] = Field(default_factory=list, alias="1")
     emojy: str = Field(..., alias="2")
     count: int = Field(..., alias="3")
     

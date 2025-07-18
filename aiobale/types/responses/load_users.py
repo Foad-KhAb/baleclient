@@ -9,7 +9,7 @@ from ..user import User
 
 
 class FullUsersResponse(BaleObject):
-    data: List[FullUser] = Field(..., alias="1")
+    data: List[FullUser] = Field(default_factory=list, alias="1")
     
     @model_validator(mode="before")
     @classmethod
@@ -24,7 +24,7 @@ class FullUsersResponse(BaleObject):
     
     
 class UsersResponse(BaleObject):
-    data: List[User] = Field(..., alias="1")
+    data: List[User] = Field(default_factory=list, alias="1")
     
     @model_validator(mode="before")
     @classmethod

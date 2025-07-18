@@ -8,7 +8,7 @@ from ..message_views import MessageViews
 
 
 class ViewsResponse(BaleObject):
-    messages: List[MessageViews] = Field([], alias="1")
+    messages: List[MessageViews] = Field(default_factory=list, alias="1")
     
     @model_validator(mode="before")
     @classmethod

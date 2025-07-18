@@ -8,6 +8,7 @@ from .report_kind import ReportKind
 from .peer_source import PeerSource
 from .typing_type import TypingMode
 from .group_type import GroupType
+from .restriction import Restriction
 
 
 __all__ = (
@@ -20,5 +21,6 @@ __all__ = (
     "ReportKind",
     "PeerSource",
     "TypingMode",
-    "GroupType"
+    "GroupType",
+    "Restriction",
 )

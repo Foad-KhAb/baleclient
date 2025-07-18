@@ -8,7 +8,7 @@ from ..reaction import Reaction
 
 
 class ReactionSentResponse(BaleObject):
-    reactions: List[Reaction] = Field([], alias="2")
+    reactions: List[Reaction] = Field(default_factory=list, alias="2")
     
     @model_validator(mode="before")
     @classmethod

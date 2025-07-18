@@ -1,0 +1,47 @@
+from pydantic import Field
+from typing import TYPE_CHECKING, List, Optional
+
+from ...types import ShortPeer, StringValue
+from ...types.responses import FullGroupResponse
+from ...enums import Services, GroupType, Restriction
+from ..base import BaleMethod
+
+
+class CreateGroup(BaleMethod):
+    __service__ = Services.GROUPS.value
+    __method__ = "CreateGroup"
+    
+    __returning__ = FullGroupResponse
+    
+    random_id: int = Field(..., alias="1")
+    title: str = Field(..., alias="2")
+    users: Optional[List[ShortPeer]] = Field(None, alias="3")
+    group_type: GroupType = Field(GroupType.GROUP, alias="6")
+    username: Optional[StringValue] = Field(None, alias="8")
+    restriction: Restriction = Field(Restriction.PRIVATE, alias="9")
+    
+    if TYPE_CHECKING:
+        # Just For Type Helping
+        
+        def __init__(
+            __pydantic__self__,
+            *,
+            random_id: int,
+            title: str,
+            users: Optional[List[ShortPeer]],
+            group_type: GroupType = GroupType.GROUP,
+            username: Optional[StringValue] = None,
+            restriction: Restriction = Restriction.PRIVATE,
+            **__pydantic_kwargs
+        ) -> None:
+            # Is needed only for type checking and IDE support without any additional plugins
+            
+            super().__init__(
+                random_id=random_id,
+                title=title,
+                users=users,
+                group_type=group_type,
+                username=username,
+                restriction=restriction,
+                **__pydantic_kwargs
+            )
