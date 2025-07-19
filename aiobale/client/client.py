@@ -56,7 +56,10 @@ from ..methods import (
     GetFullGroup,
     LoadMembers,
     CreateGroup,
-    InviteUsers
+    InviteUsers,
+    EditGroupTitle,
+    EditGroupAbout,
+    SetRestriction
 )
 from ..types import (
     MessageContent,
@@ -110,7 +113,7 @@ from ..types.responses import (
     FullGroupResponse,
     MembersResponse,
     GroupCreatedResponse,
-    InviteResponse
+    InviteResponse,
 )
 from ..enums import (
     ChatType,
@@ -925,14 +928,47 @@ class Client:
         return await self.create_group(
             title=title, username=username, users=users, group_type=GroupType.CHANNEL
         )
-        
-    async def invite_users(
-        self, users: Tuple[int], chat_id: int
-    ) -> InviteResponse:
+
+    async def invite_users(self, users: Tuple[int], chat_id: int) -> InviteResponse:
         call = InviteUsers(
             group=ShortPeer(id=chat_id),
             random_id=generate_id(12),
-            users=[ShortPeer(id=u) for u in users]
+            users=[ShortPeer(id=u) for u in users],
+        )
+
+        return await self(call)
+
+    async def edit_group_title(self, title: str, chat_id: int) -> DefaultResponse:
+        call = EditGroupTitle(
+            group=ShortPeer(id=chat_id),
+            random_id=generate_id(12),
+            title=title
+        )
+
+        return await self(call)
+    
+    async def edit_group_about(self, about: str, chat_id: int) -> DefaultResponse:
+        call = EditGroupAbout(
+            group=ShortPeer(id=chat_id),
+            random_id=generate_id(12),
+            about=StringValue(value=about)
+        )
+
+        return await self(call)
+    
+    async def make_group_public(self, chat_id: int, username: str) -> DefaultResponse:
+        call = SetRestriction(
+            group=ShortPeer(id=chat_id),
+            restriction=Restriction.PUBLIC,
+            username=StringValue(value=username)
+        )
+        
+        return await self(call)
+    
+    async def make_group_private(self, chat_id: int) -> DefaultResponse:
+        call = SetRestriction(
+            group=ShortPeer(id=chat_id),
+            restriction=Restriction.PRIVATE
         )
         
         return await self(call)
