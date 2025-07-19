@@ -1,8 +1,8 @@
 from pydantic import Field
 from typing import TYPE_CHECKING, List, Optional
 
-from ...types import ShortPeer, StringValue
-from ...types.responses import DefaultResponse
+from ...types import ShortPeer
+from ...types.responses import InviteURLResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class GetGroupInviteURL(BaleMethod):
     __service__ = Services.GROUPS.value
     __method__ = "GetGroupInviteURL"
     
-    __returning__ = DefaultResponse
+    __returning__ = InviteURLResponse
     
     group: ShortPeer = Field(..., alias="1")
     

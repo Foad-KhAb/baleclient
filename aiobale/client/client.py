@@ -207,7 +207,7 @@ class Client:
 
         self._parse_session_content(content)
         return True
-    
+
     async def _ensure_token_exists(self) -> None:
         if self.__token is None:
             if not self._add_token_via_file():
@@ -218,11 +218,9 @@ class Client:
         if not self.session.running:
             await self._ensure_token_exists()
             return await self.session.post(
-                method=method,
-                just_bale_type=True,
-                token=self.__token
+                method=method, just_bale_type=True, token=self.__token
             )
-        
+
         return await self.session.make_request(method)
 
     async def start(self, run_in_background: bool = False) -> None:
@@ -981,12 +979,12 @@ class Client:
         )
         return await self(call)
 
-    async def get_invite_link(self, chat_id: int) -> str:
+    async def get_group_link(self, chat_id: int) -> str:
         call = GetGroupInviteURL(group=ShortPeer(id=chat_id))
         result: InviteURLResponse = await self(call)
         return result.url
 
-    async def revoke_invite_link(self, chat_id: int) -> str:
+    async def revoke_group_link(self, chat_id: int) -> str:
         call = RevokeInviteURL(group=ShortPeer(id=chat_id))
         result: InviteURLResponse = await self(call)
         return result.url
@@ -995,6 +993,8 @@ class Client:
         call = LeaveGroup(group=ShortPeer(id=chat_id), random_id=generate_id(12))
         return await self(call)
 
-    async def transfer_ownership(self, chat_id: int, new_owner: int) -> DefaultResponse:
+    async def transfer_group_ownership(
+        self, chat_id: int, new_owner: int
+    ) -> DefaultResponse:
         call = TransferOwnership(group=ShortPeer(id=chat_id), new_owner=new_owner)
         return await self(call)
