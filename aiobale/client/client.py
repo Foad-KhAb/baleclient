@@ -217,7 +217,11 @@ class Client:
     async def __call__(self, method: BaleMethod[BaleType]):
         if not self.session.running:
             await self._ensure_token_exists()
-            return await self.session.post(method)
+            return await self.session.post(
+                method=method,
+                just_bale_type=True,
+                token=self.__token
+            )
         
         return await self.session.make_request(method)
 
