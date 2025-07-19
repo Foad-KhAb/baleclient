@@ -61,6 +61,7 @@ from ..methods import (
     EditGroupAbout,
     SetRestriction,
     GetGroupInviteURL,
+    RevokeInviteURL
 )
 from ..types import (
     MessageContent,
@@ -974,5 +975,10 @@ class Client:
 
     async def get_invite_link(self, chat_id: int) -> str:
         call = GetGroupInviteURL(group=ShortPeer(id=chat_id))
+        result: InviteURLResponse = await self(call)
+        return result.url
+
+    async def revoke_invite_link(self, chat_id: int) -> str:
+        call = RevokeInviteURL(group=ShortPeer(id=chat_id))
         result: InviteURLResponse = await self(call)
         return result.url

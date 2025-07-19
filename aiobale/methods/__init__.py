@@ -46,7 +46,8 @@ from .groups import (
     EditGroupTitle,
     EditGroupAbout,
     SetRestriction,
-    GetGroupInviteURL
+    GetGroupInviteURL,
+    RevokeInviteURL,
 )
 from .configs import EditParameter, GetParameters
 from .report import SendReport
@@ -106,5 +107,6 @@ __all__ = (
     "EditGroupTitle",
     "EditGroupAbout",
     "SetRestriction",
-    "GetGroupInviteURL"
+    "GetGroupInviteURL",
+    "RevokeInviteURL",
 )
