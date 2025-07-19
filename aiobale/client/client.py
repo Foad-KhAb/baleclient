@@ -61,7 +61,8 @@ from ..methods import (
     EditGroupAbout,
     SetRestriction,
     GetGroupInviteURL,
-    RevokeInviteURL
+    RevokeInviteURL,
+    LeaveGroup,
 )
 from ..types import (
     MessageContent,
@@ -938,14 +939,12 @@ class Client:
             random_id=generate_id(12),
             users=[ShortPeer(id=u) for u in users],
         )
-
         return await self(call)
 
     async def edit_group_title(self, title: str, chat_id: int) -> DefaultResponse:
         call = EditGroupTitle(
             group=ShortPeer(id=chat_id), random_id=generate_id(12), title=title
         )
-
         return await self(call)
 
     async def edit_group_about(self, about: str, chat_id: int) -> DefaultResponse:
@@ -954,7 +953,6 @@ class Client:
             random_id=generate_id(12),
             about=StringValue(value=about),
         )
-
         return await self(call)
 
     async def make_group_public(self, chat_id: int, username: str) -> DefaultResponse:
@@ -963,14 +961,12 @@ class Client:
             restriction=Restriction.PUBLIC,
             username=StringValue(value=username),
         )
-
         return await self(call)
 
     async def make_group_private(self, chat_id: int) -> DefaultResponse:
         call = SetRestriction(
             group=ShortPeer(id=chat_id), restriction=Restriction.PRIVATE
         )
-
         return await self(call)
 
     async def get_invite_link(self, chat_id: int) -> str:
@@ -982,3 +978,7 @@ class Client:
         call = RevokeInviteURL(group=ShortPeer(id=chat_id))
         result: InviteURLResponse = await self(call)
         return result.url
+
+    async def leave_group(self, chat_id: int) -> DefaultResponse:
+        call = LeaveGroup(group=ShortPeer(id=chat_id), random_id=generate_id(12))
+        return await self(call)

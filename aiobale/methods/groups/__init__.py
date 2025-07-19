@@ -7,6 +7,7 @@ from .edit_group_about import EditGroupAbout
 from .set_restriction import SetRestriction
 from .get_group_invite_url import GetGroupInviteURL
 from .revoke_invite_url import RevokeInviteURL
+from .leave_group import LeaveGroup
 
 
 __all__ = (
@@ -18,5 +19,6 @@ __all__ = (
     "EditGroupTitle",
     "SetRestriction",
     "GetGroupInviteURL",
-    "RevokeInviteURL"
+    "RevokeInviteURL",
+    "LeaveGroup",
 )
