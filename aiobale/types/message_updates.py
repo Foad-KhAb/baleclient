@@ -30,4 +30,4 @@ class GroupMessagePinned(BaleObject):
 
 class GroupPinRemoved(BaleObject):
     group_id: int = Field(..., alias="1")
-    message: OtherMessage  = Field(..., alias="2")
+    message: Optional[OtherMessage]  = Field(None, alias="2")
