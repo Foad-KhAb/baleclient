@@ -3,6 +3,7 @@ from .random import generate_id
 from .protobuf import ProtoBuf
 from .grpc_post import add_header, clean_grpc
 from .int64 import Int64VarintCodec
+from .links import extract_join_token
 
 
 __all__ = (
@@ -11,5 +12,6 @@ __all__ = (
     "ProtoBuf",
     "add_header",
     "clean_grpc",
-    "Int64VarintCodec"
+    "Int64VarintCodec",
+    "extract_join_token"
 )

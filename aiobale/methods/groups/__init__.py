@@ -9,6 +9,15 @@ from .get_group_invite_url import GetGroupInviteURL
 from .revoke_invite_url import RevokeInviteURL
 from .leave_group import LeaveGroup
 from .transfer_ownership import TransferOwnership
+from .join_group import JoinGroup
+from .kick_user import KickUser
+from .make_user_admin import MakeUserAdmin
+from .remove_user_admin import RemoveUserAdmin
+from .join_public_group import JoinPublicGroup
+from .pin_message import PinGroupMessage
+from .remove_pin import RemoveAllPins
+from .remove_single_pin import RemoveSinglePin
+from .get_pins import GetPins
 
 
 __all__ = (
@@ -22,5 +31,15 @@ __all__ = (
     "GetGroupInviteURL",
     "RevokeInviteURL",
     "LeaveGroup",
-    "TransferOwnership"
+    "TransferOwnership",
+    "RemoveUserAdmin",
+    "MakeUserAdmin",
+    "KickUser",
+    "RemoveUserAdmin",
+    "JoinGroup",
+    "JoinPublicGroup",
+    "PinGroupMessage",
+    "RemoveSinglePin",
+    "RemoveAllPins",
+    "GetPins"
 )

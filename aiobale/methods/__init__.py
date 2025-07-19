@@ -50,6 +50,16 @@ from .groups import (
     RevokeInviteURL,
     LeaveGroup,
     TransferOwnership,
+    RemoveUserAdmin,
+    MakeUserAdmin,
+    KickUser,
+    RemoveUserAdmin,
+    JoinGroup,
+    JoinPublicGroup,
+    PinGroupMessage,
+    RemoveSinglePin,
+    RemoveAllPins,
+    GetPins,
 )
 from .configs import EditParameter, GetParameters
 from .report import SendReport
@@ -112,5 +122,15 @@ __all__ = (
     "GetGroupInviteURL",
     "RevokeInviteURL",
     "LeaveGroup",
-    "TransferOwnership"
+    "TransferOwnership",
+    "RemoveUserAdmin",
+    "MakeUserAdmin",
+    "KickUser",
+    "RemoveUserAdmin",
+    "JoinGroup",
+    "JoinPublicGroup",
+    "PinGroupMessage",
+    "RemoveSinglePin",
+    "RemoveAllPins",
+    "GetPins"
 )

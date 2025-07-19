@@ -7,7 +7,7 @@ import os
 
 from .session import AiohttpSession, BaseSession
 from ..exceptions import AiobaleError
-from ..utils import parse_jwt, generate_id, clean_grpc
+from ..utils import parse_jwt, generate_id, clean_grpc, extract_join_token
 from ..methods import (
     SendMessage,
     BaleMethod,
@@ -64,6 +64,16 @@ from ..methods import (
     RevokeInviteURL,
     LeaveGroup,
     TransferOwnership,
+    RemoveUserAdmin,
+    MakeUserAdmin,
+    KickUser,
+    RemoveUserAdmin,
+    JoinGroup,
+    JoinPublicGroup,
+    PinGroupMessage,
+    RemoveSinglePin,
+    RemoveAllPins,
+    GetPins,
 )
 from ..types import (
     MessageContent,
@@ -119,6 +129,8 @@ from ..types.responses import (
     GroupCreatedResponse,
     InviteResponse,
     InviteURLResponse,
+    JoinedGroupResponse,
+    GetPinsResponse,
 )
 from ..enums import (
     ChatType,
@@ -997,4 +1009,69 @@ class Client:
         self, chat_id: int, new_owner: int
     ) -> DefaultResponse:
         call = TransferOwnership(group=ShortPeer(id=chat_id), new_owner=new_owner)
+        return await self(call)
+
+    async def make_user_admin(
+        self, chat_id: int, user_id: int, admin_name: Optional[str] = None
+    ) -> DefaultResponse:
+        call = MakeUserAdmin(
+            group=ShortPeer(id=chat_id),
+            user=ShortPeer(id=user_id),
+            admin_name=admin_name,
+        )
+        return await self(call)
+
+    async def remove_admin(self, chat_id: int, user_id: int) -> DefaultResponse:
+        call = RemoveUserAdmin(group=ShortPeer(id=chat_id), user=ShortPeer(id=user_id))
+        return await self(call)
+
+    async def kick_user(self, chat_id: int, user_id: int) -> DefaultResponse:
+        call = KickUser(
+            group=ShortPeer(id=chat_id),
+            user=ShortPeer(id=user_id),
+            random_id=generate_id(12),
+        )
+        return await self(call)
+
+    async def join_chat(self, token_or_url: str) -> JoinedGroupResponse:
+        token = extract_join_token(token_or_url)
+        call = JoinGroup(token=token)
+        return await self(call)
+
+    async def join_public_chat(self, chat_id: int) -> JoinedGroupResponse:
+        call = JoinPublicGroup(peer=Peer(id=chat_id, type=ChatType.GROUP))
+        return await self(call)
+
+    async def pin_group_message(
+        self,
+        message: Union[Message, MessageData, InfoMessage, OtherMessage],
+        chat_id: int,
+    ) -> DefaultResponse:
+        call = PinGroupMessage(
+            group=ShortPeer(id=chat_id),
+            message_id=message.message_id,
+            date=message.date,
+        )
+        return await self(call)
+
+    async def unpin_group_message(
+        self,
+        message: Union[Message, MessageData, InfoMessage, OtherMessage],
+        chat_id: int,
+    ) -> DefaultResponse:
+        call = RemoveSinglePin(
+            group=ShortPeer(id=chat_id),
+            message_id=message.message_id,
+            date=message.date,
+        )
+        return await self(call)
+
+    async def remove_group_pins(self, chat_id: int) -> DefaultResponse:
+        call = RemoveAllPins(group=ShortPeer(id=chat_id))
+        return await self(call)
+
+    async def get_group_pins(
+        self, chat_id: int, page: int = 1, limit: int = 20
+    ) -> GetPinsResponse:
+        call = GetPins(group=ShortPeer(id=chat_id), page=page, limit=limit)
         return await self(call)
