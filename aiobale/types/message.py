@@ -79,7 +79,6 @@ class Message(BaleObject):
         return text_content.value
 
     async def answer(self, text: str, message_id: Optional[int] = None) -> Message:
-
         return await self.client.send_message(
             text=text,
             chat_id=self.chat.id,
@@ -88,7 +87,6 @@ class Message(BaleObject):
         )
 
     async def reply(self, text: str, message_id: Optional[int] = None) -> Message:
-
         return await self.client.send_message(
             text=text,
             chat_id=self.chat.id,
@@ -98,7 +96,6 @@ class Message(BaleObject):
         )
 
     async def edit_text(self, text: str) -> DefaultResponse:
-
         return await self.client.edit_message(
             text=text,
             message_id=self.message_id,
@@ -107,7 +104,6 @@ class Message(BaleObject):
         )
 
     async def delete(self, just_me: Optional[bool] = False) -> DefaultResponse:
-
         return await self.client.delete_message(
             message_id=self.message_id,
             message_date=self.date,
@@ -119,7 +115,6 @@ class Message(BaleObject):
     async def forward_to(
         self, chat_id: int, chat_type: ChatType, new_id: Optional[int] = None
     ) -> DefaultResponse:
-
         return await self.client.forward_message(
             message=self, chat_id=chat_id, chat_type=chat_type, new_id=new_id
         )
@@ -145,7 +140,6 @@ class Message(BaleObject):
         offset_date: int = -1,
         load_mode: ListLoadMode = ListLoadMode.BACKWARD,
     ) -> List[Message]:
-
         return await self.client.load_history(
             chat_id=self.chat.id,
             chat_type=self.chat.type,
@@ -155,7 +149,6 @@ class Message(BaleObject):
         )
 
     async def pin(self, just_me: bool = False) -> DefaultResponse:
-
         return await self.client.pin_message(
             message_id=self.message_id,
             message_date=self.date,
@@ -179,6 +172,21 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
         )
+
+    async def pin_in_group(self) -> DefaultResponse:
+        return await self.client.pin_group_message(
+            message=self,
+            chat_id=self.chat.id,
+        )
+
+    async def unpin_in_group(self) -> DefaultResponse:
+        return await self.client.unpin_group_message(
+            message=self,
+            chat_id=self.chat.id,
+        )
+
+    async def unpin_all_in_group(self) -> DefaultResponse:
+        return await self.client.remove_group_pins(chat_id=self.chat.id)
 
     async def load_pinned_messages(self) -> List[Message]:
         return await self.client.load_pinned_messages(
@@ -271,16 +279,10 @@ class Message(BaleObject):
 
     async def react(self, emojy: str) -> List[Reaction]:
         return await self.client.set_reaction(
-            emojy=emojy,
-            message=self,
-            chat_id=self.chat.id,
-            chat_type=self.chat.type
+            emojy=emojy, message=self, chat_id=self.chat.id, chat_type=self.chat.type
         )
 
     async def remove_reaction(self, emojy: str) -> List[Reaction]:
         return await self.client.remove_reaction(
-            emojy=emojy,
-            message=self,
-            chat_id=self.chat.id,
-            chat_type=self.chat.type
+            emojy=emojy, message=self, chat_id=self.chat.id, chat_type=self.chat.type
         )
