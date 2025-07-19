@@ -9,7 +9,7 @@ from ..base import BaleMethod
 
 class PinGroupMessage(BaleMethod):
     __service__ = Services.GROUPS.value
-    __method__ = "JoinGroup"
+    __method__ = "PinMessage"
     
     __returning__ = DefaultResponse
     
