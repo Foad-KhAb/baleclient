@@ -18,6 +18,7 @@ from .full_group import FullGroupResponse
 from .load_members import MembersResponse
 from .create_group import GroupCreatedResponse
 from .invite import InviteResponse
+from .invite_url import InviteURLResponse
 
 
 __all__ = (
@@ -41,5 +42,6 @@ __all__ = (
     "FullGroupResponse",
     "MembersResponse",
     "GroupCreatedResponse",
-    "InviteResponse"
+    "InviteResponse",
+    "InviteURLResponse"
 )

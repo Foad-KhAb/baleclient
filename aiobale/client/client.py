@@ -59,7 +59,8 @@ from ..methods import (
     InviteUsers,
     EditGroupTitle,
     EditGroupAbout,
-    SetRestriction
+    SetRestriction,
+    GetGroupInviteURL,
 )
 from ..types import (
     MessageContent,
@@ -114,6 +115,7 @@ from ..types.responses import (
     MembersResponse,
     GroupCreatedResponse,
     InviteResponse,
+    InviteURLResponse,
 )
 from ..enums import (
     ChatType,
@@ -940,35 +942,37 @@ class Client:
 
     async def edit_group_title(self, title: str, chat_id: int) -> DefaultResponse:
         call = EditGroupTitle(
-            group=ShortPeer(id=chat_id),
-            random_id=generate_id(12),
-            title=title
+            group=ShortPeer(id=chat_id), random_id=generate_id(12), title=title
         )
 
         return await self(call)
-    
+
     async def edit_group_about(self, about: str, chat_id: int) -> DefaultResponse:
         call = EditGroupAbout(
             group=ShortPeer(id=chat_id),
             random_id=generate_id(12),
-            about=StringValue(value=about)
+            about=StringValue(value=about),
         )
 
         return await self(call)
-    
+
     async def make_group_public(self, chat_id: int, username: str) -> DefaultResponse:
         call = SetRestriction(
             group=ShortPeer(id=chat_id),
             restriction=Restriction.PUBLIC,
-            username=StringValue(value=username)
+            username=StringValue(value=username),
         )
-        
+
         return await self(call)
-    
+
     async def make_group_private(self, chat_id: int) -> DefaultResponse:
         call = SetRestriction(
-            group=ShortPeer(id=chat_id),
-            restriction=Restriction.PRIVATE
+            group=ShortPeer(id=chat_id), restriction=Restriction.PRIVATE
         )
-        
+
         return await self(call)
+
+    async def get_invite_link(self, chat_id: int) -> str:
+        call = GetGroupInviteURL(group=ShortPeer(id=chat_id))
+        result: InviteURLResponse = await self(call)
+        return result.url
