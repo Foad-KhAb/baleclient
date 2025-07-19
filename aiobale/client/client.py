@@ -63,6 +63,7 @@ from ..methods import (
     GetGroupInviteURL,
     RevokeInviteURL,
     LeaveGroup,
+    TransferOwnership,
 )
 from ..types import (
     MessageContent,
@@ -206,15 +207,22 @@ class Client:
 
         self._parse_session_content(content)
         return True
-
-    async def __call__(self, method: BaleMethod[BaleType]):
-        return await self.session.make_request(method)
-
-    async def start(self, run_in_background: bool = False) -> None:
+    
+    async def _ensure_token_exists(self) -> None:
         if self.__token is None:
             if not self._add_token_via_file():
                 auth_cli = PhoneLoginCLI(self)
                 await auth_cli.start()
+
+    async def __call__(self, method: BaleMethod[BaleType]):
+        if not self.session.running:
+            await self._ensure_token_exists()
+            return await self.session.post(method)
+        
+        return await self.session.make_request(method)
+
+    async def start(self, run_in_background: bool = False) -> None:
+        await self._ensure_token_exists()
 
         await self.session.connect(self.__token)
         await self.session.handshake_request()
@@ -981,4 +989,8 @@ class Client:
 
     async def leave_group(self, chat_id: int) -> DefaultResponse:
         call = LeaveGroup(group=ShortPeer(id=chat_id), random_id=generate_id(12))
+        return await self(call)
+
+    async def transfer_ownership(self, chat_id: int, new_owner: int) -> DefaultResponse:
+        call = TransferOwnership(group=ShortPeer(id=chat_id), new_owner=new_owner)
         return await self(call)

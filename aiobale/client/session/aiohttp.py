@@ -6,7 +6,7 @@ from typing import Optional, Dict, Union
 
 from ...methods import BaleMethod, BaleType
 from ...utils import add_header, clean_grpc
-from ...exceptions import AiobaleError
+from ...exceptions import AiobaleError, BaleError
 from .base import BaseSession
 
 
@@ -18,37 +18,29 @@ DEFAULT_USER_AGENT = (
 
 
 class AiohttpSession(BaseSession):
-    def __init__(
-        self,
-        user_agent: Optional[str] = None,
-        **kwargs
-    ) -> None:
+    def __init__(self, user_agent: Optional[str] = None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.session = None
         self.ws: Optional[aiohttp.ClientWebSocketResponse] = None
-        self._running = False
 
         self.user_agent = user_agent or DEFAULT_USER_AGENT
 
     def _build_headers(self, token: str) -> Dict[str, str]:
-        return {
-            "User-Agent": self.user_agent,
-            "Cookie": f"access_token={token}"
-        }
+        return {"User-Agent": self.user_agent, "Cookie": f"access_token={token}"}
 
     async def connect(self, token: str):
         if not self.session:
             self.session = aiohttp.ClientSession()
-            
+
         if self._running:
             raise AiobaleError("Client is already running")
-        
+
         headers = self._build_headers(token)
         self.ws = await self.session.ws_connect(
             self.ws_url,
             timeout=self.timeout,
             headers=headers,
-            origin="https://web.bale.ai"
+            origin="https://web.bale.ai",
         )
         self._running = True
 
@@ -57,7 +49,7 @@ class AiohttpSession(BaseSession):
             async for msg in self.ws:
                 if msg.type != aiohttp.WSMsgType.BINARY:
                     continue
-                
+
                 asyncio.create_task(self._handle_received_data(msg.data))
 
         except Exception as e:
@@ -83,39 +75,49 @@ class AiohttpSession(BaseSession):
         try:
             result = await asyncio.wait_for(future, timeout=timeout or self.timeout)
             return self.decode_result(result, method)
-        
+
         except asyncio.TimeoutError:
             self._pending_requests.pop(request_id, None)
-            raise 
-        
+            raise
+
     async def handshake_request(self):
         payload = self.get_handshake_payload()
         await self.ws.send_bytes(payload)
-        
-    async def post(self, method: BaleMethod[BaleType]) -> Union[bytes, str, BaleType]:
+
+    async def post(
+        self,
+        method: BaleMethod[BaleType],
+        just_bale_type: bool = False,
+        token: Optional[str] = None,
+    ) -> Union[bytes, str, BaleType]:
         if not self.session:
             self.session = aiohttp.ClientSession()
-            
+
         headers = {
-            'User-Agent': self.user_agent,
-            'Origin': "https://web.bale.ai",
-            'content-type': "application/grpc-web+proto"
+            "User-Agent": self.user_agent,
+            "Origin": "https://web.bale.ai",
+            "content-type": "application/grpc-web+proto",
         }
         headers.update({k[0].upper() + k[1:]: v for k, v in self._get_meta().items()})
+        if token is not None:
+            headers.update(self._build_headers(token))
 
         url = f"{self.post_url}/{method.__service__}/{method.__method__}"
         data = method.model_dump(by_alias=True)
         payload = add_header(self.encoder(data))
-        
+
         req = await self.session.post(url=url, headers=headers, data=payload)
         content = await req.read()
         grpc_message = req.headers.get("grpc-message")
         if grpc_message is not None:
+            if just_bale_type:
+                raise BaleError(grpc_message, -1)
+
             return grpc_message
-        
+
         if method.__returning__ is None:
             return content
-        
+
         result = self.decoder(clean_grpc(content))
         return method.__returning__.model_validate(result)
 

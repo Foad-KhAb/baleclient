@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, Final, Callable, Any, Optional, List, TYPE_CHECKING
+from typing import Dict, Final, Callable, Any, Optional, List, TYPE_CHECKING, Union
 import abc
 import time
 
@@ -46,6 +46,7 @@ class BaseSession(abc.ABC):
         self.encoder = encoder
         self.timeout = timeout
         self._request_id = 0
+        self._running = False
         self.session_id = int(time.time() * 1000)
         
         self.client: Optional[Client] = None
@@ -53,6 +54,10 @@ class BaseSession(abc.ABC):
         
     def _bind_client(self, client: Client) -> None:
         self.client = client
+        
+    @property
+    def running(self) -> bool:
+        return self._running
         
     def build_payload(self, method: BaleMethod[BaleType], request_id: int) -> bytes:
         request = Request(
@@ -170,6 +175,15 @@ class BaseSession(abc.ABC):
         method: BaleMethod[BaleType],
         timeout: Optional[int] = None
     ) -> BaleType:
+        pass
+    
+    @abc.abstractmethod
+    async def post(
+        self,
+        method: BaleMethod[BaleType],
+        just_bale_type: bool = False,
+        token: Optional[str] = None
+    ) -> Union[bytes, str, BaleType]:
         pass
     
     def _next_request_id(self) -> int:

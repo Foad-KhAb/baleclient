@@ -8,6 +8,7 @@ from .set_restriction import SetRestriction
 from .get_group_invite_url import GetGroupInviteURL
 from .revoke_invite_url import RevokeInviteURL
 from .leave_group import LeaveGroup
+from .transfer_ownership import TransferOwnership
 
 
 __all__ = (
@@ -21,4 +22,5 @@ __all__ = (
     "GetGroupInviteURL",
     "RevokeInviteURL",
     "LeaveGroup",
+    "TransferOwnership"
 )

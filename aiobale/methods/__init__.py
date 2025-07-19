@@ -48,7 +48,8 @@ from .groups import (
     SetRestriction,
     GetGroupInviteURL,
     RevokeInviteURL,
-    LeaveGroup
+    LeaveGroup,
+    TransferOwnership,
 )
 from .configs import EditParameter, GetParameters
 from .report import SendReport
@@ -110,5 +111,6 @@ __all__ = (
     "SetRestriction",
     "GetGroupInviteURL",
     "RevokeInviteURL",
-    "LeaveGroup"
+    "LeaveGroup",
+    "TransferOwnership"
 )
