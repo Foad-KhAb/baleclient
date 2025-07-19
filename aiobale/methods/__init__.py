@@ -36,9 +36,9 @@ from .abacus import (
     GetMessageReactionsList,
     MessageSetReaction,
     MessageRemoveReaction,
-    GetMessagesViews
+    GetMessagesViews,
 )
-from .groups import GetFullGroup, LoadMembers, CreateGroup
+from .groups import GetFullGroup, LoadMembers, CreateGroup, InviteUsers
 from .configs import EditParameter, GetParameters
 from .report import SendReport
 from .presence import SetOnline, StopTyping, Typing
@@ -93,4 +93,5 @@ __all__ = (
     "GetFullGroup",
     "LoadMembers",
     "CreateGroup",
+    "InviteUsers",
 )
