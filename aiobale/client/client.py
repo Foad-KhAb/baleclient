@@ -56,6 +56,7 @@ from ..methods import (
     GetFullGroup,
     LoadMembers,
     CreateGroup,
+    InviteUsers
 )
 from ..types import (
     MessageContent,
@@ -109,6 +110,7 @@ from ..types.responses import (
     FullGroupResponse,
     MembersResponse,
     GroupCreatedResponse,
+    InviteResponse
 )
 from ..enums import (
     ChatType,
@@ -880,7 +882,7 @@ class Client:
         return await self.get_messages_views(messages=[message], chat_id=chat_id)
 
     async def get_full_group(self, chat_id: int) -> FullGroup:
-        peer = ShortPeer(id=chat_id, access_hash=1)
+        peer = ShortPeer(id=chat_id)
         call = GetFullGroup(group=peer)
 
         result: FullGroupResponse = await self(call)
@@ -889,7 +891,7 @@ class Client:
     async def load_members(
         self, chat_id: int, limit: int = 20, next: Optional[int] = None
     ) -> List[Member]:
-        peer = ShortPeer(id=chat_id, access_hash=1)
+        peer = ShortPeer(id=chat_id)
         call = LoadMembers(group=peer, limit=limit, next=next)
 
         result: MembersResponse = await self(call)
@@ -903,7 +905,7 @@ class Client:
         group_type: GroupType = GroupType.GROUP,
     ) -> GroupCreatedResponse:
         random_id = generate_id()
-        users = [ShortPeer(id=v, access_hash=1) for v in users]
+        users = [ShortPeer(id=v) for v in users]
         restriction = Restriction.PUBLIC if username else Restriction.PRIVATE
 
         call = CreateGroup(
@@ -923,3 +925,14 @@ class Client:
         return await self.create_group(
             title=title, username=username, users=users, group_type=GroupType.CHANNEL
         )
+        
+    async def invite_users(
+        self, users: Tuple[int], chat_id: int
+    ) -> InviteResponse:
+        call = InviteUsers(
+            group=ShortPeer(id=chat_id),
+            random_id=generate_id(12),
+            users=[ShortPeer(id=u) for u in users]
+        )
+        
+        return await self(call)
