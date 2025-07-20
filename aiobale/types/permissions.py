@@ -40,3 +40,16 @@ class Permissions(BaleObject):
                 data.pop(key)
                 
         return data
+    
+    def model_dump(self, *args, **kwargs):
+        data = super().model_dump(*args, **kwargs)
+        for key, value in data.copy().items():
+            try:
+                int_key = int(key)
+            except ValueError:
+                continue
+            
+            if 10 < int_key:
+                data[key] = {"1": value}
+            
+        return data

@@ -38,6 +38,7 @@ from .permissions import Permissions
 from .member import Member
 from .group import Group
 from .condition import Condition
+from .ban_data import BanData
 
 
 __all__ = (
@@ -93,5 +94,6 @@ __all__ = (
     "Member",
     "Group",
     "BoolValue",
-    "Condition"
+    "Condition",
+    "BanData"
 )

@@ -21,6 +21,8 @@ from .invite import InviteResponse
 from .invite_url import InviteURLResponse
 from .join_group import JoinedGroupResponse
 from .get_pins import GetPinsResponse
+from .member_permissions import MemberPermissionsResponse
+from .banned_users import BannedUsersResponse
 
 
 __all__ = (
@@ -47,5 +49,7 @@ __all__ = (
     "InviteResponse",
     "InviteURLResponse",
     "JoinedGroupResponse",
-    "GetPinsResponse"
+    "GetPinsResponse",
+    "MemberPermissionsResponse",
+    BannedUsersResponse
 )

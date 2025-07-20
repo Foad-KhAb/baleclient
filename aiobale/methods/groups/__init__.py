@@ -19,6 +19,11 @@ from .remove_pin import RemoveAllPins
 from .remove_single_pin import RemoveSinglePin
 from .get_pins import GetPins
 from .edit_channel_username import EditChannelUsername
+from .get_member_permissions import GetMemberPermissions
+from .set_member_permissions import SetMemberPermissions
+from .set_group_default_permissions import SetGroupDefaultPermissions
+from .unban_user import UnbanUser
+from .get_banned_users import GetBannedUsers
 
 
 __all__ = (
@@ -43,5 +48,10 @@ __all__ = (
     "RemoveSinglePin",
     "RemoveAllPins",
     "GetPins",
-    "EditChannelUsername"
+    "EditChannelUsername",
+    "GetMemberPermissions",
+    "SetMemberPermissions",
+    "SetGroupDefaultPermissions",
+    "GetBannedUsers",
+    "UnbanUser"
 )

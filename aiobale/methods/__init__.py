@@ -61,6 +61,10 @@ from .groups import (
     RemoveAllPins,
     GetPins,
     EditChannelUsername,
+    SetMemberPermissions,
+    SetGroupDefaultPermissions,
+    GetBannedUsers,
+    UnbanUser
 )
 from .configs import EditParameter, GetParameters
 from .report import SendReport
@@ -135,4 +139,8 @@ __all__ = (
     "RemoveAllPins",
     "GetPins",
     "EditChannelUsername",
+    "SetMemberPermissions",
+    "SetGroupDefaultPermissions",
+    "GetBannedUsers",
+    "UnbanUser"
 )
