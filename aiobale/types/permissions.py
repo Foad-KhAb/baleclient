@@ -37,7 +37,7 @@ class Permissions(BaleObject):
                 data[key] = value["1"]
 
             elif not value:
-                data.pop(key)
+                data[key] = False
                 
         return data
     
