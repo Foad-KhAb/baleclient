@@ -64,7 +64,8 @@ from .groups import (
     SetMemberPermissions,
     SetGroupDefaultPermissions,
     GetBannedUsers,
-    UnbanUser
+    UnbanUser,
+    GetGroupPreview
 )
 from .configs import EditParameter, GetParameters
 from .report import SendReport
@@ -142,5 +143,6 @@ __all__ = (
     "SetMemberPermissions",
     "SetGroupDefaultPermissions",
     "GetBannedUsers",
-    "UnbanUser"
+    "UnbanUser",
+    "GetGroupPreview"
 )

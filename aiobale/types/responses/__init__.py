@@ -23,6 +23,7 @@ from .join_group import JoinedGroupResponse
 from .get_pins import GetPinsResponse
 from .member_permissions import MemberPermissionsResponse
 from .banned_users import BannedUsersResponse
+from .group import GroupResponse
 
 
 __all__ = (
@@ -51,5 +52,6 @@ __all__ = (
     "JoinedGroupResponse",
     "GetPinsResponse",
     "MemberPermissionsResponse",
-    BannedUsersResponse
+    "BannedUsersResponse",
+    "GroupResponse"
 )

@@ -24,6 +24,7 @@ from .set_member_permissions import SetMemberPermissions
 from .set_group_default_permissions import SetGroupDefaultPermissions
 from .unban_user import UnbanUser
 from .get_banned_users import GetBannedUsers
+from .get_group_preview import GetGroupPreview
 
 
 __all__ = (
@@ -53,5 +54,6 @@ __all__ = (
     "SetMemberPermissions",
     "SetGroupDefaultPermissions",
     "GetBannedUsers",
-    "UnbanUser"
+    "UnbanUser",
+    "GetGroupPreview"
 )
