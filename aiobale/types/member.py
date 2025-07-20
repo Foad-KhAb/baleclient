@@ -27,4 +27,7 @@ class Member(BaleObject):
             elif not value:
                 data.pop(key)
                 
+            elif "7" in data and not isinstance(data["7"], list):
+                data["7"] = [data["7"]]
+                
         return data
