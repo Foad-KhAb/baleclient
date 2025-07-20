@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING, List, Optional
 
 from ...types import ShortPeer, Condition
-from ...types.responses import FullGroupResponse
+from ...types.responses import MembersResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class LoadMembers(BaleMethod):
     __service__ = Services.GROUPS.value
     __method__ = "LoadMembers"
     
-    __returning__ = FullGroupResponse
+    __returning__ = MembersResponse
     
     group: ShortPeer = Field(..., alias="1")
     limit: int = Field(..., alias="2")
