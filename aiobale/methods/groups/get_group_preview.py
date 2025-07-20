@@ -1,7 +1,7 @@
 from pydantic import Field
 from typing import TYPE_CHECKING
 
-from ...types.responses import GroupResponse
+from ...types.responses import FullGroupResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -10,7 +10,7 @@ class GetGroupPreview(BaleMethod):
     __service__ = Services.GROUPS.value
     __method__ = "GetGroupPreview"
     
-    __returning__ = GroupResponse
+    __returning__ = FullGroupResponse
     
     token: str = Field(..., alias="1")
     

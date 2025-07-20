@@ -144,8 +144,7 @@ from ..types.responses import (
     JoinedGroupResponse,
     GetPinsResponse,
     MemberPermissionsResponse,
-    BannedUsersResponse,
-    GroupResponse
+    BannedUsersResponse
 )
 from ..enums import (
     ChatType,
@@ -1145,8 +1144,8 @@ class Client:
         call = UnbanUser(group=ShortPeer(id=chat_id), user=ShortPeer(id=user_id))
         return await self(call)
 
-    async def get_group_preview(self, token_or_url: str) -> Group:
+    async def get_group_preview(self, token_or_url: str) -> FullGroup:
         token = extract_join_token(token_or_url)
         call = GetGroupPreview(token=token)
-        result: GroupResponse = await self(call)
-        return result.group
+        result: FullGroupResponse = await self(call)
+        return result.fullgroup

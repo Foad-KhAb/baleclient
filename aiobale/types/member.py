@@ -9,7 +9,7 @@ from .permissions import Permissions
 class Member(BaleObject):
     id: int = Field(..., alias="1")
     inviter_id: Optional[int] = Field(None, alias="2")
-    date: int = Field(..., alias="3")
+    date: Optional[int] = Field(None, alias="3")
     is_admin: IntBool = Field(False, alias="4")
     promoted_by: Optional[int] = Field(None, alias="5")
     promoted_at: Optional[int] = Field(None, alias="6")
