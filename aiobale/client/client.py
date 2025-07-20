@@ -250,6 +250,20 @@ class Client:
         return await self.session.make_request(method)
 
     async def start(self, run_in_background: bool = False) -> None:
+        """
+        Starts the client session and begins listening for events.
+        Args:
+            run_in_background (bool, optional): If True, starts listening in a background task; 
+                otherwise, listens in the current coroutine. Defaults to False.
+        Raises:
+            BaleError: If the server returns an error during connection or handshake.
+            AiobaleError: For client-side errors such as invalid token or session issues.
+        Returns:
+            None
+        This method ensures the authentication token exists, connects to the server, performs the handshake,
+        and starts listening for incoming events. Use `run_in_background=True` to keep listening without blocking
+        the current coroutine.
+        """
         await self._ensure_token_exists()
 
         await self.session.connect(self.__token)
@@ -293,6 +307,20 @@ class Client:
         phone_number: int,
         code_type: Optional[SendCodeType] = SendCodeType.DEFAULT,
     ) -> PhoneAuthResponse:
+        """
+        Initiates phone authentication by sending a code to the specified phone number.
+
+        Args:
+            phone_number (int): The phone number to authenticate.
+            code_type (Optional[aiobale.enums.SendCodeType], optional): Type of code to send. Defaults to SendCodeType.DEFAULT.
+
+        Returns:
+            aiobale.types.responses.PhoneAuthResponse: Contains transaction hash and other authentication details.
+
+        Raises:
+            BaleError: If the server returns an error during authentication.
+            AiobaleError: If the phone number is banned or other client-side errors occur.
+        """
         call = StartPhoneAuth(
             phone_number=phone_number,
             app_id=4,
@@ -310,6 +338,20 @@ class Client:
     async def validate_code(
         self, code: str, transaction_hash: str
     ) -> ValidateCodeResponse:
+        """
+        Validates the authentication code received via SMS or other means.
+
+        Args:
+            code (str): The code received for authentication.
+            transaction_hash (str): The transaction hash from the login step.
+
+        Returns:
+            aiobale.types.responses.ValidateCodeResponse: Contains JWT token and user authentication data.
+
+        Raises:
+            BaleError: If the server returns an error during validation.
+            AiobaleError: For invalid code, password requirement, or client-side errors.
+        """
         call = ValidateCode(code=code, transaction_hash=transaction_hash)
 
         content = await self.session.post(call)
@@ -331,6 +373,20 @@ class Client:
     async def validate_password(
         self, password: str, transaction_hash: str
     ) -> ValidateCodeResponse:
+        """
+        Validates the password for two-factor authentication if required.
+
+        Args:
+            password (str): The password for authentication.
+            transaction_hash (str): The transaction hash from the login step.
+
+        Returns:
+            aiobale.types.responses.ValidateCodeResponse: Contains JWT token and user authentication data.
+
+        Raises:
+            BaleError: If the server returns an error during validation.
+            AiobaleError: For wrong password or client-side errors.
+        """
         call = ValidatePassword(password=password, transaction_hash=transaction_hash)
 
         content = await self.session.post(call)
@@ -355,6 +411,23 @@ class Client:
         reply_to: Optional[Union[Message, InfoMessage]] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Sends a text message to a specified chat.
+
+        Args:
+            text (str): The message text to send.
+            chat_id (int): The target chat ID.
+            chat_type (aiobale.enums.ChatType): The type of chat (private, group, etc.).
+            reply_to (Optional[aiobale.types.Message or aiobale.types.InfoMessage], optional): Message to reply to. Defaults to None.
+            message_id (Optional[int], optional): Custom message ID. Defaults to None.
+
+        Returns:
+            aiobale.types.Message: The sent message object.
+
+        Raises:
+            BaleError: If the server returns an error during sending.
+            AiobaleError: For client-side errors.
+        """
         chat = Chat(type=chat_type, id=chat_id)
         peer = self._resolve_peer(chat)
 
@@ -377,6 +450,15 @@ class Client:
         return result.message
 
     def _resolve_peer_type(self, chat_type: ChatType) -> PeerType:
+        """
+        Resolves the PeerType based on the given ChatType.
+
+        Args:
+            chat_type (aiobale.enums.ChatType): The chat type.
+
+        Returns:
+            aiobale.enums.PeerType: The resolved peer type.
+        """
         if chat_type == ChatType.UNKNOWN:
             return PeerType.UNKNOWN
         elif chat_type in (ChatType.PRIVATE, ChatType.BOT):
@@ -384,12 +466,37 @@ class Client:
         return PeerType.GROUP
 
     def _resolve_peer(self, chat: Chat) -> Peer:
+        """
+        Converts a Chat object to a Peer object.
+
+        Args:
+            chat (aiobale.types.Chat): The chat object.
+
+        Returns:
+            aiobale.types.Peer: The corresponding peer object.
+        """
         peer_type = self._resolve_peer_type(chat.type)
         return Peer(id=chat.id, type=peer_type)
 
     async def edit_message(
         self, text: str, message_id: int, chat_id: int, chat_type: ChatType
     ) -> DefaultResponse:
+        """
+        Edits the content of an existing message.
+
+        Args:
+            text (str): The new message text.
+            message_id (int): The ID of the message to edit.
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error during editing.
+            AiobaleError: For client-side errors.
+        """
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(type=peer_type, id=chat_id)
         content = MessageContent(text=TextMessage(value=text))
@@ -406,6 +513,23 @@ class Client:
         chat_type: ChatType,
         just_me: Optional[bool] = False,
     ) -> DefaultResponse:
+        """
+        Deletes multiple messages from a chat.
+
+        Args:
+            message_ids (List[int]): List of message IDs to delete.
+            message_dates (List[int]): List of corresponding message dates.
+            chat_id (int): The chat ID containing the messages.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            just_me (Optional[bool], optional): If True, deletes only for the current user. Defaults to False.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the delete operation.
+
+        Raises:
+            BaleError: If the server returns an error during deletion.
+            AiobaleError: If input lists are empty or for other client-side errors.
+        """
         if not message_ids or not message_dates:
             raise AiobaleError("`message_ids` or `message_dates` can not be empty")
 
@@ -429,6 +553,23 @@ class Client:
         chat_type: ChatType,
         just_me: Optional[bool] = False,
     ) -> DefaultResponse:
+        """
+        Deletes a single message from a chat.
+
+        Args:
+            message_id (int): The ID of the message to delete.
+            message_date (int): The date of the message.
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            just_me (Optional[bool], optional): If True, deletes only for the current user. Defaults to False.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the delete operation.
+
+        Raises:
+            BaleError: If the server returns an error during deletion.
+            AiobaleError: For client-side errors.
+        """
         return await self.delete_messages(
             message_ids=[message_id],
             message_dates=[message_date],
@@ -444,6 +585,22 @@ class Client:
         chat_type: ChatType,
         new_ids: Optional[List[int]] = None,
     ) -> DefaultResponse:
+        """
+        Forwards multiple messages to another chat.
+
+        Args:
+            messages (List[aiobale.types.Message or aiobale.types.InfoMessage]): List of messages to forward.
+            chat_id (int): The target chat ID.
+            chat_type (aiobale.enums.ChatType): The type of target chat.
+            new_ids (Optional[List[int]], optional): List of new message IDs for the forwarded messages. Defaults to None.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the forward operation.
+
+        Raises:
+            BaleError: If the server returns an error during forwarding.
+            AiobaleError: If input lists are empty or mismatched, or for other client-side errors.
+        """
         if not messages:
             raise AiobaleError("`messages` cannot be empty")
 
@@ -464,7 +621,18 @@ class Client:
         return await self(call)
 
     def _ensure_info_message(self, message: Union[Message, InfoMessage]) -> InfoMessage:
-        """Ensures that a message is converted to InfoMessage if it's not already one."""
+        """
+        Converts a Message object to an InfoMessage if necessary.
+
+        Args:
+            message (Union[aiobale.types.Message, aiobale.types.InfoMessage]): The message to ensure as InfoMessage.
+
+        Returns:
+            aiobale.types.InfoMessage: The InfoMessage representation of the input.
+
+        Raises:
+            AiobaleError: For client-side errors.
+        """
         if isinstance(message, InfoMessage):
             return message
 
@@ -481,7 +649,19 @@ class Client:
         message: Union[Message, InfoMessage, OtherMessage],
         seq: Optional[int] = None,
     ) -> InfoMessage:
-        """Ensures that a message is converted to OtherMessage if it's not already one."""
+        """
+        Converts a Message or InfoMessage to OtherMessage, optionally setting the sequence.
+
+        Args:
+            message (Union[aiobale.types.Message, aiobale.types.InfoMessage, aiobale.types.OtherMessage]): The message to convert.
+            seq (Optional[int], optional): Sequence number to set. Defaults to None.
+
+        Returns:
+            aiobale.types.OtherMessage: The OtherMessage representation.
+
+        Raises:
+            AiobaleError: For client-side errors.
+        """
         if isinstance(message, OtherMessage):
             if seq is not None:
                 message.seq = seq
@@ -497,6 +677,22 @@ class Client:
         chat_type: ChatType,
         new_id: Optional[int] = None,
     ) -> DefaultResponse:
+        """
+        Forwards a single message to another chat.
+
+        Args:
+            message (Union[aiobale.types.Message, aiobale.types.InfoMessage]): The message to forward.
+            chat_id (int): The target chat ID.
+            chat_type (aiobale.enums.ChatType): The type of target chat.
+            new_id (Optional[int], optional): New message ID for the forwarded message. Defaults to None.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the forward operation.
+
+        Raises:
+            BaleError: If the server returns an error during forwarding.
+            AiobaleError: For client-side errors.
+        """
         new_ids = [new_id] if new_id is not None else None
 
         return await self.forward_messages(
@@ -504,6 +700,20 @@ class Client:
         )
 
     async def seen_chat(self, chat_id: int, chat_type: ChatType) -> DefaultResponse:
+        """
+        Marks a chat as seen (read).
+
+        Args:
+            chat_id (int): The chat ID to mark as seen.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the seen operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(id=chat_id, type=peer_type)
 
@@ -512,6 +722,20 @@ class Client:
         return await self(call)
 
     async def clear_chat(self, chat_id: int, chat_type: ChatType) -> DefaultResponse:
+        """
+        Clears all messages in a chat.
+
+        Args:
+            chat_id (int): The chat ID to clear.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the clear operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(id=chat_id, type=peer_type)
 
@@ -520,6 +744,20 @@ class Client:
         return await self(call)
 
     async def delete_chat(self, chat_id: int, chat_type: ChatType) -> DefaultResponse:
+        """
+        Deletes a chat entirely.
+
+        Args:
+            chat_id (int): The chat ID to delete.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the delete operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(id=chat_id, type=peer_type)
 
@@ -535,6 +773,23 @@ class Client:
         offset_date: int = -1,
         load_mode: ListLoadMode = ListLoadMode.BACKWARD,
     ) -> List[Message]:
+        """
+        Loads the message history for a chat.
+
+        Args:
+            chat_id (int): The chat ID to load history from.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            limit (int, optional): Number of messages to load. Defaults to 20.
+            offset_date (int, optional): Date offset for pagination. Defaults to -1.
+            load_mode (aiobale.enums.ListLoadMode, optional): Direction to load messages. Defaults to BACKWARD.
+
+        Returns:
+            List[aiobale.types.Message]: List of loaded messages.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)
 
@@ -551,6 +806,15 @@ class Client:
     def _resolve_list_messages(
         data: List[Union[MessageData, QuotedMessage]],
     ) -> List[Message]:
+        """
+        Extracts Message objects from a list of MessageData or QuotedMessage.
+
+        Args:
+            data (List[Union[aiobale.types.MessageData, aiobale.types.QuotedMessage]]): The data to extract from.
+
+        Returns:
+            List[aiobale.types.Message]: List of Message objects.
+        """
         return [item.message for item in data]
 
     async def pin_message(
@@ -561,6 +825,23 @@ class Client:
         chat_type: ChatType,
         just_me: bool = False,
     ) -> DefaultResponse:
+        """
+        Pins a message in a private chat.
+
+        Args:
+            message_id (int): The ID of the message to pin.
+            message_date (int): The date of the message.
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            just_me (bool, optional): If True, pins only for the current user. Defaults to False.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the pin operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)
 
@@ -575,6 +856,22 @@ class Client:
     async def unpin_message(
         self, message_id: int, message_date: int, chat_id: int, chat_type: ChatType
     ) -> DefaultResponse:
+        """
+        Unpins a specific message in a private chat.
+
+        Args:
+            message_id (int): The ID of the message to unpin.
+            message_date (int): The date of the message.
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the unpin operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)
 
@@ -591,6 +888,22 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
     ) -> DefaultResponse:
+        """
+        Unpins all messages in a private chat.
+
+        Args:
+            one_message_id (int): The ID of one pinned message (required by API).
+            one_message_date (int): The date of the pinned message.
+            chat_id (int): The chat ID.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the unpin all operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)
 
@@ -605,6 +918,20 @@ class Client:
     async def load_pinned_messages(
         self, chat_id: int, chat_type: ChatType
     ) -> List[Message]:
+        """
+        Loads all pinned messages in a chat.
+
+        Args:
+            chat_id (int): The chat ID to load pinned messages from.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            List[aiobale.types.Message]: List of pinned messages.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)
 
@@ -618,6 +945,21 @@ class Client:
     async def load_dialogs(
         self, limit: int = 40, offset_date: int = -1, exclude_pinned: bool = False
     ) -> List[PeerData]:
+        """
+        Loads the list of dialogs (chats) for the user.
+
+        Args:
+            limit (int, optional): Number of dialogs to load. Defaults to 40.
+            offset_date (int, optional): Date offset for pagination. Defaults to -1.
+            exclude_pinned (bool, optional): If True, excludes pinned dialogs. Defaults to False.
+
+        Returns:
+            List[aiobale.types.PeerData]: List of dialog data.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = LoadDialogs(
             offset_date=offset_date, limit=limit, exclude_pinned=exclude_pinned
         )
@@ -626,26 +968,91 @@ class Client:
         return result.dialogs
 
     async def edit_name(self, name: str) -> DefaultResponse:
+        """
+        Edits the user's display name.
+
+        Args:
+            name (str): The new display name.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = EditName(name=name)
         return await self(call)
 
     async def check_username(self, username: str) -> bool:
+        """
+        Checks if a username is available.
+
+        Args:
+            username (str): The username to check.
+
+        Returns:
+            bool: True if available, False otherwise.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = CheckNickName(nick_name=username)
 
         result: NickNameAvailable = await self(call)
         return result.availbale
 
     async def edit_username(self, username: str) -> DefaultResponse:
+        """
+        Edits the user's username.
+
+        Args:
+            username (str): The new username.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = EditNickName(nick_name=StringValue(value=username))
         return await self(call)
 
     async def edit_about(self, about: str) -> DefaultResponse:
+        """
+        Edits the user's "about" section.
+
+        Args:
+            about (str): The new about text.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = EditAbout(about=StringValue(value=about))
         return await self(call)
 
     async def load_full_users(
         self, peers: List[Union[Peer, InfoPeer]]
     ) -> List[FullUser]:
+        """
+        Loads detailed information for a list of users or peers.
+
+        Args:
+            peers (List[Union[aiobale.types.Peer, aiobale.types.InfoPeer]]): List of Peer or InfoPeer objects to fetch details for.
+
+        Returns:
+            List[aiobale.types.FullUser]: List of FullUser objects containing detailed user information.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peers = [
             InfoPeer(id=peer.id, type=peer.type) if isinstance(peer, Peer) else peer
             for peer in peers
@@ -657,16 +1064,56 @@ class Client:
         return result.data
 
     async def load_full_user(self, chat_id: int, chat_type: ChatType) -> FullUser:
+        """
+        Loads detailed information for a single user or peer.
+
+        Args:
+            chat_id (int): The ID of the user or peer.
+            chat_type (aiobale.enums.ChatType): The type of chat (private, group, etc.).
+
+        Returns:
+            aiobale.types.FullUser: Detailed information about the user.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peers = [InfoPeer(id=chat_id, type=chat_type)]
         result = await self.load_full_users(peers=peers)
         return result[0]
 
     async def get_full_me(self) -> FullUser:
+        """
+        Loads detailed information for the current authenticated user.
+
+        Args:
+            None
+
+        Returns:
+            aiobale.types.FullUser: Detailed information about the current user.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peers = [InfoPeer(id=self.id, type=ChatType.PRIVATE)]
         result = await self.load_full_users(peers=peers)
         return result[0]
 
     async def load_users(self, peers: List[Union[Peer, InfoPeer]]) -> List[User]:
+        """
+        Loads basic information for a list of users or peers.
+
+        Args:
+            peers (List[Union[aiobale.types.Peer, aiobale.types.InfoPeer]]): List of Peer or InfoPeer objects.
+
+        Returns:
+            List[aiobale.types.User]: List of User objects with basic information.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peers = [
             InfoPeer(id=peer.id, type=peer.type) if isinstance(peer, Peer) else peer
             for peer in peers
@@ -678,11 +1125,38 @@ class Client:
         return result.data
 
     async def load_user(self, chat_id: int, chat_type: ChatType) -> User:
+        """
+        Loads basic information for a single user or peer.
+
+        Args:
+            chat_id (int): The ID of the user or peer.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            aiobale.types.User: Basic information about the user.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peers = [InfoPeer(id=chat_id, type=chat_type)]
         result = await self.load_users(peers=peers)
         return result[0]
 
     async def get_me(self) -> FullUser:
+        """
+        Loads basic information for the current authenticated user.
+
+        Args:
+            None
+
+        Returns:
+            aiobale.types.User: Basic information about the current user.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peers = [InfoPeer(id=self.id, type=ChatType.PRIVATE)]
         result = await self.load_users(peers=peers)
         return result[0]
@@ -690,33 +1164,115 @@ class Client:
     async def edit_user_local_name(
         self, name: str, user_id: int, access_hash: int = 1
     ) -> DefaultResponse:
+        """
+        Edits the local name for a user in your contacts.
+
+        Args:
+            name (str): The new local name.
+            user_id (int): The user ID to edit.
+            access_hash (int, optional): Access hash for the user. Defaults to 1.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = EditUserLocalName(user_id=user_id, name=name, access_hash=access_hash)
 
         return await self(call)
 
     async def block_user(self, user_id: int) -> DefaultResponse:
+        """
+        Blocks a user, preventing them from contacting you.
+
+        Args:
+            user_id (int): The user ID to block.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the block operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         info_peer = InfoPeer(id=user_id, type=ChatType.PRIVATE)
         call = BlockUser(peer=info_peer)
 
         return await self(call)
 
     async def unblock_user(self, user_id: int) -> DefaultResponse:
+        """
+        Unblocks a previously blocked user.
+
+        Args:
+            user_id (int): The user ID to unblock.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the unblock operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         info_peer = InfoPeer(id=user_id, type=ChatType.PRIVATE)
         call = UnblockUser(peer=info_peer)
 
         return await self(call)
 
     async def load_blocked_users(self) -> List[InfoPeer]:
+        """
+        Loads the list of users you have blocked.
+
+        Args:
+            None
+
+        Returns:
+            List[aiobale.types.InfoPeer]: List of blocked users.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = LoadBlockedUsers()
         result: BlockedUsersResponse = await self(call)
         return result.users
 
     async def load_contacts(self) -> List[InfoPeer]:
+        """
+        Loads your contact list.
+
+        Args:
+            None
+
+        Returns:
+            List[aiobale.types.InfoPeer]: List of contacts.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = GetContacts()
         result: BlockedUsersResponse = await self(call)
         return result.users
 
     async def search_contact(self, phone_number: str) -> Optional[InfoPeer]:
+        """
+        Searches for a contact by phone number.
+
+        Args:
+            phone_number (str): The phone number to search for.
+                Phone number must be in international format, starting with the country code (without leading zero).
+                For example: 989123456789 (country code 98 for Iran, then the rest of the number).
+
+        Returns:
+            Optional[aiobale.types.InfoPeer]: The found contact, or None if not found.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         phone_number = phone_number.replace("+", "")
         call = SearchContact(request=phone_number)
 
@@ -724,10 +1280,40 @@ class Client:
         return result.user
 
     async def search_username(self, username: str) -> ContactResponse:
+        """
+        Searches for a user, bot, group, or channel by username.
+
+        Args:
+            username (str): The username to search for.
+
+        Returns:
+            aiobale.types.responses.ContactResponse: The response containing the found contact.
+                - If the username belongs to a user or bot, the result will be in the `user` field.
+                - If the username belongs to a group or channel, the result will be in the `chat` field.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = SearchContact(request=username)
         return await self(call)
 
     async def import_contacts(self, contacts: List[Tuple[int, str]]) -> List[InfoPeer]:
+        """
+        Imports a list of contacts into your account.
+
+        Args:
+            contacts (List[Tuple[int, str]]): List of tuples containing phone number and name.
+            Phone numbers must be in international format, starting with the country code (without leading zero).
+            For example: 989123456789 (country code 98 for Iran, then the rest of the number).
+
+        Returns:
+            List[aiobale.types.InfoPeer]: List of imported contacts.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         contacts = [
             ContactData(phone_number=contact[0], name=StringValue(value=contact[1]))
             for contact in contacts
@@ -738,18 +1324,71 @@ class Client:
         return result.peers
 
     async def reset_contacts(self) -> DefaultResponse:
+        """
+        Removes all contacts from your account.
+
+        Args:
+            None
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the reset operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = ResetContacts()
         return await self(call)
 
     async def remove_contact(self, user_id: int) -> DefaultResponse:
+        """
+        Removes a contact from your account.
+
+        Args:
+            user_id (int): The user ID to remove.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the remove operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = RemoveContact(user_id=user_id)
         return await self(call)
 
     async def add_contact(self, user_id: int) -> DefaultResponse:
+        """
+        Adds a user to your contacts.
+
+        Args:
+            user_id (int): The user ID to add.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the add operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = AddContact(user_id=user_id)
         return await self(call)
 
     async def set_online(self, is_online: bool, timeout: int) -> DefaultResponse:
+        """
+        Sets your online status.
+
+        Args:
+            is_online (bool): True to set online, False to set offline.
+            timeout (int): Timeout in seconds for online status.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = SetOnline(is_online=is_online, timeout=timeout)
         return await self(call)
 
@@ -760,6 +1399,22 @@ class Client:
         reason: Optional[str] = None,
         kind: ReportKind = ReportKind.SPAM,
     ) -> DefaultResponse:
+        """
+        Reports a chat for spam or other reasons.
+
+        Args:
+            chat_id (int): The chat ID to report.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            reason (Optional[str], optional): Description of the report. Defaults to None.
+            kind (aiobale.enums.ReportKind, optional): Type of report. Defaults to SPAM.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the report operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer_report = PeerReport(
             source=PeerSource.DIALOGS, peer=Peer(id=chat_id, type=chat_type)
         )
@@ -775,6 +1430,23 @@ class Client:
         reason: Optional[str] = None,
         kind: ReportKind = ReportKind.SPAM,
     ) -> DefaultResponse:
+        """
+        Reports one or more messages for spam or other reasons.
+
+        Args:
+            chat_id (int): The chat ID containing the messages.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            messages (List[Union[aiobale.types.Message, aiobale.types.InfoMessage, aiobale.types.OtherMessage]]): Messages to report.
+            reason (Optional[str], optional): Description of the report. Defaults to None.
+            kind (aiobale.enums.ReportKind, optional): Type of report. Defaults to SPAM.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the report operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         other_messages = [self._ensure_other_message(message) for message in messages]
 
         message_report = MessageReport(
@@ -792,6 +1464,23 @@ class Client:
         reason: Optional[str] = None,
         kind: ReportKind = ReportKind.SPAM,
     ) -> DefaultResponse:
+        """
+        Reports a single message for spam or other reasons.
+
+        Args:
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            message (Union[aiobale.types.Message, aiobale.types.InfoMessage, aiobale.types.OtherMessage]): The message to report.
+            reason (Optional[str], optional): Description of the report. Defaults to None.
+            kind (aiobale.enums.ReportKind, optional): Type of report. Defaults to SPAM.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the report operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         return await self.report_messages(
             chat_id=chat_id,
             chat_type=chat_type,
@@ -806,6 +1495,25 @@ class Client:
         chat_type: ChatType,
         typing_mode: TypingMode = TypingMode.TEXT,
     ) -> DefaultResponse:
+        """
+        Notifies the server that you are performing an action (typing, uploading, etc.) in a chat.
+
+        Args:
+            chat_id (int): The chat ID.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            typing_mode (aiobale.enums.TypingMode, optional): The type of action (not just typing). Defaults to TEXT.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Note:
+            This method is used to indicate any activity (not just typing), such as sending a photo, uploading a file, etc.
+            The meaning depends on the selected TypingMode.
+        """
         call = Typing(peer=Peer(id=chat_id, type=chat_type), typing_type=typing_mode)
         return await self(call)
 
@@ -815,17 +1523,69 @@ class Client:
         chat_type: ChatType,
         typing_mode: TypingMode = TypingMode.TEXT,
     ) -> DefaultResponse:
+        """
+        Notifies the server that you have stopped performing an action (typing, uploading, etc.) in a chat.
+
+        Args:
+            chat_id (int): The chat ID.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            typing_mode (aiobale.enums.TypingMode, optional): The type of action (not just typing). Defaults to TEXT.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Note:
+            This method is used to indicate stopping any activity (not just typing), such as sending a photo, uploading a file, etc.
+            The meaning depends on the selected TypingMode.
+        """
         call = StopTyping(
             peer=Peer(id=chat_id, type=chat_type), typing_type=typing_mode
         )
         return await self(call)
 
     async def get_parameters(self) -> List[ExtKeyValue]:
+        """
+        Retrieves a list of key-value parameters for the current user or session.
+
+        These parameters are typically used for privacy settings, chat drafts, and other configuration options.
+        For more information about available parameters and their usage, please refer to our website.
+
+        Args:
+            None
+
+        Returns:
+            List[aiobale.types.ExtKeyValue]: A list of key-value pairs representing user/session parameters.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = GetParameters()
         result: ParametersResponse = await self(call)
         return result.params
 
     async def edit_parameter(self, key: str, value: str) -> DefaultResponse:
+        """
+        Edits or sets a specific parameter for the current user or session.
+
+        Parameters can be used for privacy settings, chat drafts, and other customizations.
+        For details on available keys and their effects, check our website.
+
+        Args:
+            key (str): The parameter key to edit.
+            value (str): The new value for the parameter.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         call = EditParameter(key=key, value=value)
         return await self(call)
 
@@ -835,6 +1595,23 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
     ) -> List[MessageReactions]:
+        """
+        Retrieves reactions for a list of messages in a specific chat.
+
+        Useful for displaying which users have reacted to messages and what reactions were used.
+
+        Args:
+            messages (List[Union[aiobale.types.Message, InfoMessage, OtherMessage]]): The messages to get reactions for.
+            chat_id (int): The chat ID containing the messages.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            List[aiobale.types.MessageReactions]: List of reactions data for each message.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         other_messages = [self._ensure_other_message(message) for message in messages]
         peer = Peer(id=chat_id, type=chat_type)
 
@@ -853,6 +1630,21 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
     ) -> Optional[MessageReactions]:
+        """
+        Retrieves reactions for a single message in a chat.
+
+        Args:
+            message (Union[aiobale.types.Message, InfoMessage, OtherMessage]): The message to get reactions for.
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            Optional[aiobale.types.MessageReactions]: Reactions for the message, or None if not found.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         result = await self.get_messages_reactions(
             messages=[message], chat_id=chat_id, chat_type=chat_type
         )
@@ -867,6 +1659,26 @@ class Client:
         page: int = 1,
         limit: int = 20,
     ) -> List[ReactionData]:
+        """
+        Retrieves a paginated list of users who reacted to a message with a specific emoji.
+
+        Useful for displaying which users used a particular reaction on a message.
+
+        Args:
+            emojy (str): The emoji to filter reactions by.
+            message (Union[aiobale.types.Message, InfoMessage, OtherMessage]): The message to get reactions for.
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+            page (int, optional): Page number for pagination. Defaults to 1.
+            limit (int, optional): Number of results per page. Defaults to 20.
+
+        Returns:
+            List[aiobale.types.ReactionData]: List of users and their reaction details.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer = Peer(id=chat_id, type=chat_type)
         call = GetMessageReactionsList(
             peer=peer,
@@ -886,6 +1698,22 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
     ) -> List[Reaction]:
+        """
+        Sets a reaction (emoji) on a specific message in a chat.
+
+        Args:
+            emojy (str): The emoji to react with.
+            message (Union[aiobale.types.Message, InfoMessage, OtherMessage]): The message to react to.
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            List[aiobale.types.Reaction]: List of reactions after the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer = Peer(id=chat_id, type=chat_type)
         call = MessageSetReaction(
             peer=peer, message_id=message.message_id, date=message.date, emojy=emojy
@@ -900,6 +1728,22 @@ class Client:
         chat_id: int,
         chat_type: ChatType,
     ) -> List[Reaction]:
+        """
+        Removes a specific reaction (emoji) from a message in a chat.
+
+        Args:
+            emojy (str): The emoji to remove.
+            message (Union[aiobale.types.Message, InfoMessage, OtherMessage]): The message to remove the reaction from.
+            chat_id (int): The chat ID containing the message.
+            chat_type (aiobale.enums.ChatType): The type of chat.
+
+        Returns:
+            List[aiobale.types.Reaction]: List of reactions after removal.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer = Peer(id=chat_id, type=chat_type)
         call = MessageRemoveReaction(
             peer=peer, message_id=message.message_id, date=message.date, emojy=emojy
@@ -910,6 +1754,24 @@ class Client:
     async def get_messages_views(
         self, messages: List[Union[Message, InfoMessage, OtherMessage]], chat_id: int
     ) -> List[MessageViews]:
+        """
+        Retrieves view counts for a list of messages in a chat.
+
+        Useful for analytics and tracking message engagement.
+        
+        **Note:** This method is only applicable for channels.
+
+        Args:
+            messages (List[Union[aiobale.types.Message, InfoMessage, OtherMessage]]): The messages to get views for.
+            chat_id (int): The chat ID containing the messages.
+
+        Returns:
+            List[aiobale.types.MessageViews]: List of view counts for each message.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         other_messages = [self._ensure_other_message(message) for message in messages]
         peer = Peer(id=chat_id, type=2)
 
@@ -920,9 +1782,40 @@ class Client:
     async def get_message_views(
         self, message: Union[Message, InfoMessage, OtherMessage], chat_id: int
     ) -> List[MessageViews]:
+        """
+        Retrieves view count for a single message in a chat.
+        
+        **Note:** This method is only applicable for channels.
+
+        Args:
+            message (Union[aiobale.types.Message, InfoMessage, OtherMessage]): The message to get views for.
+            chat_id (int): The chat ID containing the message.
+
+        Returns:
+            List[aiobale.types.MessageViews]: View count for the message.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         return await self.get_messages_views(messages=[message], chat_id=chat_id)
 
     async def get_full_group(self, chat_id: int) -> FullGroup:
+        """
+        Loads detailed information about a group or channel.
+
+        This includes group settings, member counts, permissions, and other metadata.
+
+        Args:
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.FullGroup: Detailed information about the group.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer = ShortPeer(id=chat_id)
         call = GetFullGroup(group=peer)
 
@@ -936,6 +1829,25 @@ class Client:
         next_offset: Optional[int] = None,
         condition: Literal["none", "excepted_permissions", "contacts"] = "none",
     ) -> List[Member]:
+        """
+        Loads members of a group or channel with optional filtering.
+
+        You can filter members by contacts or by those with specific permissions.
+        For more information about available conditions and their use cases, check our website.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            limit (int, optional): Number of members to load. Defaults to 20.
+            next_offset (Optional[int], optional): Offset for pagination. Defaults to None.
+            condition (Literal["none", "excepted_permissions", "contacts"], optional): Filter condition for members.
+
+        Returns:
+            List[aiobale.types.Member]: List of group/channel members.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         peer = ShortPeer(id=chat_id)
 
         condition_map = {
@@ -960,6 +1872,25 @@ class Client:
         users: Tuple[int] = (),
         group_type: GroupType = GroupType.GROUP,
     ) -> GroupCreatedResponse:
+        """
+        Creates a new group or channel.
+
+        You can specify a title, optional username (for public groups/channels), initial members, and the type (group or channel).
+        The restriction will be set to PUBLIC if a username is provided, otherwise PRIVATE.
+
+        Args:
+            title (str): The title of the group or channel.
+            username (Optional[str], optional): The public username (for public groups/channels).
+            users (Tuple[int], optional): Initial user IDs to add to the group/channel.
+            group_type (aiobale.enums.GroupType, optional): The type (group or channel).
+
+        Returns:
+            aiobale.types.responses.GroupCreatedResponse: The result of the group/channel creation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+        """
         random_id = generate_id()
         users = [ShortPeer(id=v) for v in users]
         restriction = Restriction.PUBLIC if username else Restriction.PRIVATE
@@ -978,11 +1909,44 @@ class Client:
     async def create_channel(
         self, title: str, username: Optional[str] = None, users: Tuple[int] = ()
     ) -> GroupCreatedResponse:
+        """
+        Creates a new channel.
+
+        Args:
+            title (str): The title of the channel.
+            username (Optional[str], optional): The public username for the channel (for public channels).
+            users (Tuple[int], optional): Initial user IDs to add to the channel.
+
+        Returns:
+            aiobale.types.responses.GroupCreatedResponse: The result of the channel creation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method is used to create a channel, which is similar to a group but intended for broadcasting messages to a large audience. You can specify a title, an optional public username, and initial members. For more details about channel settings and restrictions, check our website.
+        """
         return await self.create_group(
             title=title, username=username, users=users, group_type=GroupType.CHANNEL
         )
 
     async def invite_users(self, users: Tuple[int], chat_id: int) -> InviteResponse:
+        """
+        Invites users to a group or channel.
+
+        Args:
+            users (Tuple[int]): User IDs to invite.
+            chat_id (int): The group or channel ID to invite users to.
+
+        Returns:
+            aiobale.types.responses.InviteResponse: The result of the invite operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method allows you to invite multiple users to a group or channel. The `users` argument should be a tuple of user IDs. For more information about invitation limits and restrictions, check our website.
+        """
         call = InviteUsers(
             group=ShortPeer(id=chat_id),
             random_id=generate_id(12),
@@ -991,12 +1955,44 @@ class Client:
         return await self(call)
 
     async def edit_group_title(self, title: str, chat_id: int) -> DefaultResponse:
+        """
+        Edits the title of a group or channel.
+
+        Args:
+            title (str): The new title.
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to change the title of an existing group or channel. For title length limits and formatting rules, check our website.
+        """
         call = EditGroupTitle(
             group=ShortPeer(id=chat_id), random_id=generate_id(12), title=title
         )
         return await self(call)
 
     async def edit_group_about(self, about: str, chat_id: int) -> DefaultResponse:
+        """
+        Edits the "about" section of a group or channel.
+
+        Args:
+            about (str): The new about text.
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method updates the description or "about" section for a group or channel. For content guidelines and maximum length, check our website.
+        """
         call = EditGroupAbout(
             group=ShortPeer(id=chat_id),
             random_id=generate_id(12),
@@ -1005,6 +2001,22 @@ class Client:
         return await self(call)
 
     async def make_group_public(self, chat_id: int, username: str) -> DefaultResponse:
+        """
+        Makes a group or channel public by assigning a username.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            username (str): The public username to assign.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method sets the group or channel restriction to PUBLIC and assigns a username, making it accessible via a public link. For username rules and restrictions, check our website.
+        """
         call = SetRestriction(
             group=ShortPeer(id=chat_id),
             restriction=Restriction.PUBLIC,
@@ -1013,34 +2025,129 @@ class Client:
         return await self(call)
 
     async def make_group_private(self, chat_id: int) -> DefaultResponse:
+        """
+        Makes a group or channel private.
+
+        Args:
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method sets the group or channel restriction to PRIVATE, removing any public username and link. For more details about privacy settings, check our website.
+        """
         call = SetRestriction(
             group=ShortPeer(id=chat_id), restriction=Restriction.PRIVATE
         )
         return await self(call)
 
     async def get_group_link(self, chat_id: int) -> str:
+        """
+        Retrieves the invite link for a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            str: The invite URL.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to get the current invite link for a group or channel. This link can be shared with others to join the group. For more information about link expiration and usage, check our website.
+        """
         call = GetGroupInviteURL(group=ShortPeer(id=chat_id))
         result: InviteURLResponse = await self(call)
         return result.url
 
     async def revoke_group_link(self, chat_id: int) -> str:
+        """
+        Revokes the current invite link for a group or channel and generates a new one.
+
+        Args:
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            str: The new invite URL.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method invalidates the existing invite link and creates a new one. Use this to reset access if the link has been shared too widely. For more details, check our website.
+        """
         call = RevokeInviteURL(group=ShortPeer(id=chat_id))
         result: InviteURLResponse = await self(call)
         return result.url
 
     async def leave_group(self, chat_id: int) -> DefaultResponse:
+        """
+        Leaves a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the leave operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to exit a group or channel. You will no longer receive messages from it. For more information about leaving and rejoining, check our website.
+        """
         call = LeaveGroup(group=ShortPeer(id=chat_id), random_id=generate_id(12))
         return await self(call)
 
     async def transfer_group_ownership(
         self, chat_id: int, new_owner: int
     ) -> DefaultResponse:
+        """
+        Transfers ownership of a group or channel to another user.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            new_owner (int): The user ID of the new owner.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the transfer operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method allows the current owner to assign ownership to another user. Only the owner can perform this action. For more details about ownership transfer, check our website.
+        """
         call = TransferOwnership(group=ShortPeer(id=chat_id), new_owner=new_owner)
         return await self(call)
 
     async def make_user_admin(
         self, chat_id: int, user_id: int, admin_name: Optional[str] = None
     ) -> DefaultResponse:
+        """
+        Assigns admin privileges to a user in a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            user_id (int): The user ID to make admin.
+            admin_name (Optional[str], optional): Custom admin name (optional).
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to promote a user to admin status. You can optionally assign a custom admin name. 
+        Note: To assign specific admin rights and permissions, you must use the `set_member_permissions` method after creating the admin. 
+        For more information about admin roles and permissions, check our website.
+        """
         call = MakeUserAdmin(
             group=ShortPeer(id=chat_id),
             user=ShortPeer(id=user_id),
@@ -1049,10 +2156,42 @@ class Client:
         return await self(call)
 
     async def remove_admin(self, chat_id: int, user_id: int) -> DefaultResponse:
+        """
+        Removes admin privileges from a user in a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            user_id (int): The user ID to remove as admin.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method demotes an admin to a regular member. For more information about admin management, check our website.
+        """
         call = RemoveUserAdmin(group=ShortPeer(id=chat_id), user=ShortPeer(id=user_id))
         return await self(call)
 
     async def kick_user(self, chat_id: int, user_id: int) -> DefaultResponse:
+        """
+        Removes a user from a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            user_id (int): The user ID to remove.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the kick operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to forcibly remove a user from a group or channel. For more details about kicking users and restrictions, check our website.
+        """
         call = KickUser(
             group=ShortPeer(id=chat_id),
             user=ShortPeer(id=user_id),
@@ -1061,11 +2200,41 @@ class Client:
         return await self(call)
 
     async def join_chat(self, token_or_url: str) -> JoinedGroupResponse:
+        """
+        Joins a group or channel using an invite token or URL.
+
+        Args:
+            token_or_url (str): The invite token or URL.
+
+        Returns:
+            aiobale.types.responses.JoinedGroupResponse: The result of the join operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to join a group or channel via an invite link. The token is extracted automatically from the URL if needed. For more information about joining groups, check our website.
+        """
         token = extract_join_token(token_or_url)
         call = JoinGroup(token=token)
         return await self(call)
 
     async def join_public_chat(self, chat_id: int) -> JoinedGroupResponse:
+        """
+        Joins a public group or channel by its ID.
+
+        Args:
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.responses.JoinedGroupResponse: The result of the join operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method allows you to join a public group or channel directly by its ID. For more details about public chats, check our website.
+        """
         call = JoinPublicGroup(peer=Peer(id=chat_id, type=ChatType.GROUP))
         return await self(call)
 
@@ -1074,6 +2243,22 @@ class Client:
         message: Union[Message, MessageData, InfoMessage, OtherMessage],
         chat_id: int,
     ) -> DefaultResponse:
+        """
+        Pins a message in a group or channel.
+
+        Args:
+            message (Union[aiobale.types.Message, MessageData, InfoMessage, OtherMessage]): The message to pin.
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the pin operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to highlight important messages by pinning them in a group or channel. For more information about pin limits and visibility, check our website.
+        """
         call = PinGroupMessage(
             group=ShortPeer(id=chat_id),
             message_id=message.message_id,
@@ -1086,6 +2271,22 @@ class Client:
         message: Union[Message, MessageData, InfoMessage, OtherMessage],
         chat_id: int,
     ) -> DefaultResponse:
+        """
+        Unpins a specific message in a group or channel.
+
+        Args:
+            message (Union[aiobale.types.Message, MessageData, InfoMessage, OtherMessage]): The message to unpin.
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the unpin operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method removes a pinned message from the group or channel. For more details about pin management, check our website.
+        """
         call = RemoveSinglePin(
             group=ShortPeer(id=chat_id),
             message_id=message.message_id,
@@ -1094,22 +2295,86 @@ class Client:
         return await self(call)
 
     async def remove_group_pins(self, chat_id: int) -> DefaultResponse:
+        """
+        Removes all pinned messages from a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to clear all pinned messages at once. For more information about pin limits and management, check our website.
+        """
         call = RemoveAllPins(group=ShortPeer(id=chat_id))
         return await self(call)
 
     async def get_group_pins(
         self, chat_id: int, page: int = 1, limit: int = 20
     ) -> GetPinsResponse:
+        """
+        Retrieves a paginated list of pinned messages in a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            page (int, optional): Page number for pagination. Defaults to 1.
+            limit (int, optional): Number of results per page. Defaults to 20.
+
+        Returns:
+            aiobale.types.responses.GetPinsResponse: The response containing pinned messages.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to view all pinned messages, with support for pagination. For more details about pin history and limits, check our website.
+        """
         call = GetPins(group=ShortPeer(id=chat_id), page=page, limit=limit)
         return await self(call)
 
     async def edit_chat_username(self, chat_id: int, username: str) -> DefaultResponse:
+        """
+        Edits the public username of a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            username (str): The new public username.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the edit operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method changes the public username, which affects the group's or channel's public link. For username rules and restrictions, check our website.
+        """
         call = EditChannelUsername(
             group=ShortPeer(id=chat_id), username=username, random_id=generate_id(12)
         )
         return await self(call)
 
     async def get_member_permissions(self, chat_id: int, user_id: int) -> Permissions:
+        """
+        Retrieves the permissions for a specific member in a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            user_id (int): The user ID of the member.
+
+        Returns:
+            aiobale.types.Permissions: The permissions object for the member.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to view what actions a member can perform in a group or channel. For more details about permission types, check our website.
+        """
         call = GetMemberPermissions(
             group=ShortPeer(id=chat_id), user=ShortPeer(id=user_id)
         )
@@ -1119,6 +2384,24 @@ class Client:
     async def set_member_permissions(
         self, chat_id: int, user_id: int, permissions: Permissions
     ) -> DefaultResponse:
+        """
+        Sets custom permissions for a member in a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            user_id (int): The user ID of the member.
+            permissions (aiobale.types.Permissions): The permissions to assign.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method allows you to customize what a member can do, such as sending messages or managing pins.
+        Note: This is the only way to assign specific rights to admins in a group or channel. After creating a new admin, use this method to set their permissions and rights. For more information about permission settings, check our website.
+        """
         call = SetMemberPermissions(
             group=ShortPeer(id=chat_id),
             user=ShortPeer(id=user_id),
@@ -1129,6 +2412,22 @@ class Client:
     async def set_group_permissions(
         self, chat_id: int, permissions: Permissions
     ) -> DefaultResponse:
+        """
+        Sets default permissions for all members in a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            permissions (aiobale.types.Permissions): The default permissions to assign.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to set the baseline permissions for all members. Individual permissions can still be customized. For more details, check our website.
+        """
         call = SetGroupDefaultPermissions(
             group=ShortPeer(id=chat_id),
             permissions=permissions,
@@ -1136,15 +2435,61 @@ class Client:
         return await self(call)
 
     async def get_banned_users(self, chat_id: int) -> List[BanData]:
+        """
+        Retrieves a list of banned users in a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+
+        Returns:
+            List[aiobale.types.BanData]: List of banned users and their ban details.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to view users who have been banned, including ban reasons and durations. For more details about banning policies, check our website.
+        """
         call = GetBannedUsers(group=ShortPeer(id=chat_id))
         result: BannedUsersResponse = await self(call)
         return result.users
 
     async def unban_user(self, chat_id: int, user_id: int) -> DefaultResponse:
+        """
+        Unbans a user in a group or channel.
+
+        Args:
+            chat_id (int): The group or channel ID.
+            user_id (int): The user ID to unban.
+
+        Returns:
+            aiobale.types.responses.DefaultResponse: The result of the unban operation.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method restores access for a previously banned user. For more information about ban management, check our website.
+        """
         call = UnbanUser(group=ShortPeer(id=chat_id), user=ShortPeer(id=user_id))
         return await self(call)
 
     async def get_group_preview(self, token_or_url: str) -> FullGroup:
+        """
+        Retrieves a preview of a group or channel using an invite token or URL.
+
+        Args:
+            token_or_url (str): The invite token or URL.
+
+        Returns:
+            aiobale.types.FullGroup: Detailed information about the group or channel.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to view group/channel details before joining, such as title and member count. For more information about previews, check our website.
+        """
         token = extract_join_token(token_or_url)
         call = GetGroupPreview(token=token)
         result: FullGroupResponse = await self(call)

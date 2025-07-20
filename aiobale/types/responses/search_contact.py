@@ -9,4 +9,4 @@ from ..info_peer import InfoPeer
 
 class ContactResponse(BaleObject):
     user: Optional[InfoPeer] = Field(None, alias="2")
-    group: Optional[InfoPeer] = Field(None, alias="4")
+    chat: Optional[InfoPeer] = Field(None, alias="4")
