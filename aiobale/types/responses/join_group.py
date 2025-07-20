@@ -5,10 +5,10 @@ from pydantic import Field, model_validator
 
 from ..short_peer import ShortPeer
 from ..group import Group
-from .default import DefaultResponse
+from ..base import BaleObject
 
 
-class JoinedGroupResponse(DefaultResponse):
+class JoinedGroupResponse(BaleObject):
     group: Group = Field(default=None, alias="1")
     random_id: int = Field(..., alias="6")
     users: List[ShortPeer] = Field(default_factory=list, alias="7")

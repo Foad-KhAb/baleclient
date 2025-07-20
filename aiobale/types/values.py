@@ -2,15 +2,20 @@ from pydantic import Field
 from typing import Optional
 
 from .base import BaleObject
+from .int_bool import IntBool
 
 
 class StringValue(BaleObject):
-    value: str = Field(None, alias="1")
+    value: str = Field(..., alias="1")
 
 
 class IntValue(BaleObject):
-    value: int = Field(None, alias="1")
+    value: int = Field(..., alias="1")
+
+
+class BoolValue(BaleObject):
+    value: IntBool = Field(..., alias="1")
 
 
 class BytesValue(BaleObject):
-    value: bytes = Field(None, alias="1")
+    value: bytes = Field(..., alias="1")

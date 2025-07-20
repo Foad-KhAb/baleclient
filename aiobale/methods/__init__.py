@@ -60,6 +60,7 @@ from .groups import (
     RemoveSinglePin,
     RemoveAllPins,
     GetPins,
+    EditChannelUsername,
 )
 from .configs import EditParameter, GetParameters
 from .report import SendReport
@@ -132,5 +133,6 @@ __all__ = (
     "PinGroupMessage",
     "RemoveSinglePin",
     "RemoveAllPins",
-    "GetPins"
+    "GetPins",
+    "EditChannelUsername",
 )

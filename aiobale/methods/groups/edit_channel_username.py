@@ -1,22 +1,21 @@
 from pydantic import Field
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
-from ...types import ShortPeer, Condition
-from ...types.responses import FullGroupResponse
+from ...types import ShortPeer
+from ...types.responses import DefaultResponse
 from ...enums import Services
 from ..base import BaleMethod
 
 
-class LoadMembers(BaleMethod):
+class EditChannelUsername(BaleMethod):
     __service__ = Services.GROUPS.value
-    __method__ = "LoadMembers"
+    __method__ = "EditChannelNick"
     
-    __returning__ = FullGroupResponse
+    __returning__ = DefaultResponse
     
     group: ShortPeer = Field(..., alias="1")
-    limit: int = Field(..., alias="2")
-    next: int = Field(..., alias="3")
-    condition: Optional[Condition] = Field(None, alias="4")
+    username: str = Field(..., alias="2")
+    random_id: int = Field(..., alias="3")
     
     if TYPE_CHECKING:
         # Just For Type Helping
@@ -25,17 +24,15 @@ class LoadMembers(BaleMethod):
             __pydantic__self__,
             *,
             group: ShortPeer,
-            limit: int,
-            next: int,
-            condition: Optional[Condition] = None,
+            username: str,
+            random_id: int,
             **__pydantic_kwargs
         ) -> None:
             # Is needed only for type checking and IDE support without any additional plugins
             
             super().__init__(
+                random_id=random_id,
                 group=group,
-                limit=limit,
-                next=next,
-                condition=condition,
+                username=username,
                 **__pydantic_kwargs
             )

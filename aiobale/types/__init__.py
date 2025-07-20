@@ -11,7 +11,7 @@ from .ext import ExtData, ExtValue, ExtKeyValue
 from .int_bool import IntBool
 from .user import UserAuth, User
 from .update import Update, UpdateBody
-from .values import StringValue, IntValue, BytesValue
+from .values import StringValue, IntValue, BytesValue, BoolValue
 from .info_message import InfoMessage
 from .quoted_message import QuotedMessage
 from .message_data import MessageData
@@ -37,6 +37,7 @@ from .full_group import FullGroup
 from .permissions import Permissions
 from .member import Member
 from .group import Group
+from .condition import Condition
 
 
 __all__ = (
@@ -91,4 +92,6 @@ __all__ = (
     "Permissions",
     "Member",
     "Group",
+    "BoolValue",
+    "Condition"
 )

@@ -18,6 +18,7 @@ from .pin_message import PinGroupMessage
 from .remove_pin import RemoveAllPins
 from .remove_single_pin import RemoveSinglePin
 from .get_pins import GetPins
+from .edit_channel_username import EditChannelUsername
 
 
 __all__ = (
@@ -41,5 +42,6 @@ __all__ = (
     "PinGroupMessage",
     "RemoveSinglePin",
     "RemoveAllPins",
-    "GetPins"
+    "GetPins",
+    "EditChannelUsername"
 )

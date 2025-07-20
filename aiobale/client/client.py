@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, List, Optional, Any, Tuple, Type, Final, Union
+from typing import Dict, List, Literal, Optional, Any, Tuple, Type, Final, Union
 from types import TracebackType
 import os
 
@@ -105,6 +105,8 @@ from ..types import (
     FullGroup,
     ShortPeer,
     Member,
+    Condition,
+    BoolValue
 )
 from ..types.responses import (
     MessageResponse,
@@ -300,13 +302,12 @@ class Client:
 
         content = await self.session.post(call)
         if isinstance(content, str):
-            match content:
-                case "PHONE_CODE_INVALID":
-                    raise AiobaleError("Invalid code specified.")
-                case "password needed for login":
-                    raise AiobaleError("Password needed for login")
-                case _:
-                    raise AiobaleError("Unknown Error")
+            if content == "PHONE_CODE_INVALID":
+                raise AiobaleError("Invalid code specified.")
+            elif content == "password needed for login":
+                raise AiobaleError("Password needed for login")
+            else:
+                raise AiobaleError("Unknown Error")
 
         try:
             self._write_session_content(content)
@@ -322,11 +323,10 @@ class Client:
 
         content = await self.session.post(call)
         if isinstance(content, str):
-            match content:
-                case "wrong password":
-                    raise AiobaleError("Wrong password specified.")
-                case _:
-                    raise AiobaleError("Unknown Error")
+            if content == "wrong password":
+                raise AiobaleError("Wrong password specified.")
+            else:
+                raise AiobaleError("Unknown Error")
 
         try:
             self._write_session_content(content)
@@ -918,10 +918,21 @@ class Client:
         return result.fullgroup
 
     async def load_members(
-        self, chat_id: int, limit: int = 20, next: Optional[int] = None
+        self,
+        chat_id: int,
+        limit: int = 20,
+        next_offset: Optional[int] = None,
+        condition: Literal["none", "excepted_permissions", "contacts"] = "none",
     ) -> List[Member]:
         peer = ShortPeer(id=chat_id)
-        call = LoadMembers(group=peer, limit=limit, next=next)
+        
+        condition_map = {
+            "contacts": Condition(contacts=BoolValue(value=True)),
+            "excepted_permissions": Condition(excepted_permissions=BoolValue(value=True)),
+        }
+        condition_type = condition_map.get(condition)
+                    
+        call = LoadMembers(group=peer, limit=limit, next=next_offset, condition=condition_type)
 
         result: MembersResponse = await self(call)
         return result.members
@@ -1017,7 +1028,7 @@ class Client:
         call = MakeUserAdmin(
             group=ShortPeer(id=chat_id),
             user=ShortPeer(id=user_id),
-            admin_name=admin_name,
+            admin_name=StringValue(value=admin_name),
         )
         return await self(call)
 
