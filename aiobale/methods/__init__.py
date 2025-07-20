@@ -60,6 +60,7 @@ from .groups import (
     RemoveSinglePin,
     RemoveAllPins,
     GetPins,
+    GetMemberPermissions,
     EditChannelUsername,
     SetMemberPermissions,
     SetGroupDefaultPermissions,
@@ -144,5 +145,6 @@ __all__ = (
     "SetGroupDefaultPermissions",
     "GetBannedUsers",
     "UnbanUser",
-    "GetGroupPreview"
+    "GetGroupPreview",
+    "GetMemberPermissions"
 )

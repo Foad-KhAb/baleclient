@@ -74,6 +74,13 @@ from ..methods import (
     RemoveSinglePin,
     RemoveAllPins,
     GetPins,
+    EditChannelUsername,
+    SetMemberPermissions,
+    GetMemberPermissions,
+    SetGroupDefaultPermissions,
+    GetBannedUsers,
+    UnbanUser,
+    GetGroupPreview,
 )
 from ..types import (
     MessageContent,
@@ -106,7 +113,10 @@ from ..types import (
     ShortPeer,
     Member,
     Condition,
-    BoolValue
+    BoolValue,
+    Permissions,
+    BanData,
+    Group
 )
 from ..types.responses import (
     MessageResponse,
@@ -133,6 +143,9 @@ from ..types.responses import (
     InviteURLResponse,
     JoinedGroupResponse,
     GetPinsResponse,
+    MemberPermissionsResponse,
+    BannedUsersResponse,
+    GroupResponse
 )
 from ..enums import (
     ChatType,
@@ -925,14 +938,18 @@ class Client:
         condition: Literal["none", "excepted_permissions", "contacts"] = "none",
     ) -> List[Member]:
         peer = ShortPeer(id=chat_id)
-        
+
         condition_map = {
             "contacts": Condition(contacts=BoolValue(value=True)),
-            "excepted_permissions": Condition(excepted_permissions=BoolValue(value=True)),
+            "excepted_permissions": Condition(
+                excepted_permissions=BoolValue(value=True)
+            ),
         }
         condition_type = condition_map.get(condition)
-                    
-        call = LoadMembers(group=peer, limit=limit, next=next_offset, condition=condition_type)
+
+        call = LoadMembers(
+            group=peer, limit=limit, next=next_offset, condition=condition_type
+        )
 
         result: MembersResponse = await self(call)
         return result.members
@@ -1086,3 +1103,50 @@ class Client:
     ) -> GetPinsResponse:
         call = GetPins(group=ShortPeer(id=chat_id), page=page, limit=limit)
         return await self(call)
+
+    async def edit_chat_username(self, chat_id: int, username: str) -> DefaultResponse:
+        call = EditChannelUsername(
+            group=ShortPeer(id=chat_id), username=username, random_id=generate_id(12)
+        )
+        return await self(call)
+
+    async def get_member_permissions(self, chat_id: int, user_id: int) -> Permissions:
+        call = GetMemberPermissions(
+            group=ShortPeer(id=chat_id), user=ShortPeer(id=user_id)
+        )
+        result: MemberPermissionsResponse = await self(call)
+        return result.permissions
+
+    async def set_member_permissions(
+        self, chat_id: int, user_id: int, permissions: Permissions
+    ) -> DefaultResponse:
+        call = SetMemberPermissions(
+            group=ShortPeer(id=chat_id),
+            user=ShortPeer(id=user_id),
+            permissions=permissions,
+        )
+        return await self(call)
+
+    async def set_group_permissions(
+        self, chat_id: int, permissions: Permissions
+    ) -> DefaultResponse:
+        call = SetGroupDefaultPermissions(
+            group=ShortPeer(id=chat_id),
+            permissions=permissions,
+        )
+        return await self(call)
+
+    async def get_banned_users(self, chat_id: int) -> List[BanData]:
+        call = GetBannedUsers(group=ShortPeer(id=chat_id))
+        result: BannedUsersResponse = await self(call)
+        return result.users
+
+    async def unban_user(self, chat_id: int, user_id: int) -> DefaultResponse:
+        call = UnbanUser(group=ShortPeer(id=chat_id), user=ShortPeer(id=user_id))
+        return await self(call)
+
+    async def get_group_preview(self, token_or_url: str) -> Group:
+        token = extract_join_token(token_or_url)
+        call = GetGroupPreview(token=token)
+        result: GroupResponse = await self(call)
+        return result.group
