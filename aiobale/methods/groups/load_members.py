@@ -15,7 +15,7 @@ class LoadMembers(BaleMethod):
     
     group: ShortPeer = Field(..., alias="1")
     limit: int = Field(..., alias="2")
-    next: int = Field(..., alias="3")
+    next: Optional[int] = Field(None, alias="3")
     condition: Optional[Condition] = Field(None, alias="4")
     
     if TYPE_CHECKING:
