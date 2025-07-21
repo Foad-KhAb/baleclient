@@ -44,7 +44,7 @@ class PhoneLoginCLI:
             print(Fore.RED + "❌ Invalid input. Please enter digits only.\n")
 
     async def _send_login_request(self, phone_number: int, code_type: Optional[SendCodeType]=SendCodeType.DEFAULT):
-        return await self.client.login(phone_number, code_type=code_type)
+        return await self.client.start_phone_auth(phone_number, code_type=code_type)
 
     async def _handle_code_entry(self, resp: PhoneAuthResponse, phone_number: int):
         max_attempts = 3

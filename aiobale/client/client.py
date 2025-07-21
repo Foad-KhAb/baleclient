@@ -115,8 +115,7 @@ from ..types import (
     Condition,
     BoolValue,
     Permissions,
-    BanData,
-    Group
+    BanData
 )
 from ..types.responses import (
     MessageResponse,
@@ -275,6 +274,13 @@ class Client:
             await self.session._listen()
 
     async def stop(self):
+        """
+        Gracefully stops the client by closing the associated session.
+
+        This method ensures that all resources tied to the session are properly
+        released. It should be called when the client is no longer needed to
+        prevent resource leaks.
+        """
         await self.session.close()
 
     async def __aenter__(self) -> Client:
@@ -302,7 +308,7 @@ class Client:
         data["payload"]["user"] = user
         return ClientData.model_validate(data["payload"])
 
-    async def login(
+    async def start_phone_auth(
         self,
         phone_number: int,
         code_type: Optional[SendCodeType] = SendCodeType.DEFAULT,

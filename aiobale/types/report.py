@@ -10,14 +10,25 @@ from .peer_report import PeerReport
 
 
 class Report(BaleObject):
+    """
+    Represents a report object in Bale, describing an issue or feedback related to either a peer or a message.
+    """
+
     kind: ReportKind = Field(..., alias="1")
+    """The type/category of the report, e.g., spam, abuse, or other predefined report kinds."""
+
     description: Optional[str] = Field(None, alias="2")
+    """Optional additional text describing the report, useful for clarifications."""
+
     peer_report: Optional[PeerReport] = Field(None, alias="101")
+    """Detailed data related to a reported peer/user. Present only if the report targets a peer."""
+
     message_report: Optional[MessageReport] = Field(None, alias="102")
-    
+    """Detailed data related to a reported message. Present only if the report targets a message."""
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This __init__ is only for IDE autocomplete and type checking purposes.
+        # It is not executed at runtime.
         def __init__(
             __pydantic__self__,
             *,
@@ -27,8 +38,6 @@ class Report(BaleObject):
             message_report: Optional[MessageReport] = None,
             **__pydantic_kwargs
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
             super().__init__(
                 kind=kind,
                 description=description,
