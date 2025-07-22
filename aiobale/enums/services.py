@@ -10,3 +10,4 @@ class Services(str, Enum):
     CONFIGS = "bale.v1.Configs"
     ABACUS = "bale.abacus.v1.Abacus"
     GROUPS = "bale.groups.v1.Groups"
+    FILES = "ai.bale.server.Files"

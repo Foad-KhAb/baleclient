@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import aiohttp
 import asyncio
-from typing import Optional, Dict, Union
+from typing import Callable, Optional, Dict, Union
 
 from ...methods import BaleMethod, BaleType
 from ...utils import add_header, clean_grpc
 from ...exceptions import AiobaleError, BaleError
+from ...types import FileInput
 from .base import BaseSession
 
 
@@ -30,7 +31,8 @@ class AiohttpSession(BaseSession):
 
     async def connect(self, token: str):
         if not self.session:
-            self.session = aiohttp.ClientSession()
+            session_timeout = aiohttp.ClientTimeout(total=None)
+            self.session = aiohttp.ClientSession(timeout=session_timeout)
 
         if self._running:
             raise AiobaleError("Client is already running")
@@ -120,6 +122,49 @@ class AiohttpSession(BaseSession):
 
         result = self.decoder(clean_grpc(content))
         return method.__returning__.model_validate(result)
+    
+    async def upload(
+        self,
+        file: FileInput,
+        url: str,
+        token: str,
+        chunk_size: int = 4096,
+        progress_callback: Optional[Callable[[int, Optional[int]], None]] = None
+    ) -> None:
+        own_session = False
+        session = self.session
+        if session is None:
+            own_session = True
+            session_timeout = aiohttp.ClientTimeout(total=None)
+            session = aiohttp.ClientSession(timeout=session_timeout)
+
+        headers = {
+            "Origin": "https://web.bale.ai",
+            "content-type": "multipart/form-data",
+        }
+        headers.update(self._build_headers(token))
+
+        total_size = file.info.size
+        bytes_uploaded = 0
+
+        async def chunk_generator():
+            nonlocal bytes_uploaded
+            async for chunk in file.read(chunk_size):
+                bytes_uploaded += len(chunk)
+                if progress_callback:
+                    progress_callback(bytes_uploaded, total_size)
+                yield chunk
+
+        try:
+            async with session.put(url, data=chunk_generator(), headers=headers) as resp:
+                if resp.status >= 400:
+                    text = await resp.text()
+                    raise AiobaleError(f"Upload failed with status {resp.status}: {text}")
+        except Exception as e:
+            raise AiobaleError(f"Upload error: {e}") from e
+        finally:
+            if own_session:
+                await session.close()
 
     async def close(self):
         self._running = False

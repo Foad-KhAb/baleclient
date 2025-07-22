@@ -68,6 +68,7 @@ from .groups import (
     UnbanUser,
     GetGroupPreview
 )
+from .files import GetFileUrl, GetFileUploadUrl
 from .configs import EditParameter, GetParameters
 from .report import SendReport
 from .presence import SetOnline, StopTyping, Typing
@@ -146,5 +147,7 @@ __all__ = (
     "GetBannedUsers",
     "UnbanUser",
     "GetGroupPreview",
-    "GetMemberPermissions"
+    "GetMemberPermissions",
+    "GetFileUrl",
+    "GetFileUploadUrl"
 )

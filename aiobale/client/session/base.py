@@ -189,3 +189,13 @@ class BaseSession(abc.ABC):
     def _next_request_id(self) -> int:
         self._request_id += 1
         return self._request_id
+    
+    @abc.abstractmethod
+    async def upload(
+        self,
+        url: str,
+        token: str,
+        chunk_size: int = 4096,
+        progress_callback: Optional[Callable[[int, Optional[int]], None]] = None
+    ) -> None:
+        pass

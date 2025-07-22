@@ -28,7 +28,7 @@ class SendMessage(BaleMethod):
             peer: Peer,
             message_id: int,
             content: MessageContent,
-            reply_to: InfoMessage,
+            reply_to: Optional[InfoMessage] = None,
             chat: Chat,
             **__pydantic_kwargs: Any
         ) -> None:

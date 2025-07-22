@@ -4,6 +4,8 @@ from pydantic import Field
 from typing import Optional, Union, TYPE_CHECKING, List, Dict
 
 from .base import BaleObject
+from .thumbnail import Thumbnail
+from .file_ext import DocumentsExt
 
 
 class TextMessage(BaleObject):
@@ -96,11 +98,13 @@ class DocumentMessage(BaleObject):
 
     mime_type: str = Field(..., alias="5")
     """MIME type describing the file format."""
+    
+    thumb: Optional[Thumbnail] = Field(None, alias="6")
 
-    ext: Optional[Dict] = Field(None, alias="7")
+    ext: Optional[DocumentsExt] = Field(None, alias="7")
     """Optional additional metadata or extensions."""
 
-    caption: MessageCaption = Field(..., alias="8")
+    caption: Optional[MessageCaption] = Field(None, alias="8")
     """Caption associated with the document message."""
 
     if TYPE_CHECKING:
@@ -113,7 +117,8 @@ class DocumentMessage(BaleObject):
             name: Union[Dict, str],
             mime_type: str,
             ext: Optional[Dict] = None,
-            caption: MessageCaption,
+            caption: Optional[MessageCaption] = None,
+            thumb: Optional[Thumbnail] = None,
             **__pydantic_kwargs
         ) -> None:
             super().__init__(
@@ -124,6 +129,7 @@ class DocumentMessage(BaleObject):
                 mime_type=mime_type,
                 ext=ext,
                 caption=caption,
+                thumb=thumb,
                 **__pydantic_kwargs
             )
 
@@ -152,3 +158,4 @@ class MessageContent(BaleObject):
             **__pydantic_kwargs
         ) -> None:
             super().__init__(document=document, text=text, **__pydantic_kwargs)
+

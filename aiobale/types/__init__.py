@@ -1,7 +1,12 @@
 from .chat import Chat
 from .message import Message
 from .other_message import OtherMessage
-from .message_content import MessageContent, TextMessage
+from .message_content import (
+    MessageContent,
+    TextMessage,
+    DocumentMessage,
+    MessageCaption,
+)
 from .peer import Peer
 from .client import ClientData
 from .request import Request, RequestBody, MetaList
@@ -39,6 +44,14 @@ from .member import Member
 from .group import Group
 from .condition import Condition
 from .ban_data import BanData
+from .file_info import FileInfo
+from .file_url import FileURL
+from .send_type import SendTypeModel
+from .file_details import FileDetails
+from .file_input import FileInput
+from .file_upload_info import FileUploadInfo
+from .thumbnail import Thumbnail
+from .file_ext import VideoExt, VoiceExt, AudioExt, PhotoExt, DocumentsExt
 
 
 __all__ = (
@@ -95,5 +108,19 @@ __all__ = (
     "Group",
     "BoolValue",
     "Condition",
-    "BanData"
+    "BanData",
+    "FileInfo",
+    "FileURL",
+    "SendTypeModel",
+    "FileDetails",
+    "FileInput",
+    "FileUploadInfo",
+    "DocumentMessage",
+    "MessageCaption",
+    "Thumbnail",
+    "VideoExt",
+    "VoiceExt",
+    "AudioExt",
+    "PhotoExt",
+    "DocumentsExt",
 )

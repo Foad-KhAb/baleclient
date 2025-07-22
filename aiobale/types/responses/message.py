@@ -38,6 +38,11 @@ class MessageResponse(DefaultResponse):
         })
 
         prev_message = OtherMessage.model_validate(prev_data) if prev_data else None
+        
+        if hasattr(method.content, "document") and getattr(method.content.document, "thumb", None):
+            thumb = method.content.document.thumb
+            if isinstance(thumb.image, bytes):
+                thumb.image = thumb.image.hex()
 
         data["message"] = Message(
             chat=method.chat,

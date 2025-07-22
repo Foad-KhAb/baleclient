@@ -9,6 +9,7 @@ from .peer_source import PeerSource
 from .typing_type import TypingMode
 from .group_type import GroupType
 from .restriction import Restriction
+from .send_type import SendType
 
 
 __all__ = (
@@ -23,4 +24,5 @@ __all__ = (
     "TypingMode",
     "GroupType",
     "Restriction",
+    "SendType"
 )

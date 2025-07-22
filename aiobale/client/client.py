@@ -1,7 +1,18 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, List, Literal, Optional, Any, Tuple, Type, Final, Union
+from typing import (
+    Callable,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Any,
+    Tuple,
+    Type,
+    Final,
+    Union,
+)
 from types import TracebackType
 import os
 
@@ -81,6 +92,8 @@ from ..methods import (
     GetBannedUsers,
     UnbanUser,
     GetGroupPreview,
+    GetFileUrl,
+    GetFileUploadUrl,
 )
 from ..types import (
     MessageContent,
@@ -88,6 +101,7 @@ from ..types import (
     Peer,
     Chat,
     TextMessage,
+    DocumentMessage,
     UserAuth,
     IntValue,
     Message,
@@ -115,7 +129,20 @@ from ..types import (
     Condition,
     BoolValue,
     Permissions,
-    BanData
+    BanData,
+    FileInfo,
+    FileURL,
+    FileInput,
+    FileUploadInfo,
+    FileDetails,
+    SendTypeModel,
+    MessageCaption,
+    Thumbnail,
+    VideoExt,
+    VoiceExt,
+    AudioExt,
+    PhotoExt,
+    DocumentsExt,
 )
 from ..types.responses import (
     MessageResponse,
@@ -143,7 +170,8 @@ from ..types.responses import (
     JoinedGroupResponse,
     GetPinsResponse,
     MemberPermissionsResponse,
-    BannedUsersResponse
+    BannedUsersResponse,
+    FileURLResponse,
 )
 from ..enums import (
     ChatType,
@@ -155,6 +183,7 @@ from ..enums import (
     TypingMode,
     Restriction,
     GroupType,
+    SendType,
 )
 from ..dispatcher.dispatcher import Dispatcher
 from .auth_cli import PhoneLoginCLI
@@ -252,7 +281,7 @@ class Client:
         """
         Starts the client session and begins listening for events.
         Args:
-            run_in_background (bool, optional): If True, starts listening in a background task; 
+            run_in_background (bool, optional): If True, starts listening in a background task;
                 otherwise, listens in the current coroutine. Defaults to False.
         Raises:
             BaleError: If the server returns an error during connection or handshake.
@@ -434,7 +463,7 @@ class Client:
             BaleError: If the server returns an error during sending.
             AiobaleError: For client-side errors.
         """
-        chat = Chat(type=chat_type, id=chat_id)
+        chat = self._build_chat(chat_id, chat_type)
         peer = self._resolve_peer(chat)
 
         message_id = message_id or generate_id()
@@ -796,7 +825,7 @@ class Client:
             BaleError: If the server returns an error.
             AiobaleError: For client-side errors.
         """
-        chat = Chat(id=chat_id, type=chat_type)
+        chat = self._build_chat(chat_id, chat_type)
         peer = self._resolve_peer(chat)
 
         call = LoadHistory(
@@ -848,7 +877,7 @@ class Client:
             BaleError: If the server returns an error.
             AiobaleError: For client-side errors.
         """
-        chat = Chat(id=chat_id, type=chat_type)
+        chat = self._build_chat(chat_id, chat_type)
         peer = self._resolve_peer(chat)
 
         call = PinMessage(
@@ -878,7 +907,7 @@ class Client:
             BaleError: If the server returns an error.
             AiobaleError: For client-side errors.
         """
-        chat = Chat(id=chat_id, type=chat_type)
+        chat = self._build_chat(chat_id, chat_type)
         peer = self._resolve_peer(chat)
 
         call = UnPinMessages(
@@ -910,7 +939,7 @@ class Client:
             BaleError: If the server returns an error.
             AiobaleError: For client-side errors.
         """
-        chat = Chat(id=chat_id, type=chat_type)
+        chat = self._build_chat(chat_id, chat_type)
         peer = self._resolve_peer(chat)
 
         call = UnPinMessages(
@@ -938,7 +967,7 @@ class Client:
             BaleError: If the server returns an error.
             AiobaleError: For client-side errors.
         """
-        chat = Chat(id=chat_id, type=chat_type)
+        chat = self._build_chat(chat_id, chat_type)
         peer = self._resolve_peer(chat)
 
         call = LoadPinnedMessages(peer=peer)
@@ -1764,7 +1793,7 @@ class Client:
         Retrieves view counts for a list of messages in a chat.
 
         Useful for analytics and tracking message engagement.
-        
+
         **Note:** This method is only applicable for channels.
 
         Args:
@@ -1790,7 +1819,7 @@ class Client:
     ) -> List[MessageViews]:
         """
         Retrieves view count for a single message in a chat.
-        
+
         **Note:** This method is only applicable for channels.
 
         Args:
@@ -2150,8 +2179,8 @@ class Client:
             BaleError: If the server returns an error.
             AiobaleError: For client-side errors.
 
-        Use this method to promote a user to admin status. You can optionally assign a custom admin name. 
-        Note: To assign specific admin rights and permissions, you must use the `set_member_permissions` method after creating the admin. 
+        Use this method to promote a user to admin status. You can optionally assign a custom admin name.
+        Note: To assign specific admin rights and permissions, you must use the `set_member_permissions` method after creating the admin.
         For more information about admin roles and permissions, check our website.
         """
         call = MakeUserAdmin(
@@ -2500,3 +2529,249 @@ class Client:
         call = GetGroupPreview(token=token)
         result: FullGroupResponse = await self(call)
         return result.fullgroup
+
+    async def get_file(self, file_id: int, access_hash: int) -> Optional[FileURL]:
+        call = GetFileUrl(file=FileInfo(file_id=file_id, access_hash=access_hash))
+        result: FileURLResponse = await self(call)
+        return result.file_urls[0] if result.file_urls else None
+
+    def _build_chat(
+        self, chat_id: Optional[int], chat_type: Optional[ChatType]
+    ) -> Optional[Chat]:
+        if chat_id is None or chat_type is None:
+            return None
+        return Chat(id=chat_id, type=chat_type)
+
+    async def get_file_upload_url(
+        self,
+        size: int,
+        name: str,
+        mime_type: str,
+        chat: Optional[Chat] = None,
+        send_type: Optional[SendType] = None,
+    ) -> FileUploadInfo:
+        call = GetFileUploadUrl(
+            expected_size=size,
+            user_id=self.id,
+            name=name,
+            mime_type=mime_type,
+            chat=chat,
+            send_type=SendTypeModel(type=send_type),
+        )
+        return await self(call)
+
+    async def upload_file(
+        self,
+        file: FileInput,
+        chat_id: Optional[int] = None,
+        chat_type: Optional[ChatType] = None,
+        send_type: Optional[SendType] = None,
+        progress_callback: Optional[Callable[[int, Optional[int]], None]] = None,
+    ) -> FileDetails:
+        file_info = file.info
+        chat = self._build_chat(chat_id, chat_type)
+
+        upload_info = await self.get_file_upload_url(
+            size=file_info.size,
+            name=file_info.name,
+            mime_type=file_info.mime_type,
+            chat=chat,
+            send_type=send_type,
+        )
+
+        await self.session.upload(
+            file=file,
+            url=upload_info.url,
+            token=self.__token,
+            chunk_size=upload_info.chunk_size,
+            progress_callback=progress_callback,
+        )
+
+        return FileDetails(
+            name=file_info.name,
+            size=file_info.size,
+            mime_type=file_info.mime_type,
+            file_id=upload_info.file_id,
+            access_hash=self.id,
+        )
+
+    async def _send_file_message(
+        self,
+        file: Union[FileDetails, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        message_id: Optional[int] = None,
+        send_type: SendType = SendType.DOCUMENT,
+        thumb: Optional[Thumbnail] = None,
+        ext: Optional[DocumentsExt] = None,
+    ) -> Message:
+        if isinstance(file, FileInput):
+            file_info = await self.upload_file(
+                file=file, chat_id=chat_id, chat_type=chat_type, send_type=send_type
+            )
+        else:
+            file_info = file
+
+        chat = self._build_chat(chat_id, chat_type)
+        peer = self._resolve_peer(chat)
+
+        message_id = message_id or generate_id()
+        if caption is not None:
+            caption = MessageCaption(content=caption)
+
+        content = MessageContent(
+            document=DocumentMessage(
+                file_id=file_info.file_id,
+                file_size=file_info.size,
+                name=file_info.name,
+                mime_type=file_info.mime_type,
+                access_hash=file_info.access_hash,
+                caption=caption,
+                thumb=thumb,
+                ext=ext,
+            )
+        )
+
+        if reply_to is not None:
+            reply_to = self._ensure_info_message(reply_to)
+
+        call = SendMessage(
+            peer=peer,
+            message_id=message_id,
+            content=content,
+            chat=chat,
+            reply_to=reply_to,
+        )
+
+        result: MessageResponse = await self(call)
+        return result.message
+
+    async def send_document(
+        self,
+        file: Union[FileDetails, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self._send_file_message(
+            file=file,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            caption=caption,
+            reply_to=reply_to,
+            message_id=message_id,
+            send_type=SendType.DOCUMENT,
+        )
+
+    async def send_photo(
+        self,
+        photo: Union[FileDetails, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        if cover_thumb is not None:
+            thumb_width = 50
+            thumb_height = int((thumb_width / cover_width) * cover_height)
+            cover_thumb = Thumbnail(
+                w=thumb_width, h=thumb_height, image=await cover_thumb.get_content()
+            )
+
+        ext = DocumentsExt(photo=PhotoExt(w=cover_width, h=cover_height))
+
+        return await self._send_file_message(
+            file=photo,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            caption=caption,
+            reply_to=reply_to,
+            message_id=message_id,
+            send_type=SendType.PHOTO,
+            thumb=cover_thumb,
+            ext=ext
+        )
+
+    async def send_voice(
+        self,
+        voice: Union[FileDetails, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self._send_file_message(
+            file=voice,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            caption=caption,
+            reply_to=reply_to,
+            message_id=message_id,
+            send_type=SendType.VOICE,
+        )
+
+    async def send_video(
+        self,
+        video: Union[FileDetails, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self._send_file_message(
+            file=video,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            caption=caption,
+            reply_to=reply_to,
+            message_id=message_id,
+            send_type=SendType.VIDEO,
+        )
+
+    async def send_gif(
+        self,
+        gif: Union[FileDetails, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self._send_file_message(
+            file=gif,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            caption=caption,
+            reply_to=reply_to,
+            message_id=message_id,
+            send_type=SendType.GIF,
+        )
+
+    async def send_audio(
+        self,
+        audio: Union[FileDetails, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self._send_file_message(
+            file=audio,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            caption=caption,
+            reply_to=reply_to,
+            message_id=message_id,
+            send_type=SendType.AUDIO,
+        )
