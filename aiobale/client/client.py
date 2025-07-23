@@ -249,7 +249,7 @@ class Client:
 
     def __init__(
         self,
-        dispatcher: Optional[Dispatcher],
+        dispatcher: Optional[Dispatcher] = None,
         session_file: Optional[str] = DEFAULT_SESSION,
         session: Optional[BaseSession] = None,
     ):
@@ -392,7 +392,7 @@ class Client:
         # Ignore messages sent by this client
         if (
             event_type == "message"
-            and getattr(event, "sender_id", None) == self.client.id
+            and getattr(event, "sender_id", None) == self.id
         ):
             return
 
