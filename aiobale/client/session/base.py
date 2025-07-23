@@ -14,7 +14,6 @@ from ...types import (
     ExtData, 
     ExtValue, 
     MetaList,
-    UpdateBody,
     Response
 )
 from ...exceptions import BaleError
@@ -119,29 +118,13 @@ class BaseSession(abc.ABC):
             )
             
         return MetaList(meta_list=ext)
-    
-    async def _handle_update(self, update: UpdateBody) -> None:
-        if update.body is None:
-            return
-        
-        event_info = update.body.current_event
-        if not event_info:
-            return
-
-        event_type, event = event_info
-    
-        if event_type == "message" and getattr(event, "sender_id", None) == self.client.id:
-            return
-        
-        dp = self.client.dispatcher
-        await dp.dispatch(event_type, event)
         
     async def _handle_received_data(self, data: bytes) -> None:
         data = self.decoder(data)
         received = Response.model_validate(data, context={"client": self.client})
         
         if received.update is not None:
-            await self._handle_update(received.update.body)
+            await self.client.handle_update(received.update.body)
             return
 
         response = received.response

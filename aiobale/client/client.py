@@ -147,6 +147,7 @@ from ..types import (
     AudioExt,
     PhotoExt,
     DocumentsExt,
+    UpdateBody,
 )
 from ..types.responses import (
     MessageResponse,
@@ -197,9 +198,58 @@ DEFAULT_SESSION: Final[str] = "./session.bale"
 
 
 class Client:
+    """
+    Main interface for interacting with the Bale API.
+
+    ----
+
+    This class manages the session, dispatches updates, and provides core context
+    for sending and receiving messages. It acts as the entry point to most high-level
+    API functionality.
+
+    .. warning::
+
+        Improper or abusive use of this client — such as spamming, unauthorized automation,
+        or violating platform rules — can result in account suspension or permanent bans.
+        Always follow Bale’s official API usage policies.
+
+    A :class:Client instance can be initialized with an optional :class:Dispatcher object.
+    While the dispatcher is not required, it must be provided if you intend to handle incoming updates.
+    You may also optionally provide a session file or a custom session backend. 
+    If none is given, a default Aiohttp-based session will be used.
+
+    If a token is not found in the session file, authentication falls back to the CLI login flow.
+
+    .. note::
+
+        The session file path must end with a ``.bale`` extension. Otherwise, an
+        :class:`AiobaleError` will be raised during initialization.
+
+    Internally, the client binds the session to itself and loads authentication tokens,
+    metadata, and user context if available.
+
+    Most timestamp values returned by the API (such as message time, update time, etc.)
+    are in milliseconds since the UNIX epoch.
+
+    .. note::
+
+        When working with datetime objects in Python, divide these values by 1000
+        before converting with `datetime.fromtimestamp()` or related utilities.
+
+    In the Bale protocol, the concept of a "group" encompasses both regular groups and
+    broadcast channels. They are distinguished by specific internal flags but are
+    represented uniformly in API responses.
+
+    .. note::
+
+        You can safely create a client instance even if you don't have a valid session yet.
+        The CLI login flow will guide you through the authentication process interactively.
+
+    """
+
     def __init__(
         self,
-        dispatcher: Dispatcher,
+        dispatcher: Optional[Dispatcher],
         session_file: Optional[str] = DEFAULT_SESSION,
         session: Optional[BaseSession] = None,
     ):
@@ -207,8 +257,8 @@ class Client:
             session = AiohttpSession()
 
         session._bind_client(self)
-        self.session = session
-        self.dispatcher: Dispatcher = dispatcher
+        self.session: BaseSession = session
+        self.dispatcher: Optional[Dispatcher] = dispatcher
 
         if not isinstance(session_file, str) or not session_file.lower().endswith(
             ".bale"
@@ -315,6 +365,39 @@ class Client:
         prevent resource leaks.
         """
         await self.session.close()
+
+    async def handle_update(self, update: UpdateBody) -> None:
+        """
+        Handle a single incoming update event from the Bale API.
+
+        This method processes the incoming `UpdateBody`, extracts the current event,
+        and dispatches it to the associated dispatcher, if available. Messages sent by
+        the client itself are ignored.
+
+        Args:
+            update (UpdateBody): The incoming update payload received from the API.
+
+        Returns:
+            None
+        """
+        if update.body is None:
+            return
+
+        event_info = update.body.current_event
+        if not event_info:
+            return
+
+        event_type, event = event_info
+
+        # Ignore messages sent by this client
+        if (
+            event_type == "message"
+            and getattr(event, "sender_id", None) == self.client.id
+        ):
+            return
+
+        if self.dispatcher is not None:
+            await self.dispatcher.dispatch(event_type, event)
 
     @classmethod
     async def __download_file_binary_io(

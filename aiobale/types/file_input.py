@@ -29,29 +29,40 @@ class FileInput:
     regardless of whether the input is a file path or raw bytes. Useful for uploading files to APIs
     like Bale that expect both file content and metadata such as MIME type, size, and file name.
 
-    ### Supported Inputs
-    - File path (`str` or `Path`) – Reads directly from disk.
-    - In-memory bytes (`bytes`) – Reads from provided byte content.
+    Supported Inputs
+    ================
 
-    ### Metadata Handling
-    If `name`, `size`, or `mime_type` are not explicitly provided, the class will try to infer them:
-    - For file paths: uses OS metadata and `mimetypes.guess_type`.
-    - For bytes: uses byte length and a custom MIME type detector (`guess_mime_type`), and creates a default name like `upload.png`.
+    - File path (``str`` or ``Path``) – Reads directly from disk.
+    - In-memory bytes (``bytes``) – Reads from provided byte content.
 
-    ### Attributes
-    - `info` (`FileData`): A named tuple containing the resolved `name`, `size` (in bytes), and `mime_type`.
+    Metadata Handling
+    =================
 
-    ### Example
-    ```python
-    file = FileInput("image.png")
-    async for chunk in file.read():
-        process(chunk)
+    If ``name``, ``size``, or ``mime_type`` are not explicitly provided, the class will try to infer them:
 
-    print(file.info.name, file.info.mime_type)
-    ```
+    - For file paths: uses OS metadata and ``mimetypes.guess_type``.
+    - For bytes: uses byte length and a custom MIME type detector (``guess_mime_type``), and creates a default name like ``upload.png``.
 
-    ### Raises
-    - `TypeError`: If an unsupported type is passed to `file` (only `str`, `Path`, or `bytes` are allowed).
+    Attributes
+    ==========
+
+    - ``info`` (``FileData``): A named tuple containing the resolved ``name``, ``size`` (in bytes), and ``mime_type``.
+
+    Example
+    =======
+
+    .. code-block:: python
+
+       file = FileInput("image.png")
+       async for chunk in file.read():
+           process(chunk)
+
+       print(file.info.name, file.info.mime_type)
+
+    Raises
+    ======
+
+    - ``TypeError``: If an unsupported type is passed to ``file`` (only ``str``, ``Path``, or ``bytes`` are allowed).
     """
     def __init__(
         self,
