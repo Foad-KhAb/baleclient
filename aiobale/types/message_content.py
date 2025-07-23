@@ -87,7 +87,7 @@ class DocumentMessage(BaleObject):
     access_hash: int = Field(..., alias="2")
     """Security hash required for accessing the file."""
 
-    file_size: Optional[int] = Field(None, alias="3")
+    size: Optional[int] = Field(None, alias="3")
     """File size in bytes, if known."""
 
     name: Union[Dict, str] = Field(..., alias="4")
@@ -113,7 +113,7 @@ class DocumentMessage(BaleObject):
             *,
             file_id: int,
             access_hash: int,
-            file_size: Optional[int] = None,
+            size: Optional[int] = None,
             name: Union[Dict, str],
             mime_type: str,
             ext: Optional[Dict] = None,
@@ -124,7 +124,7 @@ class DocumentMessage(BaleObject):
             super().__init__(
                 file_id=file_id,
                 access_hash=access_hash,
-                file_size=file_size,
+                size=size,
                 name=name,
                 mime_type=mime_type,
                 ext=ext,

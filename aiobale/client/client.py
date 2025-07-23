@@ -2597,7 +2597,7 @@ class Client:
 
     async def _send_file_message(
         self,
-        file: Union[FileDetails, FileInput],
+        file: Union[FileDetails, DocumentMessage, FileInput],
         chat_id: int,
         chat_type: ChatType,
         caption: Optional[str] = None,
@@ -2624,7 +2624,7 @@ class Client:
         content = MessageContent(
             document=DocumentMessage(
                 file_id=file_info.file_id,
-                file_size=file_info.size,
+                size=file_info.size,
                 name=file_info.name,
                 mime_type=file_info.mime_type,
                 access_hash=file_info.access_hash,
@@ -2650,7 +2650,7 @@ class Client:
 
     async def send_document(
         self,
-        file: Union[FileDetails, FileInput],
+        file: Union[FileDetails, DocumentMessage, FileInput],
         chat_id: int,
         chat_type: ChatType,
         caption: Optional[str] = None,
@@ -2667,9 +2667,21 @@ class Client:
             send_type=SendType.DOCUMENT,
         )
 
+    async def _get_thumb(
+        self, cover_thumb: FileInput, cover_width: int, cover_height: int
+    ) -> Thumbnail:
+        if cover_thumb.info.size > 2 * 1024:
+            raise AiobaleError("Cover should not be larger than 2KB")
+
+        thumb_width = 50
+        thumb_height = int((thumb_width / cover_width) * cover_height)
+        return Thumbnail(
+            w=thumb_width, h=thumb_height, image=await cover_thumb.get_content()
+        )
+
     async def send_photo(
         self,
-        photo: Union[FileDetails, FileInput],
+        photo: Union[FileDetails, DocumentMessage, FileInput],
         chat_id: int,
         chat_type: ChatType,
         caption: Optional[str] = None,
@@ -2680,14 +2692,13 @@ class Client:
         message_id: Optional[int] = None,
     ) -> Message:
         if cover_thumb is not None:
-            thumb_width = 50
-            thumb_height = int((thumb_width / cover_width) * cover_height)
-            cover_thumb = Thumbnail(
-                w=thumb_width, h=thumb_height, image=await cover_thumb.get_content()
+            cover_thumb = await self._get_thumb(
+                cover_thumb=cover_thumb,
+                cover_width=cover_width,
+                cover_height=cover_height,
             )
 
         ext = DocumentsExt(photo=PhotoExt(w=cover_width, h=cover_height))
-
         return await self._send_file_message(
             file=photo,
             chat_id=chat_id,
@@ -2697,37 +2708,30 @@ class Client:
             message_id=message_id,
             send_type=SendType.PHOTO,
             thumb=cover_thumb,
-            ext=ext
-        )
-
-    async def send_voice(
-        self,
-        voice: Union[FileDetails, FileInput],
-        chat_id: int,
-        chat_type: ChatType,
-        caption: Optional[str] = None,
-        reply_to: Optional[Union[Message, InfoMessage]] = None,
-        message_id: Optional[int] = None,
-    ) -> Message:
-        return await self._send_file_message(
-            file=voice,
-            chat_id=chat_id,
-            chat_type=chat_type,
-            caption=caption,
-            reply_to=reply_to,
-            message_id=message_id,
-            send_type=SendType.VOICE,
+            ext=ext,
         )
 
     async def send_video(
         self,
-        video: Union[FileDetails, FileInput],
+        video: Union[FileDetails, DocumentMessage, FileInput],
         chat_id: int,
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        if cover_thumb is not None:
+            cover_thumb = await self._get_thumb(
+                cover_thumb=cover_thumb,
+                cover_width=cover_width,
+                cover_height=cover_height,
+            )
+
+        ext = DocumentsExt(video=VideoExt(w=cover_width, h=cover_height, duration=duration))
         return await self._send_file_message(
             file=video,
             chat_id=chat_id,
@@ -2736,17 +2740,53 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.VIDEO,
+            thumb=cover_thumb,
+            ext=ext,
         )
 
-    async def send_gif(
+    async def send_voice(
         self,
-        gif: Union[FileDetails, FileInput],
+        voice: Union[FileDetails, DocumentMessage, FileInput],
         chat_id: int,
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        ext = DocumentsExt(voice=VoiceExt(duration=duration))
+        return await self._send_file_message(
+            file=voice,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            caption=caption,
+            reply_to=reply_to,
+            message_id=message_id,
+            send_type=SendType.VOICE,
+            ext=ext
+        )
+
+    async def send_gif(
+        self,
+        gif: Union[FileDetails, DocumentMessage, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        duration: Optional[int] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        if cover_thumb is not None:
+            cover_thumb = await self._get_thumb(
+                cover_thumb=cover_thumb,
+                cover_width=cover_width,
+                cover_height=cover_height,
+            )
+
+        ext = DocumentsExt(gif=VideoExt(w=cover_width, h=cover_height, duration=duration))
         return await self._send_file_message(
             file=gif,
             chat_id=chat_id,
@@ -2755,17 +2795,24 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.GIF,
+            thumb=cover_thumb,
+            ext=ext
         )
 
     async def send_audio(
         self,
-        audio: Union[FileDetails, FileInput],
+        audio: Union[FileDetails, DocumentMessage, FileInput],
         chat_id: int,
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        duration: Optional[int] = None,
+        album: Optional[str] = None,
+        genre: Optional[str] = None,
+        track: Optional[str] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        ext = DocumentsExt(audio=AudioExt(album=album, genre=genre, track=track, duration=duration))
         return await self._send_file_message(
             file=audio,
             chat_id=chat_id,
@@ -2774,4 +2821,5 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.AUDIO,
+            ext=ext
         )
