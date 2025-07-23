@@ -26,7 +26,7 @@ class FileURL(BaleObject):
     timeout: int = Field(..., alias="3")
     """Validity duration of the URL in milliseconds."""
 
-    chunk_size: int = Field(..., alias="7")
+    chunk_size: int = Field(65536, alias="7")
     """Recommended chunk size (in bytes) for downloading the file in parts."""
 
     @model_validator(mode="before")

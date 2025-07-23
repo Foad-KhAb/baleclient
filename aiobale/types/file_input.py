@@ -4,17 +4,55 @@ import mimetypes
 from pathlib import Path
 from typing import Union, Optional, NamedTuple
 
-from .file_details import FileDetails
 from ..utils import guess_mime_type
 
 
 class FileData(NamedTuple):
+    """
+    Metadata container for file input.
+
+    Attributes:
+    - name (str): The file name (e.g., 'photo.jpg').
+    - size (int): Size of the file in bytes.
+    - mime_type (str): Detected or provided MIME type (e.g., 'image/jpeg').
+    """
     name: str
     size: int
     mime_type: str
 
 
 class FileInput:
+    """
+    A flexible abstraction for representing file input, either from a file path or from in-memory bytes.
+
+    This class is used to standardize file handling, providing metadata extraction and async reading,
+    regardless of whether the input is a file path or raw bytes. Useful for uploading files to APIs
+    like Bale that expect both file content and metadata such as MIME type, size, and file name.
+
+    ### Supported Inputs
+    - File path (`str` or `Path`) – Reads directly from disk.
+    - In-memory bytes (`bytes`) – Reads from provided byte content.
+
+    ### Metadata Handling
+    If `name`, `size`, or `mime_type` are not explicitly provided, the class will try to infer them:
+    - For file paths: uses OS metadata and `mimetypes.guess_type`.
+    - For bytes: uses byte length and a custom MIME type detector (`guess_mime_type`), and creates a default name like `upload.png`.
+
+    ### Attributes
+    - `info` (`FileData`): A named tuple containing the resolved `name`, `size` (in bytes), and `mime_type`.
+
+    ### Example
+    ```python
+    file = FileInput("image.png")
+    async for chunk in file.read():
+        process(chunk)
+
+    print(file.info.name, file.info.mime_type)
+    ```
+
+    ### Raises
+    - `TypeError`: If an unsupported type is passed to `file` (only `str`, `Path`, or `bytes` are allowed).
+    """
     def __init__(
         self,
         file: Union[str, Path, bytes],

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, Final, Callable, Any, Optional, List, TYPE_CHECKING, Union
+from typing import AsyncGenerator, Dict, Final, Callable, Any, Optional, List, TYPE_CHECKING, Union
 import abc
 import time
 
@@ -198,4 +198,13 @@ class BaseSession(abc.ABC):
         chunk_size: int = 4096,
         progress_callback: Optional[Callable[[int, Optional[int]], None]] = None
     ) -> None:
+        pass
+    
+    @abc.abstractmethod
+    async def stream_content(
+        self,
+        url: str,
+        chunk_size: int = 65536,
+        raise_for_status: bool = True,
+    ) -> AsyncGenerator[bytes, None]:
         pass

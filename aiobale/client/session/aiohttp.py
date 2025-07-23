@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import aiohttp
 import asyncio
-from typing import Callable, Optional, Dict, Union
+from typing import AsyncGenerator, Callable, Optional, Dict, Union
+
+from aiohttp_retry import Any
 
 from ...methods import BaleMethod, BaleType
 from ...utils import add_header, clean_grpc
@@ -165,7 +167,38 @@ class AiohttpSession(BaseSession):
         finally:
             if own_session:
                 await session.close()
+                
+    async def stream_content(
+        self,
+        url: str,
+        chunk_size: int = 65536,
+        raise_for_status: bool = True,
+    ) -> AsyncGenerator[bytes, None]:
+        session = self.session
+        own_session = False
+        
+        if session is None:
+            own_session = True
+            session_timeout = aiohttp.ClientTimeout(total=None)
+            session = aiohttp.ClientSession(timeout=session_timeout)
+        
+        headers = {
+            "User-Agent": self.user_agent,
+            "Origin": "https://web.bale.ai",
+        }
 
+        try:
+            async with session.get(
+                url, headers=headers, raise_for_status=raise_for_status
+            ) as resp:
+                async for chunk in resp.content.iter_chunked(chunk_size):
+                    yield chunk
+        except Exception as e:
+            raise AiobaleError(f"Upload error: {e}") from e
+        finally:
+            if own_session:
+                await session.close()
+    
     async def close(self):
         self._running = False
         if self.ws:

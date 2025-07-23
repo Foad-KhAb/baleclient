@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import asyncio
+import io
+import pathlib
 from typing import (
+    AsyncGenerator,
+    BinaryIO,
     Callable,
-    Dict,
     List,
     Literal,
     Optional,
-    Any,
     Tuple,
     Type,
     Final,
@@ -15,6 +17,8 @@ from typing import (
 )
 from types import TracebackType
 import os
+
+import aiofiles
 
 from .session import AiohttpSession, BaseSession
 from ..exceptions import AiobaleError
@@ -311,6 +315,25 @@ class Client:
         prevent resource leaks.
         """
         await self.session.close()
+
+    @classmethod
+    async def __download_file_binary_io(
+        cls, destination: BinaryIO, seek: bool, stream: AsyncGenerator[bytes, None]
+    ) -> BinaryIO:
+        async for chunk in stream:
+            destination.write(chunk)
+            destination.flush()
+        if seek is True:
+            destination.seek(0)
+        return destination
+
+    @classmethod
+    async def __download_file(
+        cls, destination: Union[str, pathlib.Path], stream: AsyncGenerator[bytes, None]
+    ) -> None:
+        async with aiofiles.open(destination, "wb") as f:
+            async for chunk in stream:
+                await f.write(chunk)
 
     async def __aenter__(self) -> Client:
         await self.start(True)
@@ -2531,9 +2554,73 @@ class Client:
         return result.fullgroup
 
     async def get_file(self, file_id: int, access_hash: int) -> Optional[FileURL]:
+        """
+        Retrieves a direct file URL for downloading media stored on Bale servers.
+
+        Args:
+            file_id (int): Unique identifier of the file.
+            access_hash (int): Access hash associated with the file, used for validation.
+
+        Returns:
+            Optional[aiobale.types.FileURL]: File URL and metadata, or None if not found.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Use this method to retrieve download links for existing media such as photos, videos, or documents.
+        """
         call = GetFileUrl(file=FileInfo(file_id=file_id, access_hash=access_hash))
         result: FileURLResponse = await self(call)
         return result.file_urls[0] if result.file_urls else None
+
+    async def download_file(
+        self,
+        file_id: int,
+        access_hash: int,
+        destination: Optional[Union[BinaryIO, pathlib.Path, str]] = None,
+        seek: bool = True,
+    ) -> Optional[BinaryIO]:
+        """
+        Downloads a file from Bale servers using its file ID and access hash.
+
+        Args:
+            file_id (int): Unique identifier of the file.
+            access_hash (int): Access hash for the file.
+            destination (Optional[Union[BinaryIO, pathlib.Path, str]]): File-like object or file path to save the file to.
+                - If None, returns the file content in a `BytesIO` object.
+            seek (bool): Whether to seek the returned BinaryIO to the beginning. Default is True.
+
+        Returns:
+            Optional[BinaryIO]: The file content in a BinaryIO object if destination was None or BinaryIO. Otherwise, None.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        This method is suitable for downloading files directly into memory or saving them to disk. Make sure to use `seek=False`
+        if you want to avoid rewinding the stream.
+        """
+        file_info = await self.get_file(file_id, access_hash)
+
+        if destination is None:
+            destination = io.BytesIO()
+
+        stream = self.session.stream_content(
+            url=file_info.url,
+            chunk_size=file_info.chunk_size,
+            raise_for_status=True,
+        )
+
+        try:
+            if isinstance(destination, (str, pathlib.Path)):
+                await self.__download_file(destination=destination, stream=stream)
+                return None
+            return await self.__download_file_binary_io(
+                destination=destination, seek=seek, stream=stream
+            )
+        finally:
+            await stream.aclose()
 
     def _build_chat(
         self, chat_id: Optional[int], chat_type: Optional[ChatType]
@@ -2550,6 +2637,27 @@ class Client:
         chat: Optional[Chat] = None,
         send_type: Optional[SendType] = None,
     ) -> FileUploadInfo:
+        """
+        Requests an upload URL from Bale's server for uploading a file.
+
+        Args:
+            size (int): Size of the file in bytes.
+            name (str): File name including extension.
+            mime_type (str): MIME type of the file (e.g., 'image/jpeg', 'video/mp4').
+            chat (Optional[Chat]): Target chat to associate the upload with.
+            send_type (Optional[SendType]): Optional hint about the file's intended use (e.g., voice, gif).
+
+        Returns:
+            aiobale.types.FileUploadInfo: Contains upload URL, chunk size, and file ID.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Note:
+            You may omit `chat` and `send_type` when the upload is not directly tied to a specific message or chat —
+            for example, when uploading a profile picture or avatar.
+        """
         call = GetFileUploadUrl(
             expected_size=size,
             user_id=self.id,
@@ -2568,6 +2676,28 @@ class Client:
         send_type: Optional[SendType] = None,
         progress_callback: Optional[Callable[[int, Optional[int]], None]] = None,
     ) -> FileDetails:
+        """
+        Uploads a file to Bale servers and returns its metadata.
+
+        Args:
+            file (FileInput): A `FileInput` object representing the file to be uploaded.
+            chat_id (Optional[int]): ID of the target chat (optional).
+            chat_type (Optional[ChatType]): Type of the target chat (e.g., user, group).
+            send_type (Optional[SendType]): Optional hint for how the file will be used (e.g., voice, gif).
+            progress_callback (Optional[Callable[[int, Optional[int]], None]]): Callback for upload progress,
+                called with bytes sent and total size.
+
+        Returns:
+            aiobale.types.FileDetails: Information about the uploaded file including file ID, name, size, and MIME type.
+
+        Raises:
+            BaleError: If the server returns an error.
+            AiobaleError: For client-side errors.
+
+        Note:
+            `chat_id`, `chat_type`, and `send_type` can be omitted when uploading files for non-message-related purposes,
+            such as updating a user or group profile photo.
+        """
         file_info = file.info
         chat = self._build_chat(chat_id, chat_type)
 
@@ -2657,6 +2787,23 @@ class Client:
         reply_to: Optional[Union[Message, InfoMessage]] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Sends a document file to the specified chat.
+
+        Args:
+            file (Union[FileDetails, DocumentMessage, FileInput]): File or message representing the document.
+            chat_id (int): ID of the target chat.
+            chat_type (ChatType): Type of the chat (user, group, etc.).
+            caption (Optional[str]): Text to accompany the document.
+            reply_to (Optional[Union[Message, InfoMessage]]): Optional message to reply to.
+            message_id (Optional[int]): Optional custom message ID.
+
+        Returns:
+            aiobale.types.Message: The message containing the sent document.
+
+        Note:
+            No additional metadata is required, but sending descriptive captions helps users identify the file.
+        """
         return await self._send_file_message(
             file=file,
             chat_id=chat_id,
@@ -2691,6 +2838,27 @@ class Client:
         cover_height: int = 1000,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Sends a photo to the specified chat.
+
+        Args:
+            photo (Union[FileDetails, DocumentMessage, FileInput]): The image file to send.
+            chat_id (int): ID of the target chat.
+            chat_type (ChatType): Type of the chat.
+            caption (Optional[str]): Caption to accompany the photo.
+            reply_to (Optional[Union[Message, InfoMessage]]): Optional message to reply to.
+            cover_thumb (Optional[FileInput]): Small preview thumbnail (≤ 2 KB).
+            cover_width (int): Width of the photo in pixels. Default is 1000.
+            cover_height (int): Height of the photo in pixels. Default is 1000.
+            message_id (Optional[int]): Optional custom message ID.
+
+        Returns:
+            aiobale.types.Message: The message containing the sent photo.
+
+        Note:
+            Providing `cover_thumb`, `cover_width`, and `cover_height` is optional but enhances preview display in Bale apps.
+            The `cover_thumb` must be no larger than 2 KB.
+        """
         if cover_thumb is not None:
             cover_thumb = await self._get_thumb(
                 cover_thumb=cover_thumb,
@@ -2724,6 +2892,28 @@ class Client:
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Sends a video file to the specified chat.
+
+        Args:
+            video (Union[FileDetails, DocumentMessage, FileInput]): The video file to send.
+            chat_id (int): ID of the target chat.
+            chat_type (ChatType): Type of the chat.
+            caption (Optional[str]): Caption for the video.
+            reply_to (Optional[Union[Message, InfoMessage]]): Optional message to reply to.
+            cover_thumb (Optional[FileInput]): Preview thumbnail (≤ 2 KB).
+            cover_width (int): Width of the video in pixels. Default is 1000.
+            cover_height (int): Height of the video in pixels. Default is 1000.
+            duration (Optional[int]): Duration of the video in milliseconds.
+            message_id (Optional[int]): Optional custom message ID.
+
+        Returns:
+            aiobale.types.Message: The message containing the sent video.
+
+        Note:
+            Providing `duration`, `cover_thumb`, and dimensions enhances the video preview before loading.
+            `cover_thumb` must be at most 2 KB in size.
+        """
         if cover_thumb is not None:
             cover_thumb = await self._get_thumb(
                 cover_thumb=cover_thumb,
@@ -2731,7 +2921,9 @@ class Client:
                 cover_height=cover_height,
             )
 
-        ext = DocumentsExt(video=VideoExt(w=cover_width, h=cover_height, duration=duration))
+        ext = DocumentsExt(
+            video=VideoExt(w=cover_width, h=cover_height, duration=duration)
+        )
         return await self._send_file_message(
             file=video,
             chat_id=chat_id,
@@ -2754,6 +2946,24 @@ class Client:
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Sends a voice message to the specified chat.
+
+        Args:
+            voice (Union[FileDetails, DocumentMessage, FileInput]): The voice file to send.
+            chat_id (int): ID of the target chat.
+            chat_type (ChatType): Type of the chat.
+            caption (Optional[str]): Optional caption.
+            reply_to (Optional[Union[Message, InfoMessage]]): Optional message to reply to.
+            duration (Optional[int]): Duration of the voice message in milliseconds.
+            message_id (Optional[int]): Optional custom message ID.
+
+        Returns:
+            aiobale.types.Message: The message containing the sent voice.
+
+        Note:
+            Supplying the `duration` is optional, but improves the waveform preview in Bale apps before playback.
+        """
         ext = DocumentsExt(voice=VoiceExt(duration=duration))
         return await self._send_file_message(
             file=voice,
@@ -2763,7 +2973,7 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.VOICE,
-            ext=ext
+            ext=ext,
         )
 
     async def send_audio(
@@ -2779,7 +2989,30 @@ class Client:
         track: Optional[str] = None,
         message_id: Optional[int] = None,
     ) -> Message:
-        ext = DocumentsExt(audio=AudioExt(album=album, genre=genre, track=track, duration=duration))
+        """
+        Sends a music/audio file to the specified chat.
+
+        Args:
+            audio (Union[FileDetails, DocumentMessage, FileInput]): The audio file to send.
+            chat_id (int): ID of the target chat.
+            chat_type (ChatType): Type of the chat.
+            caption (Optional[str]): Caption to accompany the audio.
+            reply_to (Optional[Union[Message, InfoMessage]]): Optional message to reply to.
+            duration (Optional[int]): Duration of the audio in milliseconds.
+            album (Optional[str]): Album title.
+            genre (Optional[str]): Music genre.
+            track (Optional[str]): Track name or number.
+            message_id (Optional[int]): Optional custom message ID.
+
+        Returns:
+            aiobale.types.Message: The message containing the sent audio.
+
+        Note:
+            Metadata such as `duration`, `album`, `genre`, and `track` are optional but improve the preview shown before loading the audio.
+        """
+        ext = DocumentsExt(
+            audio=AudioExt(album=album, genre=genre, track=track, duration=duration)
+        )
         return await self._send_file_message(
             file=audio,
             chat_id=chat_id,
@@ -2788,9 +3021,9 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.AUDIO,
-            ext=ext
+            ext=ext,
         )
-        
+
     async def send_gif(
         self,
         gif: Union[FileDetails, DocumentMessage, FileInput],
@@ -2804,6 +3037,27 @@ class Client:
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Sends an animated GIF to the specified chat.
+
+        Args:
+            gif (Union[FileDetails, DocumentMessage, FileInput]): The GIF file to send.
+            chat_id (int): ID of the target chat.
+            chat_type (ChatType): Type of the chat.
+            caption (Optional[str]): Caption to accompany the GIF.
+            reply_to (Optional[Union[Message, InfoMessage]]): Optional message to reply to.
+            cover_thumb (Optional[FileInput]): Preview thumbnail (≤ 2 KB).
+            cover_width (int): Width of the GIF in pixels. Default is 1000.
+            cover_height (int): Height of the GIF in pixels. Default is 1000.
+            duration (Optional[int]): Duration of the GIF in milliseconds.
+            message_id (Optional[int]): Optional custom message ID.
+
+        Returns:
+            aiobale.types.Message: The message containing the sent GIF.
+
+        Note:
+            Supplying `duration`, dimensions, and `cover_thumb` improves the media preview. The thumbnail must not exceed 2 KB.
+        """
         if cover_thumb is not None:
             cover_thumb = await self._get_thumb(
                 cover_thumb=cover_thumb,
@@ -2811,7 +3065,9 @@ class Client:
                 cover_height=cover_height,
             )
 
-        ext = DocumentsExt(gif=VideoExt(w=cover_width, h=cover_height, duration=duration))
+        ext = DocumentsExt(
+            gif=VideoExt(w=cover_width, h=cover_height, duration=duration)
+        )
         return await self._send_file_message(
             file=gif,
             chat_id=chat_id,
@@ -2821,5 +3077,5 @@ class Client:
             message_id=message_id,
             send_type=SendType.GIF,
             thumb=cover_thumb,
-            ext=ext
+            ext=ext,
         )
