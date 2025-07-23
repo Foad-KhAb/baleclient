@@ -1,19 +1,21 @@
 from __future__ import annotations
 
 from pydantic import Field, model_validator
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from .chat import Chat
 from .base import BaleObject
 from ..enums import ChatType, ListLoadMode, ReportKind, TypingMode
 from .quoted_message import QuotedMessage
-from .message_content import MessageContent
+from .message_content import MessageContent, DocumentMessage
 from .other_message import OtherMessage
 from .full_user import FullUser
 from .user import User
 from .message_reaction import MessageReactions
 from .reaction_data import ReactionData
 from .reaction import Reaction
+from .file_details import FileDetails
+from .file_input import FileInput
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse
@@ -23,8 +25,8 @@ class Message(BaleObject):
     """
     Represents a message in Bale messenger with all its metadata.
 
-    This class contains references to the chat the message belongs to, the sender, 
-    the message content, and related messages such as quoted replies or previous messages. 
+    This class contains references to the chat the message belongs to, the sender,
+    the message content, and related messages such as quoted replies or previous messages.
     Date fields are stored as Unix timestamps in milliseconds.
     """
 
@@ -76,7 +78,7 @@ class Message(BaleObject):
             previous_message: Optional[OtherMessage] = None,
             next_message: Optional[OtherMessage] = None,
             replied_to: Optional[Message] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 chat=chat,
@@ -102,7 +104,7 @@ class Message(BaleObject):
         if text_content is None:
             return None
         return text_content.value
-    
+
     @model_validator(mode="after")
     def attach_chat_to_reply(self) -> Message:
         """
@@ -140,6 +142,244 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             reply_to=self,
             message_id=message_id,
+        )
+
+    async def answer_document(
+        self,
+        file: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_document(
+            file=file,
+            caption=caption,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+        )
+
+    async def reply_document(
+        self,
+        file: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_document(
+            file=file,
+            caption=caption,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+            reply_to=self,
+        )
+
+    async def answer_photo(
+        self,
+        photo: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_photo(
+            photo=photo,
+            caption=caption,
+            cover_thumb=cover_thumb,
+            cover_width=cover_width,
+            cover_height=cover_height,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+        )
+
+    async def reply_photo(
+        self,
+        photo: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_photo(
+            photo=photo,
+            caption=caption,
+            cover_thumb=cover_thumb,
+            cover_width=cover_width,
+            cover_height=cover_height,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+            reply_to=self,
+        )
+
+    async def answer_video(
+        self,
+        video: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        duration: Optional[int] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_video(
+            video=video,
+            caption=caption,
+            cover_thumb=cover_thumb,
+            cover_width=cover_width,
+            cover_height=cover_height,
+            duration=duration,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+        )
+
+    async def reply_video(
+        self,
+        video: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        duration: Optional[int] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_video(
+            video=video,
+            caption=caption,
+            cover_thumb=cover_thumb,
+            cover_width=cover_width,
+            cover_height=cover_height,
+            duration=duration,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+            reply_to=self,
+        )
+
+    async def answer_voice(
+        self,
+        voice: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        duration: Optional[int] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_voice(
+            voice=voice,
+            caption=caption,
+            duration=duration,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+        )
+
+    async def reply_voice(
+        self,
+        voice: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        duration: Optional[int] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_voice(
+            voice=voice,
+            caption=caption,
+            duration=duration,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+            reply_to=self,
+        )
+
+    async def answer_audio(
+        self,
+        audio: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        duration: Optional[int] = None,
+        album: Optional[str] = None,
+        genre: Optional[str] = None,
+        track: Optional[str] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_audio(
+            audio=audio,
+            caption=caption,
+            duration=duration,
+            album=album,
+            genre=genre,
+            track=track,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+        )
+
+    async def reply_audio(
+        self,
+        audio: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        duration: Optional[int] = None,
+        album: Optional[str] = None,
+        genre: Optional[str] = None,
+        track: Optional[str] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_audio(
+            audio=audio,
+            caption=caption,
+            duration=duration,
+            album=album,
+            genre=genre,
+            track=track,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+            reply_to=self,
+        )
+
+    async def answer_gif(
+        self,
+        gif: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        duration: Optional[int] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_gif(
+            gif=gif,
+            caption=caption,
+            duration=duration,
+            cover_thumb=cover_thumb,
+            cover_width=cover_width,
+            cover_height=cover_height,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+        )
+
+    async def reply_gif(
+        self,
+        gif: Union[FileDetails, DocumentMessage, FileInput],
+        caption: Optional[str] = None,
+        cover_thumb: Optional[FileInput] = None,
+        cover_width: int = 1000,
+        cover_height: int = 1000,
+        duration: Optional[int] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        return await self.client.send_gif(
+            gif=gif,
+            caption=caption,
+            duration=duration,
+            cover_thumb=cover_thumb,
+            cover_width=cover_width,
+            cover_height=cover_height,
+            chat_id=self.chat.id,
+            chat_type=self.chat.type,
+            message_id=message_id,
+            reply_to=self,
         )
 
     async def edit_text(self, text: str) -> DefaultResponse:

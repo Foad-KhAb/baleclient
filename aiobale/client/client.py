@@ -2766,6 +2766,31 @@ class Client:
             ext=ext
         )
 
+    async def send_audio(
+        self,
+        audio: Union[FileDetails, DocumentMessage, FileInput],
+        chat_id: int,
+        chat_type: ChatType,
+        caption: Optional[str] = None,
+        reply_to: Optional[Union[Message, InfoMessage]] = None,
+        duration: Optional[int] = None,
+        album: Optional[str] = None,
+        genre: Optional[str] = None,
+        track: Optional[str] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
+        ext = DocumentsExt(audio=AudioExt(album=album, genre=genre, track=track, duration=duration))
+        return await self._send_file_message(
+            file=audio,
+            chat_id=chat_id,
+            chat_type=chat_type,
+            caption=caption,
+            reply_to=reply_to,
+            message_id=message_id,
+            send_type=SendType.AUDIO,
+            ext=ext
+        )
+        
     async def send_gif(
         self,
         gif: Union[FileDetails, DocumentMessage, FileInput],
@@ -2796,30 +2821,5 @@ class Client:
             message_id=message_id,
             send_type=SendType.GIF,
             thumb=cover_thumb,
-            ext=ext
-        )
-
-    async def send_audio(
-        self,
-        audio: Union[FileDetails, DocumentMessage, FileInput],
-        chat_id: int,
-        chat_type: ChatType,
-        caption: Optional[str] = None,
-        reply_to: Optional[Union[Message, InfoMessage]] = None,
-        duration: Optional[int] = None,
-        album: Optional[str] = None,
-        genre: Optional[str] = None,
-        track: Optional[str] = None,
-        message_id: Optional[int] = None,
-    ) -> Message:
-        ext = DocumentsExt(audio=AudioExt(album=album, genre=genre, track=track, duration=duration))
-        return await self._send_file_message(
-            file=audio,
-            chat_id=chat_id,
-            chat_type=chat_type,
-            caption=caption,
-            reply_to=reply_to,
-            message_id=message_id,
-            send_type=SendType.AUDIO,
             ext=ext
         )
