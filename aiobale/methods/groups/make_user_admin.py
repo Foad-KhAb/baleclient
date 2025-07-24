@@ -8,14 +8,32 @@ from ..base import BaleMethod
 
 
 class MakeUserAdmin(BaleMethod):
+    """
+    Assigns admin privileges to a user in a specified group.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating the success or failure of the operation.
+    """
+
     __service__ = Services.GROUPS.value
     __method__ = "MakeUserAdmin"
 
     __returning__ = DefaultResponse
 
     group: ShortPeer = Field(..., alias="1")
+    """
+    The group in which the user is being promoted to admin.
+    """
+
     user: ShortPeer = Field(..., alias="2")
+    """
+    The user who is being assigned admin privileges.
+    """
+
     admin_name: Optional[StringValue] = Field(None, alias="3")
+    """
+    The custom name to assign to the admin (optional).
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

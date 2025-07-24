@@ -8,12 +8,22 @@ from ..base import BaleMethod
 
 
 class LoadFullUsers(BaleMethod):
+    """
+    Loads detailed information about specified users.
+
+    Returns:
+        aiobale.types.responses.FullUsersResponse: The response containing full user details.
+    """
+
     __service__ = Services.USER.value
     __method__ = "LoadFullUsers"
 
     __returning__ = FullUsersResponse
 
     peers: List[InfoPeer] = Field(..., alias="1")
+    """
+    A list of peers (users or groups) for which detailed information is requested.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

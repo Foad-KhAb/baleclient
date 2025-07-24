@@ -9,12 +9,22 @@ from ..base import BaleMethod
 
 
 class EditAbout(BaleMethod):
+    """
+    Updates the "about" section of a user's profile.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating the success or failure of the operation.
+    """
+
     __service__ = Services.USER.value
     __method__ = "EditAbout"
 
     __returning__ = DefaultResponse
 
     about: StringValue = Field(..., alias="1")
+    """
+    The new "about" text to be set for the user's profile.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

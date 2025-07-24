@@ -8,14 +8,32 @@ from ..base import BaleMethod
 
 
 class EditUserLocalName(BaleMethod):
+    """
+    Edits the local name of a user.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating the success or failure of the operation.
+    """
+
     __service__ = Services.USER.value
     __method__ = "EditUserLocalName"
 
     __returning__ = DefaultResponse
 
     user_id: int = Field(..., alias="1")
+    """
+    The unique identifier of the user whose local name is being edited.
+    """
+
     access_hash: int = Field(..., alias="2")
+    """
+    The access hash of the user, used for authorization purposes.
+    """
+
     name: str = Field(..., alias="3")
+    """
+    The new local name to assign to the user.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

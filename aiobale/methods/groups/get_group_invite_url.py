@@ -8,12 +8,22 @@ from ..base import BaleMethod
 
 
 class GetGroupInviteURL(BaleMethod):
+    """
+    Retrieves the invite URL for a specified group.
+
+    Returns:
+        aiobale.types.responses.InviteURLResponse: The response containing the invite URL.
+    """
+
     __service__ = Services.GROUPS.value
     __method__ = "GetGroupInviteURL"
 
     __returning__ = InviteURLResponse
 
     group: ShortPeer = Field(..., alias="1")
+    """
+    The group for which the invite URL is being requested.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

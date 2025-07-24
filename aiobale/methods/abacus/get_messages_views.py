@@ -8,13 +8,27 @@ from ..base import BaleMethod
 
 
 class GetMessagesViews(BaleMethod):
+    """
+    Retrieves view counts for specified messages in a given peer (chat or user).
+
+    Returns:
+        aiobale.types.responses.ViewsResponse: The response containing view counts for the requested messages.
+    """
+
     __service__ = Services.ABACUS.value
     __method__ = "GetMessagesViews"
 
     __returning__ = ViewsResponse
 
     peer: Peer = Field(..., alias="1")
+    """
+    The peer (chat or user) from which the messages' view counts are being requested.
+    """
+
     message_ids: List[OtherMessage] = Field(..., alias="2")
+    """
+    List of message identifiers for which view counts are requested.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

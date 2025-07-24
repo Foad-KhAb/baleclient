@@ -8,12 +8,22 @@ from ..base import BaleMethod
 
 
 class SendReport(BaleMethod):
+    """
+    Sends a report for inappropriate content.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating the success or failure of the report submission.
+    """
+
     __service__ = Services.REPORT.value
     __method__ = "ReportInappropriateContent"
 
     __returning__ = DefaultResponse
 
     report_body: Report = Field(..., alias="1")
+    """
+    The body of the report containing details about the inappropriate content.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

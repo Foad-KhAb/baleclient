@@ -8,14 +8,32 @@ from ..base import BaleMethod
 
 
 class UnPinMessages(BaleMethod):
+    """
+    Unpins specific messages or all messages from a chat.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating the success or failure of the operation.
+    """
+
     __service__ = Services.MESSAGING.value
     __method__ = "UnPinMessages"
 
     __returning__ = DefaultResponse
 
     peer: Peer = Field(..., alias="1")
+    """
+    The peer (chat or user) from which the messages are being unpinned.
+    """
+
     messages: List[OtherMessage] = Field(..., alias="2")
+    """
+    List of messages to be unpinned. If `all_messages` is set to True, this field can be ignored.
+    """
+
     all_messages: IntBool = Field(False, alias="3")
+    """
+    A flag indicating whether to unpin all messages from the chat. Defaults to False.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

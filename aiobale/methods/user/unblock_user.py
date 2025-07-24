@@ -8,12 +8,22 @@ from ..base import BaleMethod
 
 
 class UnblockUser(BaleMethod):
+    """
+    Unblocks a previously blocked user.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating whether the unblock operation succeeded.
+    """
+
     __service__ = Services.USER.value
     __method__ = "UnblockUser"
 
     __returning__ = DefaultResponse
 
     peer: InfoPeer = Field(..., alias="1")
+    """
+    The peer (user) to be unblocked, including identifier and type information.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

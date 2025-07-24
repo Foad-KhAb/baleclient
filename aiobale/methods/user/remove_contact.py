@@ -7,13 +7,27 @@ from ..base import BaleMethod
 
 
 class RemoveContact(BaleMethod):
+    """
+    Removes a user from the contact list.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating the result of the contact removal operation.
+    """
+
     __service__ = Services.USER.value
     __method__ = "RemoveContact"
 
     __returning__ = DefaultResponse
 
     user_id: int = Field(..., alias="1")
+    """
+    The unique identifier of the user to be removed from the contact list.
+    """
+
     type: int = Field(1, alias="2")
+    """
+    The type of removal action. Defaults to 1.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

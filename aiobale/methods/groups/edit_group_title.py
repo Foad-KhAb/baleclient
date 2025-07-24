@@ -8,14 +8,32 @@ from ..base import BaleMethod
 
 
 class EditGroupTitle(BaleMethod):
+    """
+    Edits the title of a specified group.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating the result of the title edit operation.
+    """
+
     __service__ = Services.GROUPS.value
     __method__ = "EditGroupTitle"
 
     __returning__ = DefaultResponse
 
     group: ShortPeer = Field(..., alias="1")
+    """
+    The group whose title is to be changed. This should be a valid ShortPeer instance representing the target group.
+    """
+
     random_id: int = Field(..., alias="4")
+    """
+    A unique random identifier for this request, used to ensure idempotency and avoid duplicate operations.
+    """
+
     title: str = Field(..., alias="3")
+    """
+    The new title to assign to the group. This should be a non-empty string representing the desired group name.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

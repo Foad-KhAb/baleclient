@@ -8,12 +8,23 @@ from ..base import BaleMethod
 
 
 class ImportContacts(BaleMethod):
+    """
+    Imports a list of contacts into the user's account.
+
+    Returns:
+        aiobale.types.responses.ContactsResponse: The response containing the imported contacts data.
+    """
+
     __service__ = Services.USER.value
     __method__ = "ImportContacts"
 
     __returning__ = ContactsResponse
 
     phones: List[ContactData] = Field(..., alias="1")
+    """
+    A list of contact data to be imported.
+    Each contact is represented as a `ContactData` object.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

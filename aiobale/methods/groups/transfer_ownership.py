@@ -8,13 +8,27 @@ from ..base import BaleMethod
 
 
 class TransferOwnership(BaleMethod):
+    """
+    Transfers the ownership of a group to a new owner.
+
+    Returns:
+        aiobale.types.responses.DefaultResponse: The response indicating the success or failure of the operation.
+    """
+
     __service__ = Services.GROUPS.value
     __method__ = "TransferOwnership"
 
     __returning__ = DefaultResponse
 
     group: ShortPeer = Field(..., alias="1")
+    """
+    The group for which the ownership is being transferred.
+    """
+
     new_owner: int = Field(..., alias="2")
+    """
+    The user ID of the new owner to whom the group ownership will be transferred.
+    """
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.
