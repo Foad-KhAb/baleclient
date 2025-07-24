@@ -20,10 +20,11 @@ class StartPhoneAuth(BaleMethod):
     send_code_type: SendCodeType = Field(..., alias="9")
     options: Optional[dict] = Field(default_factory=lambda: {"0": 1}, alias="10")
 
-    # This __init__ is only for type hinting and IDE autocomplete.
     if TYPE_CHECKING:
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
-            self,
+            __pydantic__self__,
             *,
             phone_number: int,
             app_id: int,
@@ -32,7 +33,7 @@ class StartPhoneAuth(BaleMethod):
             device_title: str,
             send_code_type: SendCodeType = SendCodeType.DEFAULT,
             options: Optional[dict] = None,
-            **kwargs: Any,
+            **__pydantic_kwargs
         ) -> None:
             super().__init__(
                 phone_number=phone_number,
@@ -42,5 +43,5 @@ class StartPhoneAuth(BaleMethod):
                 device_title=device_title,
                 send_code_type=send_code_type,
                 options=options,
-                **kwargs,
+                **__pydantic_kwargs
             )

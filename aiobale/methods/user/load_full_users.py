@@ -10,23 +10,15 @@ from ..base import BaleMethod
 class LoadFullUsers(BaleMethod):
     __service__ = Services.USER.value
     __method__ = "LoadFullUsers"
-    
+
     __returning__ = FullUsersResponse
-    
+
     peers: List[InfoPeer] = Field(..., alias="1")
-    
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
-            __pydantic__self__,
-            *,
-            peers: List[InfoPeer],
-            **__pydantic_kwargs: Any
+            __pydantic__self__, *, peers: List[InfoPeer], **__pydantic_kwargs: Any
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
-            super().__init__(
-                peers=peers,
-                **__pydantic_kwargs
-            )
+            super().__init__(peers=peers, **__pydantic_kwargs)

@@ -10,16 +10,16 @@ from ..base import BaleMethod
 class PinGroupMessage(BaleMethod):
     __service__ = Services.GROUPS.value
     __method__ = "PinMessage"
-    
+
     __returning__ = DefaultResponse
-    
+
     group: ShortPeer = Field(..., alias="2")
     date: int = Field(..., alias="3")
     message_id: int = Field(..., alias="4")
-    
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
             __pydantic__self__,
             *,
@@ -28,11 +28,6 @@ class PinGroupMessage(BaleMethod):
             message_id: int,
             **__pydantic_kwargs
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
             super().__init__(
-                group=group,
-                date=date,
-                message_id=message_id,
-                **__pydantic_kwargs
+                group=group, date=date, message_id=message_id, **__pydantic_kwargs
             )

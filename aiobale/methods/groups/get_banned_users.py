@@ -10,23 +10,15 @@ from ..base import BaleMethod
 class GetBannedUsers(BaleMethod):
     __service__ = Services.GROUPS.value
     __method__ = "GetBannedUsers"
-    
+
     __returning__ = BannedUsersResponse
-    
+
     group: ShortPeer = Field(..., alias="1")
-    
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
-            __pydantic__self__,
-            *,
-            group: ShortPeer,
-            **__pydantic_kwargs
+            __pydantic__self__, *, group: ShortPeer, **__pydantic_kwargs
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
-            super().__init__(
-                group=group,
-                **__pydantic_kwargs
-            )
+            super().__init__(group=group, **__pydantic_kwargs)

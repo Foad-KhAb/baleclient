@@ -11,16 +11,16 @@ from ..base import BaleMethod
 class ForwardMessages(BaleMethod):
     __service__ = Services.MESSAGING.value
     __method__ = "ForwardMessages"
-    
+
     __returning__ = DefaultResponse
-    
+
     peer: Peer = Field(..., alias="1")
     message_ids: bytes = Field(..., alias="2")
     forwarded_messages: List[InfoMessage] = Field(..., alias="3")
-    
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
             __pydantic__self__,
             *,
@@ -29,15 +29,13 @@ class ForwardMessages(BaleMethod):
             forwarded_messages: List[InfoMessage],
             **__pydantic_kwargs: Any
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
             super().__init__(
                 peer=peer,
                 message_ids=message_ids,
                 forwarded_messages=forwarded_messages,
                 **__pydantic_kwargs
             )
-            
+
     @model_validator(mode="before")
     @classmethod
     def fix_lists(cls, data: Dict[str, Any]) -> Dict[str, Any]:

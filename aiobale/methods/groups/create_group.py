@@ -10,19 +10,19 @@ from ..base import BaleMethod
 class CreateGroup(BaleMethod):
     __service__ = Services.GROUPS.value
     __method__ = "CreateGroup"
-    
+
     __returning__ = GroupCreatedResponse
-    
+
     random_id: int = Field(..., alias="1")
     title: str = Field(..., alias="2")
     users: Optional[List[ShortPeer]] = Field(None, alias="3")
     group_type: GroupType = Field(GroupType.GROUP, alias="6")
     username: Optional[StringValue] = Field(None, alias="8")
     restriction: Restriction = Field(Restriction.PRIVATE, alias="9")
-    
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
             __pydantic__self__,
             *,
@@ -34,8 +34,6 @@ class CreateGroup(BaleMethod):
             restriction: Restriction = Restriction.PRIVATE,
             **__pydantic_kwargs
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
             super().__init__(
                 random_id=random_id,
                 title=title,

@@ -9,19 +9,19 @@ from ..base import BaleMethod
 class GetFileUploadUrl(BaleMethod):
     __service__ = Services.FILES.value
     __method__ = "GetNasimFileUploadUrl"
-    
+
     __returning__ = FileUploadInfo
-    
+
     expected_size: int = Field(..., alias="1")
     user_id: int = Field(..., alias="3")
     name: str = Field(..., alias="4")
     mime_type: str = Field(..., alias="5")
     chat: Optional[Chat] = Field(None, alias="6")
     send_type: Optional[SendTypeModel] = Field(None, alias="7")
-    
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
             __pydantic__self__,
             *,
@@ -33,8 +33,6 @@ class GetFileUploadUrl(BaleMethod):
             send_type: Optional[SendTypeModel],
             **__pydantic_kwargs
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
             super().__init__(
                 expected_size=expected_size,
                 user_id=user_id,

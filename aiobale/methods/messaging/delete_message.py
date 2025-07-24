@@ -11,17 +11,17 @@ from ..base import BaleMethod
 class DeleteMessage(BaleMethod):
     __service__ = Services.MESSAGING.value
     __method__ = "DeleteMessage"
-    
+
     __returning__ = DefaultResponse
-    
+
     peer: Peer = Field(..., alias="1")
     message_ids: bytes = Field(..., alias="2")
     dates: BytesValue = Field(..., alias="3")
     just_me: IntValue = Field(..., alias="4")
-    
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
             __pydantic__self__,
             *,
@@ -31,8 +31,6 @@ class DeleteMessage(BaleMethod):
             just_me: IntValue,
             **__pydantic_kwargs: Any
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
             super().__init__(
                 peer=peer,
                 message_ids=message_ids,
@@ -40,13 +38,11 @@ class DeleteMessage(BaleMethod):
                 just_me=just_me,
                 **__pydantic_kwargs
             )
-            
+
     @model_validator(mode="before")
     @classmethod
     def fix_lists(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         data["message_ids"] = Int64VarintCodec.encode_list(data["message_ids"])
-        data["dates"] = BytesValue(
-            value=Int64VarintCodec.encode_list(data["dates"])
-        )
-        
+        data["dates"] = BytesValue(value=Int64VarintCodec.encode_list(data["dates"]))
+
         return data

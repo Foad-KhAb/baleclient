@@ -10,16 +10,16 @@ from ..base import BaleMethod
 class MakeUserAdmin(BaleMethod):
     __service__ = Services.GROUPS.value
     __method__ = "MakeUserAdmin"
-    
+
     __returning__ = DefaultResponse
-    
+
     group: ShortPeer = Field(..., alias="1")
     user: ShortPeer = Field(..., alias="2")
     admin_name: Optional[StringValue] = Field(None, alias="3")
-    
+
     if TYPE_CHECKING:
-        # Just For Type Helping
-        
+        # This init is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
         def __init__(
             __pydantic__self__,
             *,
@@ -28,11 +28,6 @@ class MakeUserAdmin(BaleMethod):
             admin_name: Optional[str] = None,
             **__pydantic_kwargs
         ) -> None:
-            # Is needed only for type checking and IDE support without any additional plugins
-            
             super().__init__(
-                group=group,
-                user=user,
-                admin_name=admin_name,
-                **__pydantic_kwargs
+                group=group, user=user, admin_name=admin_name, **__pydantic_kwargs
             )
