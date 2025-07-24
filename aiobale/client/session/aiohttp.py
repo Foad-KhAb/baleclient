@@ -4,8 +4,6 @@ import aiohttp
 import asyncio
 from typing import AsyncGenerator, Callable, Optional, Dict, Union
 
-from aiohttp_retry import Any
-
 from ...methods import BaleMethod, BaleType
 from ...utils import add_header, clean_grpc
 from ...exceptions import AiobaleError, BaleError
