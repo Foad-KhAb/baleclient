@@ -19,6 +19,7 @@ T_Result = TypeVar("T_Result")
 class Handler:
     """
     A class that represents an event handler with associated filters and a callback.
+    
     Attributes:
         event_type (str): The type of event this handler is associated with.
         callback (Callable[..., Union[Coroutine[Any, Any, Any], Any]]): 
@@ -27,6 +28,7 @@ class Handler:
         filters (List[Callable[..., Union[bool, Awaitable[bool]]]]): 
             A list of filter functions that determine whether the handler should be executed. 
             Each filter can be synchronous or asynchronous.
+            
     Methods:
         async check(*args: Any, **kwargs: Any) -> bool:
             Evaluates all filters with the provided arguments. 

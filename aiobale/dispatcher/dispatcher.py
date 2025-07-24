@@ -8,9 +8,10 @@ class Dispatcher(Router):
     A class that extends the functionality of the `Router` class to provide
     event dispatching capabilities. The `Dispatcher` allows for the inclusion
     of other routers and the handling of events through registered handlers.
-    Attributes:
+    
+    Parameters:
         name (Optional[str]): The name of the dispatcher. Defaults to "dispatcher"
-                              if not provided.
+        if not provided.
     """
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name or "dispatcher")
