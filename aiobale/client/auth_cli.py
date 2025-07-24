@@ -17,6 +17,18 @@ init(autoreset=True)
 
 
 class PhoneLoginCLI:
+    """
+    PhoneLoginCLI is a command-line interface (CLI) utility for handling phone-based login flows 
+    using the `aiobale` client library. It provides a step-by-step interactive process for users 
+    to authenticate via their phone numbers, enter verification codes, and handle password-protected 
+    accounts if required.
+    Attributes:
+        client (Client): The `aiobale` client instance used for handling authentication requests.
+    Usage:
+        This class is designed to be used in an asynchronous context. Instantiate it with 
+        a `Client` object and call the `start()` method to begin the login process.
+    """
+    
     def __init__(self, client: Client):
         self.client = client
 
@@ -109,7 +121,7 @@ class PhoneLoginCLI:
                 # Validate the code
                 try:
                     res = await self.client.validate_code(code, resp.transaction_hash)
-                    await self.on_login_success(res)
+                    await self._on_login_success(res)
                     return True
                 except AiobaleError as e:
                     if str(e) == "Password needed for login":
@@ -141,7 +153,7 @@ class PhoneLoginCLI:
 
             try:
                 res = await self.client.validate_password(password.strip(), transaction_hash)
-                await self.on_login_success(res)
+                await self._on_login_success(res)
                 return True
             except AiobaleError as e:
                 if str(e) == "Wrong password specified.":
@@ -154,5 +166,5 @@ class PhoneLoginCLI:
         print(Fore.RED + "❌ Too many failed password attempts. Restarting...\n")
         return False
     
-    async def on_login_success(self, res):
+    async def _on_login_success(self, res):
         print(Fore.GREEN + f"🎉 Login successful! Welcome {res.user.name}")

@@ -21,6 +21,12 @@ class EventDecorator(Protocol):
 
 
 class EventObserver:
+    """
+    A class to manage event decorators and their registration.
+    This class allows you to register event decorators associated with specific
+    event types, retrieve the list of registered event types, and fetch the
+    decorator for a specific event type.
+    """
     def __init__(self) -> None:
         self._event_decorators: Dict[str, Callable[..., Any]] = {}
 

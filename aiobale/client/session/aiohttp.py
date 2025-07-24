@@ -21,6 +21,24 @@ DEFAULT_USER_AGENT = (
 
 
 class AiohttpSession(BaseSession):
+    """
+    A session implementation for handling WebSocket and HTTP requests using `aiohttp`.
+    This class extends `BaseSession` and provides functionality for managing
+    WebSocket connections, making HTTP requests, uploading files, and streaming
+    content. It is specifically designed to work with the `aiohttp` library.
+    Inherits:
+        BaseSession: The base session class providing core functionality.
+    Features:
+        - WebSocket connection management.
+        - HTTP request handling with custom headers and payloads.
+        - File upload with progress tracking.
+        - Streaming content from a URL in chunks.
+        - Graceful session and WebSocket closure.
+    Note:
+        Ensure that the `aiohttp` library is installed and properly configured
+        in your environment to use this session implementation.
+    """
+    
     def __init__(self, user_agent: Optional[str] = None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.session = None

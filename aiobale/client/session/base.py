@@ -31,6 +31,20 @@ DEFAULT_TIMEOUT: Final[float] = 5.0
 
 
 class BaseSession(abc.ABC):
+    """
+    BaseSession is an abstract base class that provides the foundational structure for managing 
+    sessions, handling requests, and processing responses in an asynchronous environment.
+    Attributes:
+        ws_url (str): WebSocket URL for the session. Defaults to `BALE_WS`.
+        post_url (str): URL for HTTP POST requests. Defaults to `BALE_URL`.
+        decoder (_Decoder): Function to decode incoming data. Defaults to `ProtoBuf().decode`.
+        encoder (_Encoder): Function to encode outgoing data. Defaults to `ProtoBuf().encode`.
+        timeout (float): Default timeout for requests. Defaults to `DEFAULT_TIMEOUT`.
+        session_id (int): Unique session identifier generated based on the current time.
+        client (Optional[Client]): The client instance bound to this session.
+        _pending_requests (Dict[int, asyncio.Future]): A dictionary mapping request IDs to their corresponding futures.
+    """
+    
     def __init__(
         self,
         ws_url: str = BALE_WS,

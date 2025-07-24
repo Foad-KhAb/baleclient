@@ -6,6 +6,14 @@ from .event.observer import EventObserver
 
 
 class Router:
+    """
+    A class for managing and dispatching event handlers based on event types.
+    The `Router` class provides a mechanism to register, organize, and execute
+    handlers for various event types. It allows developers to define custom
+    event types and associate them with specific callback functions. This is
+    particularly useful in event-driven architectures where different parts of
+    the system need to respond to specific events.
+    """
     def __init__(self, name: Optional[str] = None) -> None:
         self.name: str = name or hex(id(self))
         self._handlers: Dict[str, List[Handler]] = defaultdict(list)
