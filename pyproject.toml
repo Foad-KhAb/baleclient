@@ -3,10 +3,10 @@ name = "aiobale"
 version = "0.1.0"
 description = "Modern async client for Bale."
 authors = [
-    { name="Alireza Jahani", email="mrbansti@gmail.com" }
+    { name = "Alireza Jahani", email = "mrbansti@gmail.com" }
 ]
 readme = "README.md"
-license = { file="LICENSE" }
+license = { file = "LICENSE" }
 requires-python = ">=3.8"
 dependencies = [
     "aiohttp>=3.8,<4.0",
@@ -22,5 +22,5 @@ dependencies = [
 "Repository" = "https://github.com/Enalite/aiobale"
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0,<81"]
 build-backend = "setuptools.build_meta"
