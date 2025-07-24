@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING, Any, Optional
-
 from pydantic import BaseModel, PrivateAttr
 from typing_extensions import Self
 

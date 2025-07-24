@@ -17,7 +17,6 @@ from typing import (
 )
 from types import TracebackType
 import os
-
 import aiofiles
 
 from .session import AiohttpSession, BaseSession
