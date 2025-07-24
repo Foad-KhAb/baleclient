@@ -11,13 +11,10 @@ from .file_ext import DocumentsExt
 class TextMessage(BaleObject):
     """
     Represents a plain text message content.
-
-    Attributes:
-        value: The actual text content of the message.
     """
 
     value: str = Field(..., alias="1")
-    """The textual content of the message."""
+    """The actual text content of the message."""
 
     if TYPE_CHECKING:
         def __init__(
@@ -32,11 +29,6 @@ class TextMessage(BaleObject):
 class MessageCaption(BaleObject):
     """
     Represents an optional caption attached to media messages.
-
-    Attributes:
-        content: The textual caption, can be None if no caption is provided.
-        mentions: Mentions inside the caption, can be a list or dictionary depending on context.
-        ext: Additional extension metadata as a dictionary, usually optional.
     """
 
     content: Optional[str] = Field(None, alias="1")
@@ -70,15 +62,6 @@ class MessageCaption(BaleObject):
 class DocumentMessage(BaleObject):
     """
     Represents a document or file message content.
-
-    Attributes:
-        file_id: Unique identifier for the file.
-        access_hash: Access hash used for secure file retrieval.
-        file_size: Optional size of the file in bytes.
-        name: File name; can be a string or a localized dictionary.
-        mime_type: MIME type of the file, e.g. "application/pdf".
-        ext: Optional additional metadata/extensions as a dictionary.
-        caption: Optional caption attached to the document.
     """
 
     file_id: int = Field(..., alias="1")
@@ -137,17 +120,13 @@ class DocumentMessage(BaleObject):
 class MessageContent(BaleObject):
     """
     Container for different types of message content.
-
-    Attributes:
-        document: Optional document content if the message includes a file.
-        text: Optional text content if the message is a plain text message.
     """
 
     document: Optional[DocumentMessage] = Field(None, alias="4")
-    """Document message content, if present."""
+    """Optional document content if the message includes a file."""
 
     text: Optional[TextMessage] = Field(None, alias="15")
-    """Text message content, if present."""
+    """Optional text content if the message is a plain text message."""
 
     if TYPE_CHECKING:
         def __init__(
