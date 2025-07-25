@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import aiohttp
 import asyncio
-from typing import AsyncGenerator, Callable, Optional, Dict, Union
+from typing import Any, AsyncGenerator, Callable, Optional, Dict, Union
 
 from ...methods import BaleMethod, BaleType
 from ...utils import add_header, clean_grpc
@@ -36,10 +36,10 @@ class AiohttpSession(BaseSession):
         Ensure that the `aiohttp` library is installed and properly configured
         in your environment to use this session implementation.
     """
-    
+
     def __init__(self, user_agent: Optional[str] = None, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.session = None
+        self.session: Optional[aiohttp.ClientSession] = None
         self.ws: Optional[aiohttp.ClientWebSocketResponse] = None
 
         self.user_agent = user_agent or DEFAULT_USER_AGENT
@@ -48,7 +48,7 @@ class AiohttpSession(BaseSession):
         return {"User-Agent": self.user_agent, "Cookie": f"access_token={token}"}
 
     async def connect(self, token: str):
-        if not self.session:
+        if not self.session or self.session.closed:
             session_timeout = aiohttp.ClientTimeout(total=None)
             self.session = aiohttp.ClientSession(timeout=session_timeout)
 
@@ -77,6 +77,21 @@ class AiohttpSession(BaseSession):
         finally:
             self._running = False
 
+    async def send_bytes(
+        self, data: bytes, future_key: str, timeout: Optional[int] = None
+    ) -> Any:
+        if not self.ws:
+            raise RuntimeError("WebSocket is not connected")
+
+        future = asyncio.get_event_loop().create_future()
+        self._pending_requests[future_key] = future
+        await self.ws.send_bytes(data)
+
+        try:
+            return await asyncio.wait_for(future, timeout=timeout or self.timeout)
+        except asyncio.TimeoutError:
+            raise RuntimeError("WebSocket is not responding")
+
     async def make_request(
         self,
         method: BaleMethod[BaleType],
@@ -93,8 +108,11 @@ class AiohttpSession(BaseSession):
         await self.ws.send_bytes(payload)
 
         try:
-            result = await asyncio.wait_for(future, timeout=timeout or self.timeout)
-            return self.decode_result(result, method)
+            response = await asyncio.wait_for(future, timeout=timeout or self.timeout)
+            if response.error:
+                raise BaleError(response.error.message, response.error.topic)
+
+            return self.decode_result(response.result, method)
 
         except asyncio.TimeoutError:
             self._pending_requests.pop(request_id, None)
@@ -140,14 +158,14 @@ class AiohttpSession(BaseSession):
 
         result = self.decoder(clean_grpc(content))
         return method.__returning__.model_validate(result)
-    
+
     async def upload(
         self,
         file: FileInput,
         url: str,
         token: str,
         chunk_size: int = 4096,
-        progress_callback: Optional[Callable[[int, Optional[int]], None]] = None
+        progress_callback: Optional[Callable[[int, Optional[int]], None]] = None,
     ) -> None:
         own_session = False
         session = self.session
@@ -174,16 +192,20 @@ class AiohttpSession(BaseSession):
                 yield chunk
 
         try:
-            async with session.put(url, data=chunk_generator(), headers=headers) as resp:
+            async with session.put(
+                url, data=chunk_generator(), headers=headers
+            ) as resp:
                 if resp.status >= 400:
                     text = await resp.text()
-                    raise AiobaleError(f"Upload failed with status {resp.status}: {text}")
+                    raise AiobaleError(
+                        f"Upload failed with status {resp.status}: {text}"
+                    )
         except Exception as e:
             raise AiobaleError(f"Upload error: {e}") from e
         finally:
             if own_session:
                 await session.close()
-                
+
     async def stream_content(
         self,
         url: str,
@@ -192,12 +214,12 @@ class AiohttpSession(BaseSession):
     ) -> AsyncGenerator[bytes, None]:
         session = self.session
         own_session = False
-        
+
         if session is None:
             own_session = True
             session_timeout = aiohttp.ClientTimeout(total=None)
             session = aiohttp.ClientSession(timeout=session_timeout)
-        
+
         headers = {
             "User-Agent": self.user_agent,
             "Origin": "https://web.bale.ai",
@@ -214,9 +236,14 @@ class AiohttpSession(BaseSession):
         finally:
             if own_session:
                 await session.close()
-    
+                
+    def is_closed(self) -> bool:
+        return not self.session or self.session.closed
+
     async def close(self):
         self._running = False
         if self.ws:
             await self.ws.close()
-        await self.session.close()
+        if self.session:
+            await self.session.close()
+        self.session = None

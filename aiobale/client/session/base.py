@@ -138,18 +138,20 @@ class BaseSession(abc.ABC):
             await self.client.handle_update(received.update.body)
             return
 
-        response = received.response
-        if response is None:
+        if received.pong is not None:
+            result = True
+            request_id = f"ping_{received.pong.value}"
+        elif received.response is not None:
+            result = received.response
+            request_id = result.number
+        else:
             return
 
-        future = self._pending_requests.pop(response.number, None)
+        future = self._pending_requests.pop(request_id, None)
         if future is None or future.done():
             return
 
-        if response.error:
-            raise BaleError(response.error.message, response.error.topic)
-
-        future.set_result(response.result)
+        future.set_result(result)
 
     @abc.abstractmethod
     async def close(self) -> None:
@@ -199,4 +201,14 @@ class BaseSession(abc.ABC):
         chunk_size: int = 65536,
         raise_for_status: bool = True,
     ) -> AsyncGenerator[bytes, None]:
+        pass
+
+    @abc.abstractmethod
+    async def send_bytes(
+        self, data: bytes, future_key: str, timeout: Optional[int] = None
+    ) -> Any:
+        pass
+    
+    @abc.abstractmethod
+    def is_closed(self) -> bool:
         pass

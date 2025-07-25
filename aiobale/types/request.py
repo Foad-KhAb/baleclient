@@ -4,6 +4,7 @@ from typing import Any, List, Optional, TYPE_CHECKING
 from .ext import ExtData
 from .base import BaleObject
 from .auth import AuthBody
+from .values import IntValue
 
 
 class MetaList(BaleObject):
@@ -90,7 +91,7 @@ class Request(BaleObject):
     body: Optional[RequestBody] = Field(None, alias="1")
     """The main request body, containing the service call and payload."""
 
-    ping: Optional[Any] = Field(None, alias="2")
+    ping: Optional[IntValue] = Field(None, alias="2")
     """Optional ping or heartbeat data, using for keep-alive."""
 
     handshake: Optional[AuthBody] = Field(None, alias="3")
@@ -101,7 +102,7 @@ class Request(BaleObject):
             __pydantic__self__,
             *,
             body: Optional[RequestBody] = None,
-            ping: Optional[Any] = None,
+            ping: Optional[IntValue] = None,
             handshake: Optional[AuthBody] = None,
             **__pydantic_kwargs
         ) -> None:

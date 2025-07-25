@@ -3,6 +3,7 @@ from typing import Any, Optional, TYPE_CHECKING
 
 from .base import BaleObject
 from .update import UpdateBody
+from .values import IntValue
 
 
 class BaleError(BaleObject):
@@ -87,8 +88,6 @@ class Response(BaleObject):
     - `terminate_session`: signal to close the session,
     - `pong`: pong response for keep-alive,
     - `handshake`: handshake info for session establishment.
-
-    Note: field `hsndshake` had a typo and is corrected to `handshake`.
     """
 
     response: Optional[ResponseBody] = Field(None, alias="1")
@@ -100,7 +99,7 @@ class Response(BaleObject):
     terminate_session: Optional[Any] = Field(None, alias="3")
     """Signal to terminate the current session. Content is opaque."""
 
-    pong: Optional[Any] = Field(None, alias="4")
+    pong: Optional[IntValue] = Field(None, alias="4")
     """Pong response to a ping, used for keep-alive."""
 
     handshake: Optional[Any] = Field(None, alias="5")
@@ -113,7 +112,7 @@ class Response(BaleObject):
             response: Optional[ResponseBody] = None,
             update: Optional[UpdateField] = None,
             terminate_session: Optional[Any] = None,
-            pong: Optional[Any] = None,
+            pong: Optional[IntValue] = None,
             handshake: Optional[Any] = None,
             **__pydantic_kwargs
         ) -> None:

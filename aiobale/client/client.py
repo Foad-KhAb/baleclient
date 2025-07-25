@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import io
 import pathlib
+import aiofiles
+import os
 from typing import (
     AsyncGenerator,
     BinaryIO,
@@ -16,8 +18,7 @@ from typing import (
     Union,
 )
 from types import TracebackType
-import os
-import aiofiles
+from contextlib import suppress
 
 from .session import AiohttpSession, BaseSession
 from ..exceptions import AiobaleError
@@ -147,6 +148,7 @@ from ..types import (
     PhotoExt,
     DocumentsExt,
     UpdateBody,
+    Request
 )
 from ..types.responses import (
     MessageResponse,
@@ -190,6 +192,7 @@ from ..enums import (
     SendType,
 )
 from ..dispatcher.dispatcher import Dispatcher
+from ..logger import logger
 from .auth_cli import PhoneLoginCLI
 
 
@@ -258,6 +261,9 @@ class Client:
         session._bind_client(self)
         self.session: BaseSession = session
         self.dispatcher: Optional[Dispatcher] = dispatcher
+        self._ping_task = None
+        self._ping_id = 0
+        self._lock = asyncio.Lock()
 
         if not isinstance(session_file, str) or not session_file.lower().endswith(
             ".bale"
@@ -329,6 +335,43 @@ class Client:
             )
 
         return await self.session.make_request(method)
+    
+    async def _send_ping(self):
+        async with self._lock:
+            if self.session.is_closed(): 
+                return
+
+            self._ping_id += 1
+            ping_id = self._ping_id
+            request = Request(ping=IntValue(value=ping_id))
+            payload = request.model_dump(exclude_none=True, by_alias=True)
+            data = self.session.encoder(payload)
+
+            try:
+                await self.session.send_bytes(data, f"ping_{ping_id}")
+            except RuntimeError:
+                logger.warning("Ping failed. Closing session to trigger restart.")
+                await self.session.close()
+
+    async def _ping_loop(self, interval=5):
+        try:
+            while True:
+                await asyncio.sleep(interval)
+                await self._send_ping()
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            logger.error(f"Unexpected error in ping loop: {e}")
+            async with self._lock:
+                await self.session.close()
+            
+    async def _safe_listen(self):
+        try:
+            await self.session._listen()
+        except Exception as e:
+            logger.error(f"Listen failed: {e}")
+            async with self._lock:
+                await self.session.close()
 
     async def start(self, run_in_background: bool = False) -> None:
         """
@@ -347,13 +390,35 @@ class Client:
         """
         await self._ensure_token_exists()
 
-        await self.session.connect(self.__token)
-        await self.session.handshake_request()
+        while True:
+            async with self._lock:
+                try:
+                    logger.info("Trying to connect...")
+                    await self.session.connect(self.__token)
+                    await self.session.handshake_request()
+                    logger.info("Connected successfully.")
 
-        if run_in_background:
-            asyncio.create_task(self.session._listen())
-        else:
-            await self.session._listen()
+                    if self._ping_task:
+                        self._ping_task.cancel()
+                        with suppress(asyncio.CancelledError):
+                            await self._ping_task
+
+                    self._ping_task = asyncio.create_task(self._ping_loop())
+
+                except Exception as e:
+                    logger.error(f"Connection failed: {e}")
+                    await asyncio.sleep(5)
+                    continue
+
+            try:
+                if run_in_background:
+                    asyncio.create_task(self._safe_listen())
+                    break
+                else:
+                    await self._safe_listen()
+            except asyncio.CancelledError:
+                logger.info("Start cancelled.")
+                break
 
     async def stop(self):
         """
@@ -363,6 +428,12 @@ class Client:
         released. It should be called when the client is no longer needed to
         prevent resource leaks.
         """
+        if self._ping_task:
+            self._ping_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await self._ping_task
+            self._ping_task = None
+        
         await self.session.close()
 
     async def handle_update(self, update: UpdateBody) -> None:
