@@ -149,13 +149,18 @@ class Message(BaleObject):
         file: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
         message_id: Optional[int] = None,
+        use_own_content: bool = False,
     ) -> Message:
+        """
+        Send a document message to the same chat.
+        """
         return await self.client.send_document(
             file=file,
             caption=caption,
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             message_id=message_id,
+            use_own_content=use_own_content
         )
 
     async def reply_document(
@@ -164,6 +169,9 @@ class Message(BaleObject):
         caption: Optional[str] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Reply with a document message to this message.
+        """
         return await self.client.send_document(
             file=file,
             caption=caption,
@@ -182,6 +190,9 @@ class Message(BaleObject):
         cover_height: int = 1000,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Send a photo message to the same chat.
+        """
         return await self.client.send_photo(
             photo=photo,
             caption=caption,
@@ -202,6 +213,9 @@ class Message(BaleObject):
         cover_height: int = 1000,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Reply with a photo message to this message.
+        """
         return await self.client.send_photo(
             photo=photo,
             caption=caption,
@@ -224,6 +238,9 @@ class Message(BaleObject):
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Send a video message to the same chat.
+        """
         return await self.client.send_video(
             video=video,
             caption=caption,
@@ -246,6 +263,9 @@ class Message(BaleObject):
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Reply with a video message to this message.
+        """
         return await self.client.send_video(
             video=video,
             caption=caption,
@@ -266,6 +286,9 @@ class Message(BaleObject):
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Send a voice message to the same chat.
+        """
         return await self.client.send_voice(
             voice=voice,
             caption=caption,
@@ -282,6 +305,9 @@ class Message(BaleObject):
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Reply with a voice message to this message.
+        """
         return await self.client.send_voice(
             voice=voice,
             caption=caption,
@@ -302,6 +328,9 @@ class Message(BaleObject):
         track: Optional[str] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Send an audio message to the same chat.
+        """
         return await self.client.send_audio(
             audio=audio,
             caption=caption,
@@ -324,6 +353,9 @@ class Message(BaleObject):
         track: Optional[str] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Reply with an audio message to this message.
+        """
         return await self.client.send_audio(
             audio=audio,
             caption=caption,
@@ -347,6 +379,9 @@ class Message(BaleObject):
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Send a GIF message to the same chat.
+        """
         return await self.client.send_gif(
             gif=gif,
             caption=caption,
@@ -369,6 +404,9 @@ class Message(BaleObject):
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
+        """
+        Reply with a GIF message to this message.
+        """
         return await self.client.send_gif(
             gif=gif,
             caption=caption,

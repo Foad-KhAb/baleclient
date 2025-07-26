@@ -148,7 +148,7 @@ from ..types import (
     PhotoExt,
     DocumentsExt,
     UpdateBody,
-    Request
+    Request,
 )
 from ..types.responses import (
     MessageResponse,
@@ -217,7 +217,7 @@ class Client:
 
     A :class:Client instance can be initialized with an optional :class:Dispatcher object.
     While the dispatcher is not required, it must be provided if you intend to handle incoming updates.
-    You may also optionally provide a session file or a custom session backend. 
+    You may also optionally provide a session file or a custom session backend.
     If none is given, a default Aiohttp-based session will be used.
 
     If a token is not found in the session file, authentication falls back to the CLI login flow.
@@ -281,14 +281,32 @@ class Client:
 
     @property
     def token(self) -> str:
+        """
+        Returns the currently loaded authentication token for the session.
+
+        This token is required for making authorized API requests. It is either
+        loaded from the session file or obtained during the interactive login flow.
+        """
         return self.__token
 
     @property
     def me(self) -> ClientData:
+        """
+        Returns information about the authenticated user.
+
+        This includes details such as user ID and other metadata
+        returned from the Bale API after successful login.
+        """
         return self._me
 
     @property
     def id(self) -> int:
+        """
+        Returns the numeric ID of the authenticated user.
+
+        Equivalent to `client.me.id`. Useful as a shortcut for user identification
+        in event handling and API interactions.
+        """
         return self._me.id
 
     def _write_session_content(self, content: bytes) -> None:
@@ -335,10 +353,10 @@ class Client:
             )
 
         return await self.session.make_request(method)
-    
+
     async def _send_ping(self):
         async with self._lock:
-            if self.session.is_closed(): 
+            if self.session.is_closed():
                 return
 
             self._ping_id += 1
@@ -364,7 +382,7 @@ class Client:
             logger.error(f"Unexpected error in ping loop: {e}")
             async with self._lock:
                 await self.session.close()
-            
+
     async def _safe_listen(self):
         try:
             await self.session._listen()
@@ -433,7 +451,7 @@ class Client:
             with suppress(asyncio.CancelledError):
                 await self._ping_task
             self._ping_task = None
-        
+
         await self.session.close()
 
     async def handle_update(self, update: UpdateBody) -> None:
@@ -460,10 +478,7 @@ class Client:
         event_type, event = event_info
 
         # Ignore messages sent by this client
-        if (
-            event_type == "message"
-            and getattr(event, "sender_id", None) == self.id
-        ):
+        if event_type == "message" and getattr(event, "sender_id", None) == self.id:
             return
 
         if self.dispatcher is not None:
@@ -2889,6 +2904,7 @@ class Client:
         send_type: SendType = SendType.DOCUMENT,
         thumb: Optional[Thumbnail] = None,
         ext: Optional[DocumentsExt] = None,
+        use_own_content: bool = False,
     ) -> Message:
         if isinstance(file, FileInput):
             file_info = await self.upload_file(
@@ -2897,15 +2913,17 @@ class Client:
         else:
             file_info = file
 
-        chat = self._build_chat(chat_id, chat_type)
-        peer = self._resolve_peer(chat)
+        if isinstance(file_info, DocumentMessage) and use_own_content:
+            document = file_info
+        else:
+            chat = self._build_chat(chat_id, chat_type)
+            peer = self._resolve_peer(chat)
 
-        message_id = message_id or generate_id()
-        if caption is not None:
-            caption = MessageCaption(content=caption)
+            message_id = message_id or generate_id()
+            if caption is not None:
+                caption = MessageCaption(content=caption)
 
-        content = MessageContent(
-            document=DocumentMessage(
+            document = DocumentMessage(
                 file_id=file_info.file_id,
                 size=file_info.size,
                 name=file_info.name,
@@ -2915,7 +2933,8 @@ class Client:
                 thumb=thumb,
                 ext=ext,
             )
-        )
+
+        content = MessageContent(document=document)
 
         if reply_to is not None:
             reply_to = self._ensure_info_message(reply_to)
@@ -2939,6 +2958,7 @@ class Client:
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
         message_id: Optional[int] = None,
+        use_own_content: bool = False,
     ) -> Message:
         """
         Sends a document file to the specified chat.
@@ -2950,6 +2970,7 @@ class Client:
             caption (Optional[str]): Text to accompany the document.
             reply_to (Optional[Union[Message, InfoMessage]]): Optional message to reply to.
             message_id (Optional[int]): Optional custom message ID.
+            use_own_content (bool, optional): Whether to send the file using the provided content instead of only using file ID and access hash. Defaults to False.
 
         Returns:
             aiobale.types.Message: The message containing the sent document.
@@ -2965,6 +2986,7 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.DOCUMENT,
+            use_own_content=use_own_content
         )
 
     async def _get_thumb(

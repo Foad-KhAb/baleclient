@@ -72,7 +72,7 @@ class BaseSession(abc.ABC):
         self.session_id = int(time.time() * 1000)
 
         self.client: Optional[Client] = None
-        self._pending_requests: Dict[int, asyncio.Future] = {}
+        self._pending_requests: Dict[Union[str, int], asyncio.Future] = {}
 
     def _bind_client(self, client: Client) -> None:
         self.client = client
