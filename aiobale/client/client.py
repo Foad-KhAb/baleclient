@@ -1515,7 +1515,7 @@ class Client:
         Returns:
             aiobale.types.responses.ContactResponse: The response containing the found contact.
                 - If the username belongs to a user or bot, the result will be in the `user` field.
-                - If the username belongs to a group or channel, the result will be in the `chat` field.
+                - If the username belongs to a group or channel, the result will be in the `group` field.
 
         Raises:
             BaleError: If the server returns an error.

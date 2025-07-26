@@ -14,14 +14,14 @@ class ContactResponse(BaleObject):
     Attributes:
         user (Optional[InfoPeer]): If the found contact is a user or a bot,
             its information will be stored here.
-        chat (Optional[InfoPeer]): If the found contact is a channel or group,
+        group (Optional[InfoPeer]): If the found contact is a channel or group,
             its information will be stored here.
     """
 
     user: Optional[InfoPeer] = Field(None, alias="2")
     """Contains user or bot information if the contact is of that type."""
 
-    chat: Optional[InfoPeer] = Field(None, alias="4")
+    group: Optional[InfoPeer] = Field(None, alias="5")
     """Contains channel or group information if the contact is of that type."""
 
     if TYPE_CHECKING:
