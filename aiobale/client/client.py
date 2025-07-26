@@ -2912,14 +2912,15 @@ class Client:
             )
         else:
             file_info = file
+            
+        chat = self._build_chat(chat_id, chat_type)
+        peer = self._resolve_peer(chat)
+
+        message_id = message_id or generate_id()
 
         if isinstance(file_info, DocumentMessage) and use_own_content:
             document = file_info
         else:
-            chat = self._build_chat(chat_id, chat_type)
-            peer = self._resolve_peer(chat)
-
-            message_id = message_id or generate_id()
             if caption is not None:
                 caption = MessageCaption(content=caption)
 
