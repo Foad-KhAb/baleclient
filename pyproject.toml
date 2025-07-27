@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/Enalite/aiobale"
+"Homepage" = "https://docs.aiobale.ir"
 "Repository" = "https://github.com/Enalite/aiobale"
 
 [build-system]
