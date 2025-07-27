@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://i.postimg.cc/mhfD0M3c/Frame-5-2.png" alt="Aiobale Banner">
+  <img src="https://i.postimg.cc/Ssg1Tfhr/banner.png" alt="Aiobale Banner">
 </p>
 
-<h1 align="center">Aiobale — Async Bale API Client with ❤️ and Reverse Engineering</h1>
+<h1 align="center">Aiobale — Async Bale API Client, Built on Reverse Engineering & Obsession</h1>
 
 <p align="center">
   A clean, developer-friendly Python client for <b>Bale Messenger’s</b> internal API — reverse-engineered with care, curiosity, and persistence.
