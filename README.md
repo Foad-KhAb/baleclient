@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/pypi/v/aiobale?color=brightgreen&logo=pypi&label=PyPI">
-  <img src="https://img.shields.io/pypi/pyversions/aiobale?logo=python&label=Python">
-  <img src="https://img.shields.io/github/license/Enalite/aiobale?logo=open-source-initiative&label=License">
-  <img src="https://img.shields.io/badge/coverage-100%25-brightgreen?logo=codecov&logoColor=white">
+  <img src="https://img.shields.io/badge/PyPI-0.1.0-brightgreen?logo=pypi">
+  <img src="https://img.shields.io/badge/Python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-green?logo=python">
+  <img src="https://img.shields.io/badge/License-MIT-blue?logo=open-source-initiative">
+  <img src="https://img.shields.io/badge/Coverage-100%25-brightgreen?logo=codecov&logoColor=white">
 </p>
 
 ---
