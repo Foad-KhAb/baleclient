@@ -2085,7 +2085,10 @@ class Client:
         condition_type = condition_map.get(condition)
 
         call = LoadMembers(
-            group=peer, limit=limit, next=next_offset, condition=condition_type
+            group=peer,
+            limit=limit,
+            next_offset=StringValue(value=str(next_offset)),
+            condition=condition_type,
         )
 
         result: MembersResponse = await self(call)
@@ -2912,7 +2915,7 @@ class Client:
             )
         else:
             file_info = file
-            
+
         chat = self._build_chat(chat_id, chat_type)
         peer = self._resolve_peer(chat)
 
@@ -2987,7 +2990,7 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.DOCUMENT,
-            use_own_content=use_own_content
+            use_own_content=use_own_content,
         )
 
     async def _get_thumb(

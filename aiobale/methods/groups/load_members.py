@@ -1,7 +1,7 @@
 from pydantic import Field
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
-from ...types import ShortPeer, Condition
+from ...types import ShortPeer, Condition, StringValue
 from ...types.responses import MembersResponse
 from ...enums import Services
 from ..base import BaleMethod
@@ -30,7 +30,7 @@ class LoadMembers(BaleMethod):
     The maximum number of members to retrieve.
     """
 
-    next: Optional[int] = Field(None, alias="3")
+    next_offset: Optional[StringValue] = Field(None, alias="3")
     """
     The pagination offset for retrieving the next set of members.
     """
@@ -48,14 +48,14 @@ class LoadMembers(BaleMethod):
             *,
             group: ShortPeer,
             limit: int,
-            next: int,
+            next_offset: int,
             condition: Optional[Condition] = None,
             **__pydantic_kwargs
         ) -> None:
             super().__init__(
                 group=group,
                 limit=limit,
-                next=next,
+                next=next_offset,
                 condition=condition,
                 **__pydantic_kwargs
             )

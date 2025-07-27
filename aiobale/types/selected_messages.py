@@ -37,17 +37,20 @@ class SelectedMessages(BaleObject):
         - Decodes field "2" (message IDs) from a list of 64-bit varints.
         - Decodes nested field "3" (dates) from a nested varint list under key "1".
         """
-        data["2"] = Int64VarintCodec().decode_list(data["2"])
-        data["3"] = Int64VarintCodec().decode_list(data["3"]["1"])
+        data["2"] = Int64VarintCodec().decode_list(data["2"]) if "2" in data else []
+        data["3"] = (
+            Int64VarintCodec().decode_list(data["3"]["1"]) if "3" in data else []
+        )
         return data
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             peer: Peer,
             ids: List[int],
             dates: List[int],
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(peer=peer, ids=ids, dates=dates, **__pydantic_kwargs)

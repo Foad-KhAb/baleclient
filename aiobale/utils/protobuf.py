@@ -75,7 +75,7 @@ def _is_valid_text(s: str, check_first_bytes: bool = True) -> bool:
         if escape_like / max(len(s), 1) > 0.1:
             return False
 
-    printable = sum(1 for c in s if unicodedata.category(c)[0] in ('L', 'N', 'P'))
+    printable = sum(1 for c in s if unicodedata.category(c)[0] in ('L', 'N', 'P', 'Z'))
     total = len(s)
     
     if total and (printable / total) > 0.95:
