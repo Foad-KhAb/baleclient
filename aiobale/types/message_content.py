@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pydantic import Field
-from typing import Optional, Union, TYPE_CHECKING, List, Dict
+from pydantic import Field, model_validator
+from typing import Any, Optional, Union, TYPE_CHECKING, List, Dict
 
 from .base import BaleObject
 from .thumbnail import Thumbnail
@@ -17,12 +17,8 @@ class TextMessage(BaleObject):
     """The actual text content of the message."""
 
     if TYPE_CHECKING:
-        def __init__(
-            __pydantic__self__,
-            *,
-            value: str,
-            **__pydantic_kwargs
-        ) -> None:
+
+        def __init__(__pydantic__self__, *, value: str, **__pydantic_kwargs) -> None:
             super().__init__(value=value, **__pydantic_kwargs)
 
 
@@ -48,15 +44,18 @@ class MessageCaption(BaleObject):
     """
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             content: Optional[str] = None,
             mentions: Optional[Union[List, Dict]] = None,
             ext: Optional[Dict] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(content=content, mentions=mentions, ext=ext, **__pydantic_kwargs)
+            super().__init__(
+                content=content, mentions=mentions, ext=ext, **__pydantic_kwargs
+            )
 
 
 class DocumentMessage(BaleObject):
@@ -73,7 +72,7 @@ class DocumentMessage(BaleObject):
     size: Optional[int] = Field(None, alias="3")
     """File size in bytes, if known."""
 
-    name: Union[Dict, str] = Field(..., alias="4")
+    name: Optional[Union[Dict, str]] = Field(None, alias="4")
     """
     The file name.
     Can be a plain string or a dictionary for localized names.
@@ -81,7 +80,7 @@ class DocumentMessage(BaleObject):
 
     mime_type: str = Field(..., alias="5")
     """MIME type describing the file format."""
-    
+
     thumb: Optional[Thumbnail] = Field(None, alias="6")
 
     ext: Optional[DocumentsExt] = Field(None, alias="7")
@@ -91,6 +90,7 @@ class DocumentMessage(BaleObject):
     """Caption associated with the document message."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -102,7 +102,7 @@ class DocumentMessage(BaleObject):
             ext: Optional[Dict] = None,
             caption: Optional[MessageCaption] = None,
             thumb: Optional[Thumbnail] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 file_id=file_id,
@@ -113,7 +113,7 @@ class DocumentMessage(BaleObject):
                 ext=ext,
                 caption=caption,
                 thumb=thumb,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )
 
 
@@ -125,16 +125,30 @@ class MessageContent(BaleObject):
     document: Optional[DocumentMessage] = Field(None, alias="4")
     """Optional document content if the message includes a file."""
 
+    empty: bool = Field(False, alias="5")
+    """Indicates whether the message is either forwarded or an empty stub."""
+
     text: Optional[TextMessage] = Field(None, alias="15")
     """Optional text content if the message is a plain text message."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             document: Optional[DocumentMessage] = None,
+            epmty: bool = False,
             text: Optional[TextMessage] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(document=document, text=text, **__pydantic_kwargs)
+            super().__init__(
+                document=document, text=text, epmty=epmty, **__pydantic_kwargs
+            )
 
+    @model_validator(mode="before")
+    @classmethod
+    def _check_empty(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        if "5" in data:
+            data["5"] = True
+
+        return data
