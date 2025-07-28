@@ -21,7 +21,6 @@ def make_thumbnail(image_path: str) -> bytes:
         resized.save(output, format=image_format)
         return output.getvalue()
 
-
 def get_image_size(image_path: str) -> tuple[int, int]:
     with Image.open(image_path) as img:
         return img.width, img.height
