@@ -10,6 +10,8 @@ from .typing_type import TypingMode
 from .group_type import GroupType
 from .restriction import Restriction
 from .send_type import SendType
+from .giving_type import GivingType
+from .gift_openning import GiftOpenning
 
 
 __all__ = (
@@ -24,5 +26,7 @@ __all__ = (
     "TypingMode",
     "GroupType",
     "Restriction",
-    "SendType"
+    "SendType",
+    "GivingType",
+    "GiftOpenning"
 )

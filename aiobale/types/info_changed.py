@@ -64,7 +64,7 @@ class AboutChanged(BaleObject):
     user_id: int = Field(..., alias="1")
     """The ID of the user who updated their 'about' text."""
 
-    about: str = Field(..., alias="2")
+    about: Optional[str] = Field(None, alias="2")
     """The updated 'about' or bio string."""
 
     @model_validator(mode="before")

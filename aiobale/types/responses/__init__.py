@@ -24,6 +24,8 @@ from .get_pins import GetPinsResponse
 from .member_permissions import MemberPermissionsResponse
 from .banned_users import BannedUsersResponse
 from .file_url import FileURLResponse
+from .wallet import WalletResponse
+from .open_packet import PacketResponse
 
 
 __all__ = (
@@ -53,5 +55,7 @@ __all__ = (
     "GetPinsResponse",
     "MemberPermissionsResponse",
     "BannedUsersResponse",
-    "FileURLResponse"
+    "FileURLResponse",
+    "WalletResponse",
+    "PacketResponse"
 )

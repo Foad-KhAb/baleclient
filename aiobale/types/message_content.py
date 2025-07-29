@@ -6,6 +6,7 @@ from typing import Any, Optional, Union, TYPE_CHECKING, List, Dict
 from .base import BaleObject
 from .thumbnail import Thumbnail
 from .file_ext import DocumentsExt
+from .gift_packet import GiftPacket
 
 
 class TextMessage(BaleObject):
@@ -131,6 +132,8 @@ class MessageContent(BaleObject):
     text: Optional[TextMessage] = Field(None, alias="15")
     """Optional text content if the message is a plain text message."""
 
+    gift: Optional[GiftPacket] = Field(None, alias="17")
+
     if TYPE_CHECKING:
 
         def __init__(
@@ -139,10 +142,15 @@ class MessageContent(BaleObject):
             document: Optional[DocumentMessage] = None,
             epmty: bool = False,
             text: Optional[TextMessage] = None,
+            gift: Optional[GiftPacket] = None,
             **__pydantic_kwargs,
         ) -> None:
             super().__init__(
-                document=document, text=text, epmty=epmty, **__pydantic_kwargs
+                document=document,
+                text=text,
+                epmty=epmty,
+                gift=gift,
+                **__pydantic_kwargs,
             )
 
     @model_validator(mode="before")
