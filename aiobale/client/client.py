@@ -3291,7 +3291,7 @@ class Client:
         message: str,
         gift_count: int = 1,
         giving_type: GivingType = GivingType.SAME,
-        show_amounts: bool = False,
+        show_amounts: bool = True,
         token: Optional[str] = None,
     ) -> DefaultResponse:
         """
