@@ -25,7 +25,7 @@ class Typing(BaleMethod):
     The peer (chat or user) where the typing status is being updated.
     """
 
-    typing_type: TypingMode = Field(..., alias="2")
+    typing_type: TypingMode = Field(..., alias="3")
     """
     The type of typing status being indicated (e.g., typing, recording audio, etc.).
     """

@@ -98,6 +98,9 @@ from ..methods import (
     GetGroupPreview,
     GetFileUrl,
     GetFileUploadUrl,
+    GetMyKifpools,
+    SendGiftPacketWithWallet,
+    OpenGiftPacket,
 )
 from ..types import (
     MessageContent,
@@ -149,6 +152,7 @@ from ..types import (
     DocumentsExt,
     UpdateBody,
     Request,
+    GiftPacket,
 )
 from ..types.responses import (
     MessageResponse,
@@ -178,6 +182,8 @@ from ..types.responses import (
     MemberPermissionsResponse,
     BannedUsersResponse,
     FileURLResponse,
+    WalletResponse,
+    PacketResponse,
 )
 from ..enums import (
     ChatType,
@@ -190,6 +196,7 @@ from ..enums import (
     Restriction,
     GroupType,
     SendType,
+    GivingType,
 )
 from ..dispatcher.dispatcher import Dispatcher
 from ..logger import logger
@@ -846,7 +853,9 @@ class Client:
 
         return await self(call)
 
-    def _ensure_info_message(self, message: Union[Message, InfoMessage]) -> InfoMessage:
+    def _ensure_info_message(
+        self, message: Union[Message, InfoMessage], rewrite_date: bool = False
+    ) -> InfoMessage:
         """
         Converts a Message object to an InfoMessage if necessary.
 
@@ -860,6 +869,9 @@ class Client:
             AiobaleError: For client-side errors.
         """
         if isinstance(message, InfoMessage):
+            if rewrite_date and isinstance(message.date, IntValue):
+                message.date = message.date.value
+
             return message
 
         origin_peer = self._resolve_peer(message.chat)
@@ -867,7 +879,7 @@ class Client:
         return InfoMessage(
             peer=origin_peer,
             message_id=message.message_id,
-            date=IntValue(value=message.date),
+            date=message.date if rewrite_date else IntValue(value=message.date),
         )
 
     def _ensure_other_message(
@@ -3258,3 +3270,90 @@ class Client:
             thumb=cover_thumb,
             ext=ext,
         )
+
+    async def get_wallet(self) -> WalletResponse:
+        """
+        Retrieves the current user's wallet information.
+
+        This includes the wallet's balance, token, account data, and merchant status.
+
+        Returns:
+            WalletResponse: The response containing the wallet object and its metadata.
+        """
+        call = GetMyKifpools()
+        return await self(call)
+
+    async def send_giftpacket(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        amount: int,
+        message: str,
+        gift_count: int = 1,
+        giving_type: GivingType = GivingType.SAME,
+        show_amounts: bool = False,
+        token: Optional[str] = None,
+    ) -> DefaultResponse:
+        """
+        Sends a gift packet to a specified chat using the sender's wallet.
+
+        Args:
+            chat_id (int): ID of the target chat (user, group, or channel).
+            chat_type (ChatType): Type of the target chat.
+            amount (int): Total amount of the gift to be distributed.
+            message (str): Message to accompany the gift packet.
+            gift_count (int): Number of recipients who can claim the gift. Default is 1.
+            giving_type (GivingType): Distribution type (e.g., equally or randomly). Default is SAME.
+            show_amounts (bool): Whether to show individual received amounts to recipients.
+            token (Optional[str]): Wallet token to authorize the gift. If not provided, it is retrieved automatically.
+
+        Returns:
+            DefaultResponse: A response indicating success or failure of the operation.
+
+        Note:
+            The wallet token is required to send the gift. If not supplied, the method fetches it via `get_wallet()`.
+        """
+        chat = Chat(id=chat_id, type=chat_type)
+        peer = self._resolve_peer(chat)
+
+        if not token:
+            wallet_data = await self.get_wallet()
+            token = wallet_data.wallet.token
+
+        gift = GiftPacket(
+            count=gift_count,
+            total_amount=amount,
+            giving_type=giving_type,
+            message=StringValue(value=message),
+            owner_id=self.id,
+            show_amounts=BoolValue(value=show_amounts),
+        )
+
+        call = SendGiftPacketWithWallet(
+            peer=peer, random_id=generate_id(), gift=gift, token=token
+        )
+        return await self(call)
+
+    async def open_packet(
+        self, message: Union[Message, InfoMessage], receiver_token: Optional[str] = None
+    ) -> PacketResponse:
+        """
+        Opens a gift packet from a specific message using the receiver's token.
+
+        Args:
+            message (Union[Message, InfoMessage]): The message that contains the gift packet.
+            receiver_token (Optional[str]): Token to identify the receiver. If not provided, it is fetched automatically.
+
+        Returns:
+            PacketResponse: Contains details about the opening result, such as amount received, winners, and stats.
+
+        Note:
+            If `receiver_token` is not provided, the method will call `get_wallet()` to obtain the current user's token.
+        """
+        message = self._ensure_info_message(message, rewrite_date=True)
+        if not receiver_token:
+            wallet_data = await self.get_wallet()
+            receiver_token = wallet_data.wallet.token
+
+        call = OpenGiftPacket(message=message, receiver_token=receiver_token)
+        return await self(call)

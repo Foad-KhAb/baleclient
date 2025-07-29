@@ -68,6 +68,8 @@ from .groups import (
     UnbanUser,
     GetGroupPreview
 )
+from .kifpool import GetMyKifpools
+from .giftpacket import SendGiftPacketWithWallet, OpenGiftPacket
 from .files import GetFileUrl, GetFileUploadUrl
 from .configs import EditParameter, GetParameters
 from .report import SendReport
@@ -149,4 +151,7 @@ __all__ = (
     "Typing",
     "BaleMethod",
     "BaleType",
+    "GetMyKifpools",
+    "SendGiftPacketWithWallet",
+    "OpenGiftPacket"
 )

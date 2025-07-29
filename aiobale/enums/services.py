@@ -31,3 +31,6 @@ class Services(str, Enum):
     
     FILES = "ai.bale.server.Files"
     """Represents the file management service."""
+    
+    GIFT_PACKET = "bale.giftpacket.v1.GiftPacket"
+    KIFPOOL = "bale.kifpool.v1.Kifpool"

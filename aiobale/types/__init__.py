@@ -52,6 +52,9 @@ from .file_input import FileInput
 from .file_upload_info import FileUploadInfo
 from .thumbnail import Thumbnail
 from .file_ext import VideoExt, VoiceExt, AudioExt, PhotoExt, DocumentsExt
+from .wallet import Wallet
+from .gift_packet import GiftPacket
+from .winner import Winner
 
 
 __all__ = (
@@ -123,4 +126,7 @@ __all__ = (
     "AudioExt",
     "PhotoExt",
     "DocumentsExt",
+    "Wallet",
+    "GiftPacket",
+    "Winner"
 )
