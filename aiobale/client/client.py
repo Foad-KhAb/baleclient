@@ -3,12 +3,16 @@ from __future__ import annotations
 import asyncio
 import io
 import pathlib
+import signal
+import sys
+import warnings
 import aiofiles
 import os
 from typing import (
     AsyncGenerator,
     BinaryIO,
     Callable,
+    Coroutine,
     List,
     Literal,
     Optional,
@@ -101,6 +105,7 @@ from ..methods import (
     GetMyKifpools,
     SendGiftPacketWithWallet,
     OpenGiftPacket,
+    SignOut,
 )
 from ..types import (
     MessageContent,
@@ -271,6 +276,8 @@ class Client:
         self._ping_task = None
         self._ping_id = 0
         self._lock = asyncio.Lock()
+        self._tasks = set()
+        self._stopped = False
 
         if not isinstance(session_file, str) or not session_file.lower().endswith(
             ".bale"
@@ -315,6 +322,12 @@ class Client:
         in event handling and API interactions.
         """
         return self._me.id
+    
+    def _create_task(self, coro: Coroutine):
+        task = asyncio.create_task(coro)
+        self._tasks.add(task)
+        task.add_done_callback(self._tasks.discard)
+        return task
 
     def _write_session_content(self, content: bytes) -> None:
         if not self.__session_file:
@@ -361,6 +374,17 @@ class Client:
 
         return await self.session.make_request(method)
 
+    async def _cleanup_session(self):
+        async with self._lock:
+            if self.session and not self.session.is_closed():
+                await self.session.close()
+
+            if self._ping_task:
+                self._ping_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await self._ping_task
+                self._ping_task = None
+
     async def _send_ping(self):
         async with self._lock:
             if self.session.is_closed():
@@ -376,7 +400,7 @@ class Client:
                 await self.session.send_bytes(data, f"ping_{ping_id}")
             except RuntimeError:
                 logger.warning("Ping failed. Closing session to trigger restart.")
-                await self.session.close()
+                await self._cleanup_session()
 
     async def _ping_loop(self, interval=5):
         try:
@@ -384,21 +408,34 @@ class Client:
                 await asyncio.sleep(interval)
                 await self._send_ping()
         except asyncio.CancelledError:
-            pass
+            logger.info("Ping loop cancelled.")
         except Exception as e:
             logger.error(f"Unexpected error in ping loop: {e}")
-            async with self._lock:
-                await self.session.close()
+            await self._cleanup_session()
 
     async def _safe_listen(self):
         try:
             await self.session._listen()
         except Exception as e:
             logger.error(f"Listen failed: {e}")
-            async with self._lock:
-                await self.session.close()
+            await self._cleanup_session()
+            
+    def _setup_signal_handlers(self, loop):
+        def handler():
+            logger.info("Signal received, stopping client...")
+            asyncio.create_task(self.stop())
 
-    async def start(self, run_in_background: bool = False) -> None:
+        signals = []
+        if sys.platform != "win32":
+            signals = [signal.SIGINT, signal.SIGTERM]
+
+        for sig in signals:
+            try:
+                loop.add_signal_handler(sig, handler)
+            except NotImplementedError:
+                logger.warning(f"Signal {sig} handler not implemented.")
+
+    async def start(self, run_in_background: bool = False):
         """
         Starts the client session and begins listening for events.
         Args:
@@ -413,37 +450,46 @@ class Client:
         and starts listening for incoming events. Use `run_in_background=True` to keep listening without blocking
         the current coroutine.
         """
+        self._stopped = False
         await self._ensure_token_exists()
+        
+        loop = asyncio.get_running_loop()
+        self._setup_signal_handlers(loop)
 
-        while True:
-            async with self._lock:
-                try:
-                    logger.info("Trying to connect...")
-                    await self.session.connect(self.__token)
-                    await self.session.handshake_request()
-                    logger.info("Connected successfully.")
+        try:
+            while not self._stopped:
+                await self._cleanup_session()
 
-                    if self._ping_task:
-                        self._ping_task.cancel()
-                        with suppress(asyncio.CancelledError):
-                            await self._ping_task
+                async with self._lock:
+                    try:
+                        logger.info("Trying to connect...")
+                        await self.session.connect(self.__token)
+                        await self.session.handshake_request()
+                        logger.info("Connected successfully.")
 
-                    self._ping_task = asyncio.create_task(self._ping_loop())
+                        self._ping_task = self._create_task(self._ping_loop())
+                        listen_task = self._create_task(self._safe_listen())
+                    except Exception as e:
+                        logger.error(f"Connection failed: {e}")
+                        await asyncio.sleep(5)
+                        continue
 
-                except Exception as e:
-                    logger.error(f"Connection failed: {e}")
-                    await asyncio.sleep(5)
-                    continue
-
-            try:
                 if run_in_background:
-                    asyncio.create_task(self._safe_listen())
-                    break
+                    return
                 else:
-                    await self._safe_listen()
-            except asyncio.CancelledError:
-                logger.info("Start cancelled.")
-                break
+                    try:
+                        await listen_task
+                    except asyncio.CancelledError:
+                        logger.info("Listening task cancelled.")
+                        break
+
+        except KeyboardInterrupt:
+            logger.info("KeyboardInterrupt received, stopping client...")
+            await self.stop()
+        except Exception as e:
+            logger.error(f"Unhandled exception in start: {e}")
+            await self.stop()
+            raise
 
     async def stop(self):
         """
@@ -453,13 +499,27 @@ class Client:
         released. It should be called when the client is no longer needed to
         prevent resource leaks.
         """
+        if self._stopped:
+            return
+
+        self._stopped = True
+        logger.info("Stopping client...")
+
         if self._ping_task:
             self._ping_task.cancel()
             with suppress(asyncio.CancelledError):
                 await self._ping_task
             self._ping_task = None
 
-        await self.session.close()
+        for task in list(self._tasks):
+            task.cancel()
+
+        for task in list(self._tasks):
+            with suppress(asyncio.CancelledError):
+                await task
+
+        await self._cleanup_session()
+        logger.info("Client stopped cleanly.")
 
     async def handle_update(self, update: UpdateBody) -> None:
         """
@@ -635,6 +695,38 @@ class Client:
 
         except Exception as e:
             raise AiobaleError("Error while parsing data.") from e
+
+    async def sign_out(self, delete_session: bool = True) -> None:
+        """
+        Signs out the current user and optionally deletes the session file.
+
+        This method sends a sign-out request to the server, stops the client session,
+        and if requested, deletes the local session file from disk.
+
+        Args:
+            delete_session (bool, optional): Whether to delete the local session file after sign out.
+                Defaults to True.
+
+        Raises:
+            OSError: If the session file deletion fails due to an OS-level error.
+            Exception: Any unexpected exceptions during stopping the client or file deletion.
+        """
+        call = SignOut()
+        await self.session.post(call, just_bale_type=True, token=self.__token)
+        await self.stop()
+
+        if (
+            delete_session
+            and self.__session_file
+            and os.path.exists(self.__session_file)
+        ):
+            try:
+                os.remove(self.__session_file)
+                logger.info(
+                    f"Session file '{self.__session_file}' deleted successfully."
+                )
+            except Exception as e:
+                logger.error(f"Failed to delete session file: {e}")
 
     async def send_message(
         self,
@@ -1492,7 +1584,7 @@ class Client:
             AiobaleError: For client-side errors.
         """
         call = GetContacts()
-        result: BlockedUsersResponse = await self(call)
+        result: BannedUsersResponse = await self(call)
         return result.users
 
     async def search_contact(self, phone_number: str) -> Optional[InfoPeer]:
@@ -3283,7 +3375,7 @@ class Client:
         call = GetMyKifpools()
         return await self(call)
 
-    async def send_giftpacket(
+    async def send_gift(
         self,
         chat_id: int,
         chat_type: ChatType,
@@ -3295,13 +3387,13 @@ class Client:
         token: Optional[str] = None,
     ) -> DefaultResponse:
         """
-        Sends a gift packet to a specified chat using the sender's wallet.
+        Sends a gift to a specified chat using the sender's wallet.
 
         Args:
             chat_id (int): ID of the target chat (user, group, or channel).
             chat_type (ChatType): Type of the target chat.
             amount (int): Total amount of the gift to be distributed.
-            message (str): Message to accompany the gift packet.
+            message (str): Message to accompany the gift.
             gift_count (int): Number of recipients who can claim the gift. Default is 1.
             giving_type (GivingType): Distribution type (e.g., equally or randomly). Default is SAME.
             show_amounts (bool): Whether to show individual received amounts to recipients.
@@ -3311,7 +3403,8 @@ class Client:
             DefaultResponse: A response indicating success or failure of the operation.
 
         Note:
-            The wallet token is required to send the gift. If not supplied, the method fetches it via `get_wallet()`.
+            This method replaces the deprecated `send_giftpacket()`.
+            The wallet token is required to send the gift. If not supplied, it is fetched via `get_wallet()`.
         """
         chat = Chat(id=chat_id, type=chat_type)
         peer = self._resolve_peer(chat)
@@ -3334,20 +3427,21 @@ class Client:
         )
         return await self(call)
 
-    async def open_packet(
+    async def open_gift(
         self, message: Union[Message, InfoMessage], receiver_token: Optional[str] = None
     ) -> PacketResponse:
         """
-        Opens a gift packet from a specific message using the receiver's token.
+        Opens a gift from a specific message using the receiver's token.
 
         Args:
-            message (Union[Message, InfoMessage]): The message that contains the gift packet.
+            message (Union[Message, InfoMessage]): The message that contains the gift.
             receiver_token (Optional[str]): Token to identify the receiver. If not provided, it is fetched automatically.
 
         Returns:
             PacketResponse: Contains details about the opening result, such as amount received, winners, and stats.
 
         Note:
+            This method replaces the deprecated `open_packet()`.
             If `receiver_token` is not provided, the method will call `get_wallet()` to obtain the current user's token.
         """
         message = self._ensure_info_message(message, rewrite_date=True)
@@ -3357,3 +3451,49 @@ class Client:
 
         call = OpenGiftPacket(message=message, receiver_token=receiver_token)
         return await self(call)
+    
+    async def send_giftpacket(
+        self,
+        chat_id: int,
+        chat_type: ChatType,
+        amount: int,
+        message: str,
+        gift_count: int = 1,
+        giving_type: GivingType = GivingType.SAME,
+        show_amounts: bool = True,
+        token: Optional[str] = None,
+    ) -> DefaultResponse:
+        """
+        DEPRECATED: Use `send_gift()` instead. This method will be removed in version 0.1.4.
+
+        Sends a gift packet to a specified chat using the sender's wallet.
+
+        Args:
+            (same as send_gift)
+        """
+        warnings.warn(
+            "send_giftpacket() is deprecated and will be removed in a future version. Use send_gift() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return await self.send_gift(
+            chat_id, chat_type, amount, message, gift_count, giving_type, show_amounts, token
+        )
+
+    async def open_packet(
+        self, message: Union[Message, InfoMessage], receiver_token: Optional[str] = None
+    ) -> PacketResponse:
+        """
+        DEPRECATED: Use `open_gift()` instead. This method will be removed in version 0.1.4.
+
+        Opens a gift packet from a specific message using the receiver's token.
+
+        Args:
+            (same as open_gift)
+        """
+        warnings.warn(
+            "open_packet() is deprecated and will be removed in a future version. Use open_gift() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return await self.open_gift(message, receiver_token)
