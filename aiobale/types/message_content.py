@@ -7,6 +7,7 @@ from .base import BaleObject
 from .thumbnail import Thumbnail
 from .file_ext import DocumentsExt
 from .gift_packet import GiftPacket
+from .service_message import ServiceMessage
 
 
 class TextMessage(BaleObject):
@@ -132,6 +133,7 @@ class MessageContent(BaleObject):
     text: Optional[TextMessage] = Field(None, alias="15")
     """Optional text content if the message is a plain text message."""
 
+    service_message: Optional[ServiceMessage] = Field(None, alias="11")
     gift: Optional[GiftPacket] = Field(None, alias="17")
 
     if TYPE_CHECKING:
