@@ -169,22 +169,29 @@ class ProtoBuf:
         typedef: Dict[str, Any] = {}
         for field_num, value in message_dict.items():
             if isinstance(value, list):
-                elem = value[0] if value else {}
-                if isinstance(elem, dict):
-                    sub_typedef = self.infer_typedef(elem)
+                sub_typedef: Dict[str, Any] = {}
+                for elem in value:
+                    if isinstance(elem, dict):
+                        sub = self.infer_typedef(elem)
+                        for k, v in sub.items():
+                            sub_typedef[k] = v
+                    else:
+                        base_type = "int" if isinstance(elem, int) else "bytes"
+                        typedef[field_num] = {
+                            "rule": "repeated",
+                            "type": base_type,
+                            "name": "",
+                        }
+                        break 
+
+                if sub_typedef:
                     typedef[field_num] = {
                         "rule": "repeated",
                         "type": "message",
                         "message_typedef": sub_typedef,
                         "name": "",
                     }
-                else:
-                    base_type = "int" if isinstance(elem, int) else "bytes"
-                    typedef[field_num] = {
-                        "rule": "repeated",
-                        "type": base_type,
-                        "name": "",
-                    }
+
             elif isinstance(value, dict):
                 sub_typedef = self.infer_typedef(value)
                 typedef[field_num] = {
@@ -192,8 +199,10 @@ class ProtoBuf:
                     "message_typedef": sub_typedef,
                     "name": "",
                 }
+
             elif isinstance(value, int):
                 typedef[field_num] = {"type": "int", "name": ""}
+
             else:
                 typedef[field_num] = {"type": "bytes", "name": ""}
 
