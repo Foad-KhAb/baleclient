@@ -41,7 +41,7 @@ class PhoneAuthResponse(BaleObject):
     transaction_hash: str = Field(..., alias="1")
     """Unique identifier for this authentication attempt, used in follow-up requests."""
 
-    is_registered: IntBool = Field(..., alias="2")
+    is_registered: IntBool = Field(False, alias="2")
     """Whether the phone number is already registered on Bale (1 = yes, 0 = no)."""
 
     sent_code_type: SendCodeType = Field(..., alias="5")
