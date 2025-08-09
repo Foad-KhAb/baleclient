@@ -126,6 +126,9 @@ class PhoneLoginCLI:
                 except AiobaleError as e:
                     if str(e) == "Password needed for login":
                         return await self._handle_password_entry(resp.transaction_hash)
+                    elif str(e) == "Register":
+                        return await self._handle_signup(resp.transaction_hash)
+                    
                     print(Fore.RED + "❌ Incorrect code. Please try again.\n")
                     attempts += 1
                     if attempts >= max_attempts:
@@ -145,7 +148,7 @@ class PhoneLoginCLI:
             try:
                 password = await asyncio.wait_for(
                     asyncio.to_thread(input, Fore.BLUE + "Enter password: "),
-                    timeout=60  # You can adjust the timeout if needed
+                    timeout=60
                 )
             except asyncio.TimeoutError:
                 print(Fore.RED + "⏰ Password entry timed out. Restarting...\n")
@@ -162,6 +165,33 @@ class PhoneLoginCLI:
                 else:
                     print(Fore.RED + f"⚠️ Error: {e}\n")
                     return False
+
+        print(Fore.RED + "❌ Too many failed password attempts. Restarting...\n")
+        return False
+    
+    async def _handle_signup(self, transaction_hash: str):
+        print(Fore.MAGENTA + "ℹ️ This account is unoccupied.\n")
+
+        max_attempts = 3
+        attempts = 0
+        while attempts < max_attempts:
+            try:
+                name = await asyncio.wait_for(
+                    asyncio.to_thread(input, Fore.BLUE + "Enter your name: "),
+                    timeout=60
+                )
+            except asyncio.TimeoutError:
+                print(Fore.RED + "⏰ Name entry timed out. Restarting...\n")
+                return False
+
+            try:
+                res = await self.client.sign_up(name.strip(), transaction_hash)
+                await self._on_login_success(res)
+                return True
+            except AiobaleError as e:
+                attempts += 1
+                print(Fore.RED + f"⚠️ Error: {e}\n")
+                return False
 
         print(Fore.RED + "❌ Too many failed password attempts. Restarting...\n")
         return False

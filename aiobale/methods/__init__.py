@@ -12,7 +12,7 @@ from .messaging import (
     LoadPinnedMessages,
     LoadDialogs,
 )
-from .auth import StartPhoneAuth, ValidateCode, ValidatePassword, SignOut
+from .auth import StartPhoneAuth, ValidateCode, ValidatePassword, SignOut, SignUp
 from .user import (
     EditName,
     CheckNickName,
@@ -154,5 +154,6 @@ __all__ = (
     "GetMyKifpools",
     "SendGiftPacketWithWallet",
     "OpenGiftPacket",
-    "SignOut"
+    "SignOut",
+    "SignUp"
 )

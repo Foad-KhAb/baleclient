@@ -19,7 +19,7 @@ class UserAuth(BaleObject):
     id: int = Field(..., alias="1")
     """Unique identifier of the user."""
 
-    access_hash: int = Field(..., alias="2")
+    access_hash: int = Field(-1, alias="2")
     """Access hash used for secure identification and authorization."""
 
     name: str = Field(..., alias="3")

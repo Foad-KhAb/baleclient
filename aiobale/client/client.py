@@ -106,6 +106,7 @@ from ..methods import (
     SendGiftPacketWithWallet,
     OpenGiftPacket,
     SignOut,
+    SignUp
 )
 from ..types import (
     MessageContent,
@@ -322,7 +323,7 @@ class Client:
         in event handling and API interactions.
         """
         return self._me.id
-    
+
     def _create_task(self, coro: Coroutine):
         task = asyncio.create_task(coro)
         self._tasks.add(task)
@@ -419,7 +420,7 @@ class Client:
         except Exception as e:
             logger.error(f"Listen failed: {e}")
             await self._cleanup_session()
-            
+
     def _setup_signal_handlers(self, loop):
         def handler():
             logger.info("Signal received, stopping client...")
@@ -452,7 +453,7 @@ class Client:
         """
         self._stopped = False
         await self._ensure_token_exists()
-        
+
         loop = asyncio.get_running_loop()
         self._setup_signal_handlers(loop)
 
@@ -653,6 +654,8 @@ class Client:
                 raise AiobaleError("Invalid code specified.")
             elif content == "password needed for login":
                 raise AiobaleError("Password needed for login")
+            elif content == "PHONE_NUMBER_UNOCCUPIED":
+                raise AiobaleError("Register")
             else:
                 raise AiobaleError("Unknown Error")
 
@@ -688,6 +691,20 @@ class Client:
                 raise AiobaleError("Wrong password specified.")
             else:
                 raise AiobaleError("Unknown Error")
+
+        try:
+            self._write_session_content(content)
+            return self._parse_session_content(content)
+
+        except Exception as e:
+            raise AiobaleError("Error while parsing data.") from e
+
+    async def sign_up(self, name: str, transaction_hash: str) -> ValidateCodeResponse:
+        call = SignUp(name=name, transaction_hash=transaction_hash)
+
+        content = await self.session.post(call)
+        if isinstance(content, str):
+            raise AiobaleError(content)
 
         try:
             self._write_session_content(content)
@@ -3451,7 +3468,7 @@ class Client:
 
         call = OpenGiftPacket(message=message, receiver_token=receiver_token)
         return await self(call)
-    
+
     async def send_giftpacket(
         self,
         chat_id: int,
@@ -3474,10 +3491,17 @@ class Client:
         warnings.warn(
             "send_giftpacket() is deprecated and will be removed in a future version. Use send_gift() instead.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return await self.send_gift(
-            chat_id, chat_type, amount, message, gift_count, giving_type, show_amounts, token
+            chat_id,
+            chat_type,
+            amount,
+            message,
+            gift_count,
+            giving_type,
+            show_amounts,
+            token,
         )
 
     async def open_packet(
@@ -3494,6 +3518,6 @@ class Client:
         warnings.warn(
             "open_packet() is deprecated and will be removed in a future version. Use open_gift() instead.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         return await self.open_gift(message, receiver_token)

@@ -1,5 +1,5 @@
 from pydantic import Field
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 from .base import BaleObject
 from .int_bool import IntBool
@@ -13,7 +13,7 @@ class StringValue(BaleObject):
     potentially allowing for extension or metadata in the future.
     """
 
-    value: str = Field(..., alias="1")
+    value: Optional[str] = Field(None, alias="1")
     """The wrapped string value."""
 
     if TYPE_CHECKING:
