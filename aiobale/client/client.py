@@ -106,7 +106,6 @@ from ..methods import (
     SendGiftPacketWithWallet,
     OpenGiftPacket,
     SignOut,
-    SignUp
 )
 from ..types import (
     MessageContent,
@@ -159,6 +158,9 @@ from ..types import (
     UpdateBody,
     Request,
     GiftPacket,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    TemplateMessage,
 )
 from ..types.responses import (
     MessageResponse,
@@ -699,20 +701,6 @@ class Client:
         except Exception as e:
             raise AiobaleError("Error while parsing data.") from e
 
-    async def sign_up(self, name: str, transaction_hash: str) -> ValidateCodeResponse:
-        call = SignUp(name=name, transaction_hash=transaction_hash)
-
-        content = await self.session.post(call)
-        if isinstance(content, str):
-            raise AiobaleError(content)
-
-        try:
-            self._write_session_content(content)
-            return self._parse_session_content(content)
-
-        except Exception as e:
-            raise AiobaleError("Error while parsing data.") from e
-
     async def sign_out(self, delete_session: bool = True) -> None:
         """
         Signs out the current user and optionally deletes the session file.
@@ -750,6 +738,7 @@ class Client:
         text: str,
         chat_id: int,
         chat_type: ChatType,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
         message_id: Optional[int] = None,
     ) -> Message:
@@ -776,6 +765,13 @@ class Client:
         message_id = message_id or generate_id()
 
         content = MessageContent(text=TextMessage(value=text))
+
+        if reply_markup:
+            content = MessageContent(
+                bot_message=TemplateMessage(
+                    message=content, inline_keyboard_markup=reply_markup
+                )
+            )
 
         if reply_to is not None:
             reply_to = self._ensure_info_message(reply_to)
@@ -3024,6 +3020,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         message_id: Optional[int] = None,
         send_type: SendType = SendType.DOCUMENT,
         thumb: Optional[Thumbnail] = None,
@@ -3060,6 +3057,13 @@ class Client:
             )
 
         content = MessageContent(document=document)
+        
+        if reply_markup:
+            content = MessageContent(
+                bot_message=TemplateMessage(
+                    message=content, inline_keyboard_markup=reply_markup
+                )
+            )
 
         if reply_to is not None:
             reply_to = self._ensure_info_message(reply_to)
@@ -3082,6 +3086,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         message_id: Optional[int] = None,
         use_own_content: bool = False,
     ) -> Message:
@@ -3111,6 +3116,7 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.DOCUMENT,
+            reply_markup=reply_markup,
             use_own_content=use_own_content,
         )
 
@@ -3133,6 +3139,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -3173,6 +3180,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.PHOTO,
             thumb=cover_thumb,
@@ -3186,6 +3194,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -3230,6 +3239,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.VIDEO,
             thumb=cover_thumb,
@@ -3243,6 +3253,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
@@ -3271,6 +3282,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.VOICE,
             ext=ext,
@@ -3283,6 +3295,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         duration: Optional[int] = None,
         album: Optional[str] = None,
         genre: Optional[str] = None,
@@ -3319,6 +3332,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.AUDIO,
             ext=ext,
@@ -3331,6 +3345,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -3374,6 +3389,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.GIF,
             thumb=cover_thumb,

@@ -8,6 +8,8 @@ from .thumbnail import Thumbnail
 from .file_ext import DocumentsExt
 from .gift_packet import GiftPacket
 from .service_message import ServiceMessage
+from .inline_keyboard import InlineKeyboardMarkup
+from ..utils import generate_id
 
 
 class TextMessage(BaleObject):
@@ -117,6 +119,12 @@ class DocumentMessage(BaleObject):
                 thumb=thumb,
                 **__pydantic_kwargs,
             )
+            
+            
+class TemplateMessage(BaleObject):
+    message: MessageContent = Field(..., alias="1")
+    temp_id: int = Field(default_factory=generate_id, alias="2")
+    inline_keyboard_markup: Optional[InlineKeyboardMarkup] = Field(None, alias="5")
 
 
 class MessageContent(BaleObject):
@@ -134,6 +142,7 @@ class MessageContent(BaleObject):
     """Optional text content if the message is a plain text message."""
 
     service_message: Optional[ServiceMessage] = Field(None, alias="11")
+    bot_message: Optional[TemplateMessage] = Field(None, alias="13")
     gift: Optional[GiftPacket] = Field(None, alias="17")
 
     if TYPE_CHECKING:
@@ -145,6 +154,7 @@ class MessageContent(BaleObject):
             epmty: bool = False,
             text: Optional[TextMessage] = None,
             gift: Optional[GiftPacket] = None,
+            bot_message: Optional[TemplateMessage] = None,
             **__pydantic_kwargs,
         ) -> None:
             super().__init__(
@@ -152,6 +162,7 @@ class MessageContent(BaleObject):
                 text=text,
                 epmty=epmty,
                 gift=gift,
+                bot_message=bot_message,
                 **__pydantic_kwargs,
             )
 

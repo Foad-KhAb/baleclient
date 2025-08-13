@@ -126,7 +126,7 @@ class FullUser(BaleObject):
             elif key == "4" and not isinstance(value, list):
                 data[key] = [value]
 
-            elif value is None or value is False or value == "":
+            elif not value:
                 data.pop(key)
 
         return data
