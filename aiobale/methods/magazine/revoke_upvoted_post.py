@@ -23,7 +23,7 @@ class RevokeUpvotedPost(BaleMethod):
             __pydantic__self__,
             *,
             message: InfoMessage,
-            album_id: IntValue,
+            album_id: Optional[IntValue] = None,
             **__pydantic_kwargs,
         ) -> None:
             super().__init__(message=message, album_id=album_id, **__pydantic_kwargs)

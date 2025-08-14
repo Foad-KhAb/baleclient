@@ -3,10 +3,10 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
 import io
+import json
 import pathlib
 import signal
 import sys
-import warnings
 import aiofiles
 import os
 from typing import (
@@ -108,6 +108,9 @@ from ..methods import (
     SendGiftPacketWithWallet,
     OpenGiftPacket,
     SignOut,
+    UpvotePost,
+    RevokeUpvotedPost,
+    GetMessageUpvoters,
 )
 from ..types import (
     MessageContent,
@@ -160,9 +163,9 @@ from ..types import (
     UpdateBody,
     Request,
     GiftPacket,
-    Update,
     InlineKeyboardMarkup,
     TemplateMessage,
+    Upvote,
 )
 from ..types.responses import (
     MessageResponse,
@@ -194,6 +197,8 @@ from ..types.responses import (
     FileURLResponse,
     WalletResponse,
     PacketResponse,
+    UpvoteResponse,
+    UpvotersResponse,
 )
 from ..enums import (
     ChatType,
@@ -580,7 +585,7 @@ class Client:
             message_id = getattr(event, "message_id", None)
             if message_id not in self._ignored_messages.targets:
                 return False
-            
+
             self._ignored_messages.targets.remove()
 
         return True
@@ -3547,55 +3552,40 @@ class Client:
         call = OpenGiftPacket(message=message, receiver_token=receiver_token)
         return await self(call)
 
-    async def send_giftpacket(
+    async def upvote_post(
+        self, message: Union[Message, InfoMessage], album_id: Optional[int] = None
+    ) -> Upvote:
+        message = self._ensure_info_message(message)
+        call = UpvotePost(
+            message=message, album_id=IntValue(value=album_id) if album_id else None
+        )
+
+        result: UpvoteResponse = await self(call)
+        return result.upvote
+
+    async def revoke_upvote(
+        self, message: Union[Message, InfoMessage], album_id: Optional[int] = None
+    ) -> Upvote:
+        message = self._ensure_info_message(message)
+        call = RevokeUpvotedPost(
+            message=message, album_id=IntValue(value=album_id) if album_id else None
+        )
+
+        result: UpvoteResponse = await self(call)
+        return result.upvote
+
+    async def get_upvoters(
         self,
-        chat_id: int,
-        chat_type: ChatType,
-        amount: int,
-        message: str,
-        gift_count: int = 1,
-        giving_type: GivingType = GivingType.SAME,
-        show_amounts: bool = True,
-        token: Optional[str] = None,
-    ) -> DefaultResponse:
-        """
-        DEPRECATED: Use `send_gift()` instead. This method will be removed in version 0.1.4.
+        message: Union[Message, InfoMessage],
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> Upvote:
+        state = None
+        if offset and limit:
+            state = StringValue(value=json.dumps({"offset": offset, "limit": limit}))
 
-        Sends a gift packet to a specified chat using the sender's wallet.
+        message = self._ensure_info_message(message)
+        call = GetMessageUpvoters(message=message, load_more_state=state)
 
-        Args:
-            (same as send_gift)
-        """
-        warnings.warn(
-            "send_giftpacket() is deprecated and will be removed in a future version. Use send_gift() instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return await self.send_gift(
-            chat_id,
-            chat_type,
-            amount,
-            message,
-            gift_count,
-            giving_type,
-            show_amounts,
-            token,
-        )
-
-    async def open_packet(
-        self, message: Union[Message, InfoMessage], receiver_token: Optional[str] = None
-    ) -> PacketResponse:
-        """
-        DEPRECATED: Use `open_gift()` instead. This method will be removed in version 0.1.4.
-
-        Opens a gift packet from a specific message using the receiver's token.
-
-        Args:
-            (same as open_gift)
-        """
-        warnings.warn(
-            "open_packet() is deprecated and will be removed in a future version. Use open_gift() instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return await self.open_gift(message, receiver_token)
+        result: UpvoteResponse = await self(call)
+        return result.upvote

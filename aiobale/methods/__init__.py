@@ -68,6 +68,7 @@ from .groups import (
     UnbanUser,
     GetGroupPreview,
 )
+from .magazine import UpvotePost, RevokeUpvotedPost, GetMessageUpvoters
 from .kifpool import GetMyKifpools
 from .giftpacket import SendGiftPacketWithWallet, OpenGiftPacket
 from .files import GetFileUrl, GetFileUploadUrl
@@ -155,5 +156,8 @@ __all__ = (
     "SendGiftPacketWithWallet",
     "OpenGiftPacket",
     "SignOut",
-    "SignUp"
+    "SignUp",
+    "GetMessageUpvoters",
+    "UpvotePost",
+    "RevokeUpvotedPost",
 )
