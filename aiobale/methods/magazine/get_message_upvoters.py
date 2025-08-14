@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING
 
 from ...types import InfoMessage, StringValue
-from ...types.responses import DefaultResponse
+from ...types.responses import UpvotersResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class GetMessageUpvoters(BaleMethod):
     __service__ = Services.MAGAZINE.value
     __method__ = "GetMessageUpvoters"
 
-    __returning__ = DefaultResponse
+    __returning__ = UpvotersResponse
 
     load_more_state: StringValue = Field(..., alias="1")
     message: InfoMessage = Field(..., alias="2")

@@ -27,6 +27,7 @@ from .file_url import FileURLResponse
 from .wallet import WalletResponse
 from .open_packet import PacketResponse
 from .upvote_response import UpvoteResponse
+from .upvoters_response import UpvotersResponse
 
 
 __all__ = (
@@ -59,5 +60,6 @@ __all__ = (
     "FileURLResponse",
     "WalletResponse",
     "PacketResponse",
-    "UpvoteResponse"
+    "UpvoteResponse",
+    "UpvotersResponse"
 )
