@@ -1,14 +1,14 @@
 import json
-from typing import TYPE_CHECKING, Any, Dict, List
-from pydantic import model_validator
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from pydantic import Field, model_validator
 
 from ..base import BaleObject
 
 
 class UpvotersResponse(BaleObject):
-    limit: int
-    offset: int
-    users: List[int]
+    count: Optional[int] = None
+    offset: Optional[int] = None
+    users: List[int] = Field(default_factory=list)
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.
@@ -28,14 +28,8 @@ class UpvotersResponse(BaleObject):
     @model_validator(mode="before")
     @classmethod
     def validate_list(cls, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Validates and normalizes the 'messages' field (alias '1').
-
-        Ensures that if the server returns a single MessageReactions object
-        instead of a list, it is wrapped into a list for uniform processing.
-        """
         if "1" in data:
-            offset_info = json.loads(data["1"])
+            offset_info = json.loads(data["1"]["1"])
             data.update(offset_info)
             
         if "2" in data:

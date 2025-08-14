@@ -212,6 +212,7 @@ from ..enums import (
     GroupType,
     SendType,
     GivingType,
+    AuthErrors,
 )
 from ..dispatcher.dispatcher import Dispatcher
 from ..logger import logger
@@ -667,7 +668,11 @@ class Client:
         self,
         phone_number: int,
         code_type: Optional[SendCodeType] = SendCodeType.DEFAULT,
-    ) -> PhoneAuthResponse:
+        device_title: str = "Chrome_138.0.0.0, Windows",
+        device_hash: str = "ce5ced83-a9ab-47fa-80c8-ed425eeb2ace",
+        api_key: str = "C28D46DC4C3A7A26564BFCC48B929086A95C93C98E789A19847BEE8627DE4E7D",
+        app_id: int = 4,
+    ) -> Union[PhoneAuthResponse, AuthErrors]:
         """
         Initiates phone authentication by sending a code to the specified phone number.
 
@@ -684,21 +689,33 @@ class Client:
         """
         call = StartPhoneAuth(
             phone_number=phone_number,
-            app_id=4,
-            app_key="C28D46DC4C3A7A26564BFCC48B929086A95C93C98E789A19847BEE8627DE4E7D",
-            device_hash="ce5ced83-a9ab-47fa-80c8-ed425eeb2ace",
-            device_title="Chrome_138.0.0.0, Windows",
+            app_id=app_id,
+            app_key=api_key,
+            device_hash=device_hash,
+            device_title=device_title,
             send_code_type=code_type,
         )
 
-        try:
-            return await self.session.post(call)
-        except:
-            raise AiobaleError("This phone number is banned")
+        result: Union[str, PhoneAuthResponse] = await self.session.post(call)
+
+        if isinstance(result, str):
+            if result == [
+                "phone number is blocked",
+                "PHONE_NUMBER_TEMPORARY_BLOCKED",
+            ]:
+                return AuthErrors.NUMBER_BANNED
+            elif result == "phone auth limit exceeded":
+                return AuthErrors.RATE_LIMIT
+            elif result == "PHONE_NUMBER_INVALID":
+                return AuthErrors.INVALID
+            else:
+                return AuthErrors.UNKNOWN
+
+        return result
 
     async def validate_code(
         self, code: str, transaction_hash: str
-    ) -> ValidateCodeResponse:
+    ) -> Union[ValidateCodeResponse, AuthErrors]:
         """
         Validates the authentication code received via SMS or other means.
 
@@ -718,13 +735,13 @@ class Client:
         content = await self.session.post(call)
         if isinstance(content, str):
             if content == "PHONE_CODE_INVALID":
-                raise AiobaleError("Invalid code specified.")
+                return AuthErrors.WRONG_CODE
             elif content == "password needed for login":
-                raise AiobaleError("Password needed for login")
+                return AuthErrors.PASSWORD_NEEDED
             elif content == "PHONE_NUMBER_UNOCCUPIED":
-                raise AiobaleError("Register")
+                return AuthErrors.SIGN_UP_NEEDED
             else:
-                raise AiobaleError("Unknown Error")
+                return AuthErrors.UNKNOWN
 
         try:
             self._write_session_content(content)
@@ -735,7 +752,7 @@ class Client:
 
     async def validate_password(
         self, password: str, transaction_hash: str
-    ) -> ValidateCodeResponse:
+    ) -> Union[AuthErrors, ValidateCodeResponse]:
         """
         Validates the password for two-factor authentication if required.
 
@@ -755,9 +772,9 @@ class Client:
         content = await self.session.post(call)
         if isinstance(content, str):
             if content == "wrong password":
-                raise AiobaleError("Wrong password specified.")
+                return AuthErrors.WRONG_PASSWORD
             else:
-                raise AiobaleError("Unknown Error")
+                return AuthErrors.UNKNOWN
 
         try:
             self._write_session_content(content)
@@ -3555,7 +3572,21 @@ class Client:
     async def upvote_post(
         self, message: Union[Message, InfoMessage], album_id: Optional[int] = None
     ) -> Upvote:
-        message = self._ensure_info_message(message)
+        """
+        Adds an upvote (like) to a given post.
+
+        Args:
+            message (Union[Message, InfoMessage]): The target message to upvote.
+            album_id (Optional[int]): The album ID related to the post, if applicable.
+                If None, the upvote will apply to the main message.
+
+        Returns:
+            Upvote: Object containing the updated upvote status and counts.
+
+        Note:
+            This method ensures the message is an `InfoMessage` before processing.
+        """
+        message = self._ensure_info_message(message, rewrite_date=True)
         call = UpvotePost(
             message=message, album_id=IntValue(value=album_id) if album_id else None
         )
@@ -3566,7 +3597,21 @@ class Client:
     async def revoke_upvote(
         self, message: Union[Message, InfoMessage], album_id: Optional[int] = None
     ) -> Upvote:
-        message = self._ensure_info_message(message)
+        """
+        Removes an existing upvote (like) from a given post.
+
+        Args:
+            message (Union[Message, InfoMessage]): The target message to remove the upvote from.
+            album_id (Optional[int]): The album ID related to the post, if applicable.
+                If None, the removal applies to the main message.
+
+        Returns:
+            Upvote: Object containing the updated upvote status and counts.
+
+        Note:
+            This method ensures the message is an `InfoMessage` before processing.
+        """
+        message = self._ensure_info_message(message, rewrite_date=True)
         call = RevokeUpvotedPost(
             message=message, album_id=IntValue(value=album_id) if album_id else None
         )
@@ -3579,13 +3624,28 @@ class Client:
         message: Union[Message, InfoMessage],
         offset: Optional[int] = None,
         limit: Optional[int] = None,
-    ) -> Upvote:
+    ) -> UpvotersResponse:
+        """
+        Retrieves the list of users who upvoted a given message.
+
+        Args:
+            message (Union[Message, InfoMessage]): The message to fetch upvoters for.
+            offset (Optional[int]): The number of upvoters to skip (for pagination).
+            limit (Optional[int]): The maximum number of upvoters to retrieve (for pagination).
+
+        Returns:
+            UpvotersResponse: Contains the list of upvoters and related metadata.
+
+        Note:
+            If both `offset` and `limit` are provided, they are passed as a JSON string to the API
+            to support pagination.
+            This method ensures the message is an `InfoMessage` before processing.
+        """
         state = None
         if offset and limit:
             state = StringValue(value=json.dumps({"offset": offset, "limit": limit}))
 
-        message = self._ensure_info_message(message)
+        message = self._ensure_info_message(message, rewrite_date=True)
         call = GetMessageUpvoters(message=message, load_more_state=state)
 
-        result: UpvoteResponse = await self(call)
-        return result.upvote
+        return await self(call)

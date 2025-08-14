@@ -53,7 +53,7 @@ class QuotedMessage(BaleObject):
         from .message import Message
 
         if self.chat is None:
-            raise AiobaleError("Need the current chat to process")
+            self.chat = Chat(id=self.peer.id, type=self.peer.type)
 
         return Message(
             message_id=self.message_id.value,
