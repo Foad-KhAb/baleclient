@@ -57,6 +57,7 @@ from .wallet import Wallet
 from .gift_packet import GiftPacket
 from .winner import Winner
 from .inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
+from .upvote import Upvote
 
 
 __all__ = (
@@ -134,5 +135,6 @@ __all__ = (
     "Winner",
     "InlineKeyboardMarkup",
     "InlineKeyboardButton",
-    "TemplateMessage"
+    "TemplateMessage",
+    "Upvote"
 )
