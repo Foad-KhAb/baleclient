@@ -1,5 +1,5 @@
 from pydantic import Field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from ...types import InfoMessage, IntValue
 from ...types.responses import UpvoteResponse
@@ -14,7 +14,7 @@ class UpvotePost(BaleMethod):
     __returning__ = UpvoteResponse
 
     message: InfoMessage = Field(..., alias="1")
-    album_id: IntValue = Field(..., alias="2")
+    album_id: Optional[IntValue] = Field(None, alias="2")
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.
