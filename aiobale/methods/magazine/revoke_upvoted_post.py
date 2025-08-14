@@ -8,13 +8,20 @@ from ..base import BaleMethod
 
 
 class RevokeUpvotedPost(BaleMethod):
+    """
+    Represents a request to revoke an upvote from a specific post or album.
+    """
+
     __service__ = Services.MAGAZINE.value
     __method__ = "RevokeUpvotedPost"
 
     __returning__ = UpvoteResponse
 
     message: InfoMessage = Field(..., alias="1")
+    """The message (post) from which the upvote should be removed."""
+
     album_id: Optional[IntValue] = Field(None, alias="2")
+    """The album ID if the upvote relates to a specific album, otherwise `None`."""
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

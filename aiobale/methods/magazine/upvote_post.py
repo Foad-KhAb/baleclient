@@ -8,13 +8,20 @@ from ..base import BaleMethod
 
 
 class UpvotePost(BaleMethod):
+    """
+    Represents a request to upvote a specific post or album.
+    """
+
     __service__ = Services.MAGAZINE.value
     __method__ = "UpvotePost"
 
     __returning__ = UpvoteResponse
 
     message: InfoMessage = Field(..., alias="1")
+    """The message (post) that should receive the upvote."""
+
     album_id: Optional[IntValue] = Field(None, alias="2")
+    """The album ID if the upvote is for a specific album, otherwise `None`."""
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.

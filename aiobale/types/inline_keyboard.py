@@ -5,14 +5,29 @@ from .base import BaleObject
 
 
 class InlineKeyboardButton(BaleObject):
+    """
+    Represents a button within an inline keyboard.
+    """
+
     text: str = Field(..., alias="1")
+    """Label text displayed on the button."""
+
     url: Optional[str] = Field(None, alias="2")
+    """URL to be opened when the button is pressed."""
+
     callback_data: Optional[str] = Field(None, alias="3")
+    """Data sent back to the bot when the button is pressed."""
+
     copy_text: Optional[str] = Field(None, alias="9")
+    """Text to be copied to the clipboard when the button is pressed."""
 
     @model_validator(mode="before")
     @classmethod
     def validate_keyboard(cls, data):
+        """
+        Extracts nested field values from the serialized form
+        into the expected flat model structure before validation.
+        """
         if isinstance(data, dict) and "1" in data:
             for i in ("2", "3", "9"):
                 if i not in data:
@@ -22,6 +37,9 @@ class InlineKeyboardButton(BaleObject):
 
     @model_serializer(mode="wrap")
     def ser(self, nxt, info):
+        """
+        Serializes the model into the API's nested alias structure.
+        """
         if not info.by_alias:
             return nxt(self)
 
@@ -34,9 +52,14 @@ class InlineKeyboardButton(BaleObject):
 
 
 class InlineKeyboardMarkup(BaleObject):
+    """
+    Represents the entire inline keyboard layout for a message.
+    """
+
     inline_keyboard: List[List[InlineKeyboardButton]] = Field(
         default_factory=list, alias="1"
     )
+    """Two-dimensional array of inline keyboard button rows."""
 
     if TYPE_CHECKING:
         # This __init__ is only used for type checking and IDE autocomplete.
@@ -52,6 +75,10 @@ class InlineKeyboardMarkup(BaleObject):
     @model_validator(mode="before")
     @classmethod
     def validate_keyboard(cls, data):
+        """
+        Converts the raw serialized button structure from the API
+        into a list of InlineKeyboardButton rows before validation.
+        """
         if isinstance(data, dict) and "1" in data and isinstance(data["1"], list):
             raw_buttons = data["1"]
 
@@ -69,6 +96,9 @@ class InlineKeyboardMarkup(BaleObject):
 
     @model_serializer(mode="wrap")
     def ser(self, nxt, info):
+        """
+        Serializes the inline keyboard into the API's nested alias structure.
+        """
         if not info.by_alias:
             return nxt(self)
 
