@@ -12,7 +12,7 @@ from .messaging import (
     LoadPinnedMessages,
     LoadDialogs,
 )
-from .auth import StartPhoneAuth, ValidateCode, ValidatePassword, SignOut
+from .auth import StartPhoneAuth, ValidateCode, ValidatePassword, SignOut, SignUp
 from .user import (
     EditName,
     CheckNickName,
@@ -68,6 +68,7 @@ from .groups import (
     UnbanUser,
     GetGroupPreview,
 )
+from .magazine import UpvotePost, RevokeUpvotedPost, GetMessageUpvoters
 from .kifpool import GetMyKifpools
 from .giftpacket import SendGiftPacketWithWallet, OpenGiftPacket
 from .files import GetFileUrl, GetFileUploadUrl
@@ -154,5 +155,9 @@ __all__ = (
     "GetMyKifpools",
     "SendGiftPacketWithWallet",
     "OpenGiftPacket",
-    "SignOut"
+    "SignOut",
+    "SignUp",
+    "GetMessageUpvoters",
+    "UpvotePost",
+    "RevokeUpvotedPost",
 )

@@ -23,8 +23,4 @@ async def handler(msg: Message):
     )
 
 
-async def main():
-    await client.start()
-
-
-asyncio.run(main())
+client.run()

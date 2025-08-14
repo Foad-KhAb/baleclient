@@ -6,6 +6,7 @@ from .message_content import (
     TextMessage,
     DocumentMessage,
     MessageCaption,
+    TemplateMessage
 )
 from .peer import Peer
 from .client import ClientData
@@ -55,6 +56,8 @@ from .file_ext import VideoExt, VoiceExt, AudioExt, PhotoExt, DocumentsExt
 from .wallet import Wallet
 from .gift_packet import GiftPacket
 from .winner import Winner
+from .inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
+from .upvote import Upvote
 
 
 __all__ = (
@@ -130,4 +133,8 @@ __all__ = (
     "Wallet",
     "GiftPacket",
     "Winner",
+    "InlineKeyboardMarkup",
+    "InlineKeyboardButton",
+    "TemplateMessage",
+    "Upvote"
 )

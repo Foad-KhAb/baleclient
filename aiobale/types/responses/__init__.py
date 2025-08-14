@@ -26,6 +26,8 @@ from .banned_users import BannedUsersResponse
 from .file_url import FileURLResponse
 from .wallet import WalletResponse
 from .open_packet import PacketResponse
+from .upvote_response import UpvoteResponse
+from .upvoters_response import UpvotersResponse
 
 
 __all__ = (
@@ -57,5 +59,7 @@ __all__ = (
     "BannedUsersResponse",
     "FileURLResponse",
     "WalletResponse",
-    "PacketResponse"
+    "PacketResponse",
+    "UpvoteResponse",
+    "UpvotersResponse"
 )

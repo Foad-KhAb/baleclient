@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass, field
 import io
+import json
 import pathlib
 import signal
 import sys
-import warnings
 import aiofiles
 import os
 from typing import (
+    Any,
     AsyncGenerator,
     BinaryIO,
     Callable,
@@ -106,6 +108,9 @@ from ..methods import (
     SendGiftPacketWithWallet,
     OpenGiftPacket,
     SignOut,
+    UpvotePost,
+    RevokeUpvotedPost,
+    GetMessageUpvoters,
 )
 from ..types import (
     MessageContent,
@@ -158,6 +163,9 @@ from ..types import (
     UpdateBody,
     Request,
     GiftPacket,
+    InlineKeyboardMarkup,
+    TemplateMessage,
+    Upvote,
 )
 from ..types.responses import (
     MessageResponse,
@@ -189,6 +197,8 @@ from ..types.responses import (
     FileURLResponse,
     WalletResponse,
     PacketResponse,
+    UpvoteResponse,
+    UpvotersResponse,
 )
 from ..enums import (
     ChatType,
@@ -202,13 +212,20 @@ from ..enums import (
     GroupType,
     SendType,
     GivingType,
+    AuthErrors,
 )
 from ..dispatcher.dispatcher import Dispatcher
 from ..logger import logger
 from .auth_cli import PhoneLoginCLI
 
 
-DEFAULT_SESSION: Final[str] = "./session.bale"
+DEFAULT_SESSION: Final[pathlib.Path] = pathlib.Path("./session.bale")
+
+
+@dataclass
+class IgnoredUpdates:
+    event_type: str
+    targets: List[Any] = field(default_factory=list)
 
 
 class Client:
@@ -233,11 +250,6 @@ class Client:
     If none is given, a default Aiohttp-based session will be used.
 
     If a token is not found in the session file, authentication falls back to the CLI login flow.
-
-    .. note::
-
-        The session file path must end with a ``.bale`` extension. Otherwise, an
-        :class:`AiobaleError` will be raised during initialization.
 
     Internally, the client binds the session to itself and loads authentication tokens,
     metadata, and user context if available.
@@ -264,30 +276,44 @@ class Client:
     def __init__(
         self,
         dispatcher: Optional[Dispatcher] = None,
-        session_file: Optional[str] = DEFAULT_SESSION,
+        session_file: Optional[Union[str, pathlib.Path]] = DEFAULT_SESSION,
         session: Optional[BaseSession] = None,
+        proxy: Optional[str] = None,
+        user_agent: Optional[str] = None,
     ):
         if session is None:
-            session = AiohttpSession()
+            session = AiohttpSession(user_agent=user_agent, proxy=proxy)
 
         session._bind_client(self)
         self.session: BaseSession = session
         self.dispatcher: Optional[Dispatcher] = dispatcher
+        self._proxy = proxy
+        self._user_agent = user_agent
+
         self._ping_task = None
         self._ping_id = 0
         self._lock = asyncio.Lock()
         self._tasks = set()
         self._stopped = False
+        self._ignored_messages = IgnoredUpdates(event_type="message")
 
-        if not isinstance(session_file, str) or not session_file.lower().endswith(
-            ".bale"
-        ):
-            raise AiobaleError(
-                f"Invalid session file: {session_file!r}. "
-                "Only `.bale` files are allowed."
-            )
+        if isinstance(session_file, (str, pathlib.Path)):
+            path = pathlib.Path(session_file)
+            if path.suffix.lower() != ".bale":
+                path = path.with_suffix(".bale")
+            self.__session_file = path.resolve()
 
-        self.__session_file = session_file
+        elif isinstance(session_file, bytes):
+            path = Path(DEFAULT_SESSION)
+            if path.suffix.lower() != ".bale":
+                path = path.with_suffix(".bale")
+            path = path.resolve()
+            path.write_bytes(session_file)
+            self.__session_file = path
+
+        else:
+            raise TypeError("session_file must be str، Path or bytes")
+
         self.__token = None
         self._me = None
 
@@ -322,7 +348,15 @@ class Client:
         in event handling and API interactions.
         """
         return self._me.id
-    
+
+    @property
+    def session_file(self) -> pathlib.Path:
+        return self.__session_file
+
+    @property
+    def session_name(self) -> str:
+        return self.__session_file.stem
+
     def _create_task(self, coro: Coroutine):
         task = asyncio.create_task(coro)
         self._tasks.add(task)
@@ -332,14 +366,11 @@ class Client:
     def _write_session_content(self, content: bytes) -> None:
         if not self.__session_file:
             return
-
-        with open(self.__session_file, "wb") as f:
-            f.write(content)
+        self.__session_file.write_bytes(content)
 
     def _get_session_content(self) -> Optional[bytes]:
-        if self.__session_file and os.path.exists(self.__session_file):
-            with open(self.__session_file, "rb") as f:
-                return f.read()
+        if self.__session_file and self.__session_file.exists():
+            return self.__session_file.read_bytes()
         return None
 
     def _parse_session_content(self, data: bytes) -> ValidateCodeResponse:
@@ -419,23 +450,31 @@ class Client:
         except Exception as e:
             logger.error(f"Listen failed: {e}")
             await self._cleanup_session()
-            
+
     def _setup_signal_handlers(self, loop):
-        def handler():
+        async def _stop_async():
             logger.info("Signal received, stopping client...")
-            asyncio.create_task(self.stop())
+            await self.stop()
 
-        signals = []
+        def _stop_sync():
+            asyncio.create_task(_stop_async())
+
         if sys.platform != "win32":
-            signals = [signal.SIGINT, signal.SIGTERM]
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                try:
+                    loop.add_signal_handler(sig, _stop_sync)
+                except NotImplementedError:
+                    logger.warning(f"Signal {sig} handler not implemented.")
+        else:
 
-        for sig in signals:
-            try:
-                loop.add_signal_handler(sig, handler)
-            except NotImplementedError:
-                logger.warning(f"Signal {sig} handler not implemented.")
+            def win_handler(sig, frame):
+                asyncio.create_task(_stop_async())
 
-    async def start(self, run_in_background: bool = False):
+            signal.signal(signal.SIGINT, win_handler)
+
+    async def start(
+        self, run_in_background: bool = False, signal_handling: bool = True
+    ):
         """
         Starts the client session and begins listening for events.
         Args:
@@ -452,9 +491,10 @@ class Client:
         """
         self._stopped = False
         await self._ensure_token_exists()
-        
-        loop = asyncio.get_running_loop()
-        self._setup_signal_handlers(loop)
+
+        if signal_handling:
+            loop = asyncio.get_running_loop()
+            self._setup_signal_handlers(loop)
 
         try:
             while not self._stopped:
@@ -521,6 +561,31 @@ class Client:
         await self._cleanup_session()
         logger.info("Client stopped cleanly.")
 
+    async def _run_async(self):
+        await self.start()
+        await self.stop()
+
+    def run(self):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            return self._run_async()
+        else:
+            asyncio.run(self._run_async())
+
+    def _should_ignore(self, event_type: str, event: Any) -> bool:
+        if event_type == "message":
+            message_id = getattr(event, "message_id", None)
+            if message_id not in self._ignored_messages.targets:
+                return False
+
+            self._ignored_messages.targets.remove()
+
+        return True
+
     async def handle_update(self, update: UpdateBody) -> None:
         """
         Handle a single incoming update event from the Bale API.
@@ -544,8 +609,7 @@ class Client:
 
         event_type, event = event_info
 
-        # Ignore messages sent by this client
-        if event_type == "message" and getattr(event, "sender_id", None) == self.id:
+        if self._should_ignore(event_type, event):
             return
 
         if self.dispatcher is not None:
@@ -599,7 +663,11 @@ class Client:
         self,
         phone_number: int,
         code_type: Optional[SendCodeType] = SendCodeType.DEFAULT,
-    ) -> PhoneAuthResponse:
+        device_title: str = "Chrome_138.0.0.0, Windows",
+        device_hash: str = "ce5ced83-a9ab-47fa-80c8-ed425eeb2ace",
+        api_key: str = "C28D46DC4C3A7A26564BFCC48B929086A95C93C98E789A19847BEE8627DE4E7D",
+        app_id: int = 4,
+    ) -> Union[PhoneAuthResponse, AuthErrors]:
         """
         Initiates phone authentication by sending a code to the specified phone number.
 
@@ -616,21 +684,33 @@ class Client:
         """
         call = StartPhoneAuth(
             phone_number=phone_number,
-            app_id=4,
-            app_key="C28D46DC4C3A7A26564BFCC48B929086A95C93C98E789A19847BEE8627DE4E7D",
-            device_hash="ce5ced83-a9ab-47fa-80c8-ed425eeb2ace",
-            device_title="Chrome_138.0.0.0, Windows",
+            app_id=app_id,
+            app_key=api_key,
+            device_hash=device_hash,
+            device_title=device_title,
             send_code_type=code_type,
         )
 
-        try:
-            return await self.session.post(call)
-        except:
-            raise AiobaleError("This phone number is banned")
+        result: Union[str, PhoneAuthResponse] = await self.session.post(call)
+
+        if isinstance(result, str):
+            if result == [
+                "phone number is blocked",
+                "PHONE_NUMBER_TEMPORARY_BLOCKED",
+            ]:
+                return AuthErrors.NUMBER_BANNED
+            elif result == "phone auth limit exceeded":
+                return AuthErrors.RATE_LIMIT
+            elif result == "PHONE_NUMBER_INVALID":
+                return AuthErrors.INVALID
+            else:
+                return AuthErrors.UNKNOWN
+
+        return result
 
     async def validate_code(
         self, code: str, transaction_hash: str
-    ) -> ValidateCodeResponse:
+    ) -> Union[ValidateCodeResponse, AuthErrors]:
         """
         Validates the authentication code received via SMS or other means.
 
@@ -650,11 +730,13 @@ class Client:
         content = await self.session.post(call)
         if isinstance(content, str):
             if content == "PHONE_CODE_INVALID":
-                raise AiobaleError("Invalid code specified.")
+                return AuthErrors.WRONG_CODE
             elif content == "password needed for login":
-                raise AiobaleError("Password needed for login")
+                return AuthErrors.PASSWORD_NEEDED
+            elif content == "PHONE_NUMBER_UNOCCUPIED":
+                return AuthErrors.SIGN_UP_NEEDED
             else:
-                raise AiobaleError("Unknown Error")
+                return AuthErrors.UNKNOWN
 
         try:
             self._write_session_content(content)
@@ -665,7 +747,7 @@ class Client:
 
     async def validate_password(
         self, password: str, transaction_hash: str
-    ) -> ValidateCodeResponse:
+    ) -> Union[AuthErrors, ValidateCodeResponse]:
         """
         Validates the password for two-factor authentication if required.
 
@@ -685,9 +767,9 @@ class Client:
         content = await self.session.post(call)
         if isinstance(content, str):
             if content == "wrong password":
-                raise AiobaleError("Wrong password specified.")
+                return AuthErrors.WRONG_PASSWORD
             else:
-                raise AiobaleError("Unknown Error")
+                return AuthErrors.UNKNOWN
 
         try:
             self._write_session_content(content)
@@ -733,6 +815,7 @@ class Client:
         text: str,
         chat_id: int,
         chat_type: ChatType,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
         message_id: Optional[int] = None,
     ) -> Message:
@@ -757,8 +840,16 @@ class Client:
         peer = self._resolve_peer(chat)
 
         message_id = message_id or generate_id()
+        self._ignored_messages.targets.append(message_id)
 
         content = MessageContent(text=TextMessage(value=text))
+
+        if reply_markup:
+            content = MessageContent(
+                bot_message=TemplateMessage(
+                    message=content, inline_keyboard_markup=reply_markup
+                )
+            )
 
         if reply_to is not None:
             reply_to = self._ensure_info_message(reply_to)
@@ -3007,6 +3098,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         message_id: Optional[int] = None,
         send_type: SendType = SendType.DOCUMENT,
         thumb: Optional[Thumbnail] = None,
@@ -3024,6 +3116,7 @@ class Client:
         peer = self._resolve_peer(chat)
 
         message_id = message_id or generate_id()
+        self._ignored_messages.targets.append(message_id)
 
         if isinstance(file_info, DocumentMessage) and use_own_content:
             document = file_info
@@ -3043,6 +3136,13 @@ class Client:
             )
 
         content = MessageContent(document=document)
+
+        if reply_markup:
+            content = MessageContent(
+                bot_message=TemplateMessage(
+                    message=content, inline_keyboard_markup=reply_markup
+                )
+            )
 
         if reply_to is not None:
             reply_to = self._ensure_info_message(reply_to)
@@ -3065,6 +3165,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         message_id: Optional[int] = None,
         use_own_content: bool = False,
     ) -> Message:
@@ -3094,6 +3195,7 @@ class Client:
             reply_to=reply_to,
             message_id=message_id,
             send_type=SendType.DOCUMENT,
+            reply_markup=reply_markup,
             use_own_content=use_own_content,
         )
 
@@ -3116,6 +3218,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -3156,6 +3259,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.PHOTO,
             thumb=cover_thumb,
@@ -3169,6 +3273,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -3213,6 +3318,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.VIDEO,
             thumb=cover_thumb,
@@ -3226,6 +3332,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
@@ -3254,6 +3361,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.VOICE,
             ext=ext,
@@ -3266,6 +3374,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         duration: Optional[int] = None,
         album: Optional[str] = None,
         genre: Optional[str] = None,
@@ -3302,6 +3411,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.AUDIO,
             ext=ext,
@@ -3314,6 +3424,7 @@ class Client:
         chat_type: ChatType,
         caption: Optional[str] = None,
         reply_to: Optional[Union[Message, InfoMessage]] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -3357,6 +3468,7 @@ class Client:
             chat_type=chat_type,
             caption=caption,
             reply_to=reply_to,
+            reply_markup=reply_markup,
             message_id=message_id,
             send_type=SendType.GIF,
             thumb=cover_thumb,
@@ -3451,49 +3563,84 @@ class Client:
 
         call = OpenGiftPacket(message=message, receiver_token=receiver_token)
         return await self(call)
-    
-    async def send_giftpacket(
+
+    async def upvote_post(
+        self, message: Union[Message, InfoMessage], album_id: Optional[int] = None
+    ) -> Upvote:
+        """
+        Adds an upvote (like) to a given post.
+
+        Args:
+            message (Union[Message, InfoMessage]): The target message to upvote.
+            album_id (Optional[int]): The album ID related to the post, if applicable.
+                If None, the upvote will apply to the main message.
+
+        Returns:
+            Upvote: Object containing the updated upvote status and counts.
+
+        Note:
+            This method ensures the message is an `InfoMessage` before processing.
+        """
+        message = self._ensure_info_message(message, rewrite_date=True)
+        call = UpvotePost(
+            message=message, album_id=IntValue(value=album_id) if album_id else None
+        )
+
+        result: UpvoteResponse = await self(call)
+        return result.upvote
+
+    async def revoke_upvote(
+        self, message: Union[Message, InfoMessage], album_id: Optional[int] = None
+    ) -> Upvote:
+        """
+        Removes an existing upvote (like) from a given post.
+
+        Args:
+            message (Union[Message, InfoMessage]): The target message to remove the upvote from.
+            album_id (Optional[int]): The album ID related to the post, if applicable.
+                If None, the removal applies to the main message.
+
+        Returns:
+            Upvote: Object containing the updated upvote status and counts.
+
+        Note:
+            This method ensures the message is an `InfoMessage` before processing.
+        """
+        message = self._ensure_info_message(message, rewrite_date=True)
+        call = RevokeUpvotedPost(
+            message=message, album_id=IntValue(value=album_id) if album_id else None
+        )
+
+        result: UpvoteResponse = await self(call)
+        return result.upvote
+
+    async def get_upvoters(
         self,
-        chat_id: int,
-        chat_type: ChatType,
-        amount: int,
-        message: str,
-        gift_count: int = 1,
-        giving_type: GivingType = GivingType.SAME,
-        show_amounts: bool = True,
-        token: Optional[str] = None,
-    ) -> DefaultResponse:
+        message: Union[Message, InfoMessage],
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> UpvotersResponse:
         """
-        DEPRECATED: Use `send_gift()` instead. This method will be removed in version 0.1.4.
-
-        Sends a gift packet to a specified chat using the sender's wallet.
+        Retrieves the list of users who upvoted a given message.
 
         Args:
-            (same as send_gift)
-        """
-        warnings.warn(
-            "send_giftpacket() is deprecated and will be removed in a future version. Use send_gift() instead.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        return await self.send_gift(
-            chat_id, chat_type, amount, message, gift_count, giving_type, show_amounts, token
-        )
+            message (Union[Message, InfoMessage]): The message to fetch upvoters for.
+            offset (Optional[int]): The number of upvoters to skip (for pagination).
+            limit (Optional[int]): The maximum number of upvoters to retrieve (for pagination).
 
-    async def open_packet(
-        self, message: Union[Message, InfoMessage], receiver_token: Optional[str] = None
-    ) -> PacketResponse:
-        """
-        DEPRECATED: Use `open_gift()` instead. This method will be removed in version 0.1.4.
+        Returns:
+            UpvotersResponse: Contains the list of upvoters and related metadata.
 
-        Opens a gift packet from a specific message using the receiver's token.
-
-        Args:
-            (same as open_gift)
+        Note:
+            If both `offset` and `limit` are provided, they are passed as a JSON string to the API
+            to support pagination.
+            This method ensures the message is an `InfoMessage` before processing.
         """
-        warnings.warn(
-            "open_packet() is deprecated and will be removed in a future version. Use open_gift() instead.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        return await self.open_gift(message, receiver_token)
+        state = None
+        if offset and limit:
+            state = StringValue(value=json.dumps({"offset": offset, "limit": limit}))
+
+        message = self._ensure_info_message(message, rewrite_date=True)
+        call = GetMessageUpvoters(message=message, load_more_state=state)
+
+        return await self(call)

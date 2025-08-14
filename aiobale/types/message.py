@@ -3,9 +3,9 @@ from __future__ import annotations
 from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from ..enums import ChatType, ListLoadMode, ReportKind, TypingMode
 from .chat import Chat
 from .base import BaleObject
-from ..enums import ChatType, ListLoadMode, ReportKind, TypingMode
 from .quoted_message import QuotedMessage
 from .message_content import MessageContent, DocumentMessage
 from .other_message import OtherMessage
@@ -17,6 +17,7 @@ from .reaction import Reaction
 from .file_details import FileDetails
 from .file_input import FileInput
 from .gift_packet import GiftPacket
+from .inline_keyboard import InlineKeyboardMarkup
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse
@@ -129,14 +130,17 @@ class Message(BaleObject):
         Also sets the `replied_to` field to the full replied message for easier access.
         """
         if self.quoted_replied_to and not self.quoted_replied_to.chat:
-            self.quoted_replied_to.chat = self.chat
-
             if not self.replied_to:
                 self.replied_to = self.quoted_replied_to.message
 
         return self
 
-    async def answer(self, text: str, message_id: Optional[int] = None) -> Message:
+    async def answer(
+        self,
+        text: str,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
         """
         Send a new message in the same chat.
         """
@@ -145,9 +149,15 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             message_id=message_id,
+            reply_markup=reply_markup,
         )
 
-    async def reply(self, text: str, message_id: Optional[int] = None) -> Message:
+    async def reply(
+        self,
+        text: str,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
+        message_id: Optional[int] = None,
+    ) -> Message:
         """
         Send a reply to this message.
         """
@@ -157,12 +167,14 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             reply_to=self,
             message_id=message_id,
+            reply_markup=reply_markup,
         )
 
     async def answer_document(
         self,
         file: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         message_id: Optional[int] = None,
         use_own_content: bool = False,
     ) -> Message:
@@ -175,13 +187,15 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             message_id=message_id,
-            use_own_content=use_own_content
+            use_own_content=use_own_content,
+            reply_markup=reply_markup,
         )
 
     async def reply_document(
         self,
         file: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         message_id: Optional[int] = None,
     ) -> Message:
         """
@@ -194,12 +208,14 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             message_id=message_id,
             reply_to=self,
+            reply_markup=reply_markup,
         )
 
     async def answer_photo(
         self,
         photo: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -217,12 +233,14 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             message_id=message_id,
+            reply_markup=reply_markup,
         )
 
     async def reply_photo(
         self,
         photo: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -241,12 +259,14 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             message_id=message_id,
             reply_to=self,
+            reply_markup=reply_markup,
         )
 
     async def answer_video(
         self,
         video: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -266,12 +286,14 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             message_id=message_id,
+            reply_markup=reply_markup,
         )
 
     async def reply_video(
         self,
         video: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -292,12 +314,14 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             message_id=message_id,
             reply_to=self,
+            reply_markup=reply_markup,
         )
 
     async def answer_voice(
         self,
         voice: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
@@ -311,12 +335,14 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             message_id=message_id,
+            reply_markup=reply_markup,
         )
 
     async def reply_voice(
         self,
         voice: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         duration: Optional[int] = None,
         message_id: Optional[int] = None,
     ) -> Message:
@@ -331,12 +357,14 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             message_id=message_id,
             reply_to=self,
+            reply_markup=reply_markup,
         )
 
     async def answer_audio(
         self,
         audio: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         duration: Optional[int] = None,
         album: Optional[str] = None,
         genre: Optional[str] = None,
@@ -356,12 +384,14 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             message_id=message_id,
+            reply_markup=reply_markup,
         )
 
     async def reply_audio(
         self,
         audio: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         duration: Optional[int] = None,
         album: Optional[str] = None,
         genre: Optional[str] = None,
@@ -382,12 +412,14 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             message_id=message_id,
             reply_to=self,
+            reply_markup=reply_markup,
         )
 
     async def answer_gif(
         self,
         gif: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -407,12 +439,14 @@ class Message(BaleObject):
             chat_id=self.chat.id,
             chat_type=self.chat.type,
             message_id=message_id,
+            reply_markup=reply_markup,
         )
 
     async def reply_gif(
         self,
         gif: Union[FileDetails, DocumentMessage, FileInput],
         caption: Optional[str] = None,
+        reply_markup: Optional[InlineKeyboardMarkup] = None,
         cover_thumb: Optional[FileInput] = None,
         cover_width: int = 1000,
         cover_height: int = 1000,
@@ -433,6 +467,7 @@ class Message(BaleObject):
             chat_type=self.chat.type,
             message_id=message_id,
             reply_to=self,
+            reply_markup=reply_markup,
         )
 
     async def edit_text(self, text: str) -> DefaultResponse:

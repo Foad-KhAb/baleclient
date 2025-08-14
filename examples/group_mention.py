@@ -34,8 +34,4 @@ async def handler(msg: Message):
     print(text)
 
 
-async def main():
-    await client.start()
-
-
-asyncio.run(main())
+client.run()

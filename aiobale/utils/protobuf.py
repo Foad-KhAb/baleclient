@@ -6,6 +6,25 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from blackboxprotobuf import decode_message, encode_message
 
 
+def merge_typedefs(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
+    out = {}
+    keys = set(a) | set(b)
+    for k in keys:
+        ta = a.get(k)
+        tb = b.get(k)
+        if ta and tb:
+            if ta["type"] == tb["type"] == "message":
+                merged = merge_typedefs(ta["message_typedef"], tb["message_typedef"])
+                out[k] = {**ta, "message_typedef": merged}
+            elif ta["type"] == tb["type"]:
+                out[k] = ta
+            else:
+                out[k] = {"type": "bytes", "name": ""}
+        else:
+            out[k] = ta or tb
+    return out
+
+
 def _read_varint(data: bytes, pos: int) -> Tuple[int, int]:
     result = 0
     shift = 0
@@ -169,22 +188,41 @@ class ProtoBuf:
         typedef: Dict[str, Any] = {}
         for field_num, value in message_dict.items():
             if isinstance(value, list):
-                elem = value[0] if value else {}
-                if isinstance(elem, dict):
-                    sub_typedef = self.infer_typedef(elem)
+                if not value:
                     typedef[field_num] = {
                         "rule": "repeated",
                         "type": "message",
-                        "message_typedef": sub_typedef,
+                        "message_typedef": {},
+                        "name": "",
+                    }
+                    continue
+
+                all_typedefs = []
+                base_types = set()
+                for elem in value:
+                    if isinstance(elem, dict):
+                        all_typedefs.append(self.infer_typedef(elem))
+                    else:
+                        base_types.add("int" if isinstance(elem, int) else "bytes")
+
+                if all_typedefs:
+                    merged_typedef = all_typedefs[0]
+                    for td in all_typedefs[1:]:
+                        merged_typedef = merge_typedefs(merged_typedef, td)
+                    typedef[field_num] = {
+                        "rule": "repeated",
+                        "type": "message",
+                        "message_typedef": merged_typedef,
                         "name": "",
                     }
                 else:
-                    base_type = "int" if isinstance(elem, int) else "bytes"
+                    primitive = "int" if base_types == {"int"} else "bytes"
                     typedef[field_num] = {
                         "rule": "repeated",
-                        "type": base_type,
+                        "type": primitive,
                         "name": "",
                     }
+
             elif isinstance(value, dict):
                 sub_typedef = self.infer_typedef(value)
                 typedef[field_num] = {

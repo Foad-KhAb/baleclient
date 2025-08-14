@@ -34,3 +34,4 @@ class Services(str, Enum):
     
     GIFT_PACKET = "bale.giftpacket.v1.GiftPacket"
     KIFPOOL = "bale.kifpool.v1.Kifpool"
+    MAGAZINE = "bale.magazine.v1.Magazine"
