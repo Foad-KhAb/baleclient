@@ -1,7 +1,7 @@
 from pydantic import Field
 from typing import TYPE_CHECKING
 
-from ...types import InfoMessage, IntValue
+from ...types import InfoMessage, StringValue
 from ...types.responses import DefaultResponse
 from ...enums import Services
 from ..base import BaleMethod
@@ -13,7 +13,7 @@ class GetMessageUpvoters(BaleMethod):
 
     __returning__ = DefaultResponse
 
-    load_more_state: IntValue = Field(..., alias="1")
+    load_more_state: StringValue = Field(..., alias="1")
     message: InfoMessage = Field(..., alias="2")
 
     if TYPE_CHECKING:
@@ -22,7 +22,7 @@ class GetMessageUpvoters(BaleMethod):
         def __init__(
             __pydantic__self__,
             *,
-            load_more_state: IntValue,
+            load_more_state: StringValue,
             message: InfoMessage,
             **__pydantic_kwargs,
         ) -> None:
