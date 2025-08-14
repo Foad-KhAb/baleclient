@@ -2,7 +2,7 @@ from pydantic import Field
 from typing import TYPE_CHECKING
 
 from ...types import InfoMessage, IntValue
-from ...types.responses import DefaultResponse
+from ...types.responses import UpvoteResponse
 from ...enums import Services
 from ..base import BaleMethod
 
@@ -11,7 +11,7 @@ class RevokeUpvotedPost(BaleMethod):
     __service__ = Services.MAGAZINE.value
     __method__ = "RevokeUpvotedPost"
 
-    __returning__ = DefaultResponse
+    __returning__ = UpvoteResponse
 
     message: InfoMessage = Field(..., alias="1")
     album_id: IntValue = Field(..., alias="2")
