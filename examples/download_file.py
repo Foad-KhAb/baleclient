@@ -1,4 +1,3 @@
-import asyncio
 from aiobale import Client, Dispatcher
 from aiobale.types import Message
 from aiobale.filters import IsDocument
@@ -15,8 +14,4 @@ async def handler(msg: Message):
     await msg.answer("File saved!")
 
 
-async def main():
-    await client.start()
-
-
-asyncio.run(main())
+client.run()

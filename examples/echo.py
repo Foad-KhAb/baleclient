@@ -1,4 +1,3 @@
-import asyncio
 from aiobale import Client, Dispatcher
 from aiobale.types import Message
 
@@ -30,8 +29,4 @@ async def echo(msg: Message):
     await msg.answer("Nothing to echo!")
 
 
-async def main():
-    await client.start()
-
-
-asyncio.run(main())
+client.run()

@@ -1,12 +1,11 @@
-import asyncio
 from PIL import Image
 from io import BytesIO
 from aiobale import F, Client, Dispatcher
 from aiobale.types import Message, FileInput
 
 dp = Dispatcher()
-# If you have already logged in, don't use `new.bale`
-client = Client(dp, session_file="new.bale")
+# If you have already logged in, don't use `new`
+client = Client(dp, session_file="new")
 
 
 def make_thumbnail(image_path: str) -> bytes:
@@ -48,8 +47,4 @@ async def doc(msg: Message):
     await msg.reply_document(FileInput("image.jpg"))
 
 
-async def main():
-    await client.start()
-
-
-asyncio.run(main())
+client.run()

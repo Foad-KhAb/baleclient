@@ -1,4 +1,3 @@
-import asyncio
 import re
 from typing import Optional
 from aiobale import Client, Dispatcher
@@ -46,8 +45,4 @@ async def join(msg: Message):
         await msg.answer("Joined the public group/channel.")
     
 
-async def main():
-    await client.start()
-
-
-asyncio.run(main())
+client.run()
