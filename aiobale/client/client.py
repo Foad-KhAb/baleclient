@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from dataclasses import dataclass, field
 import io
 import pathlib
 import signal
@@ -9,6 +10,7 @@ import warnings
 import aiofiles
 import os
 from typing import (
+    Any,
     AsyncGenerator,
     BinaryIO,
     Callable,
@@ -158,7 +160,7 @@ from ..types import (
     UpdateBody,
     Request,
     GiftPacket,
-    InlineKeyboardButton,
+    Update,
     InlineKeyboardMarkup,
     TemplateMessage,
 )
@@ -211,7 +213,13 @@ from ..logger import logger
 from .auth_cli import PhoneLoginCLI
 
 
-DEFAULT_SESSION: Final[str] = "./session.bale"
+DEFAULT_SESSION: Final[pathlib.Path] = pathlib.Path("./session.bale")
+
+
+@dataclass
+class IgnoredUpdates:
+    event_type: str
+    targets: List[Any] = field(default_factory=list)
 
 
 class Client:
@@ -267,30 +275,44 @@ class Client:
     def __init__(
         self,
         dispatcher: Optional[Dispatcher] = None,
-        session_file: Optional[str] = DEFAULT_SESSION,
+        session_file: Optional[Union[str, pathlib.Path]] = DEFAULT_SESSION,
         session: Optional[BaseSession] = None,
+        proxy: Optional[str] = None,
+        user_agent: Optional[str] = None,
     ):
         if session is None:
-            session = AiohttpSession()
+            session = AiohttpSession(user_agent=user_agent, proxy=proxy)
 
         session._bind_client(self)
         self.session: BaseSession = session
         self.dispatcher: Optional[Dispatcher] = dispatcher
+        self._proxy = proxy
+        self._user_agent = user_agent
+
         self._ping_task = None
         self._ping_id = 0
         self._lock = asyncio.Lock()
         self._tasks = set()
         self._stopped = False
+        self._ignored_messages = IgnoredUpdates(event_type="message")
 
-        if not isinstance(session_file, str) or not session_file.lower().endswith(
-            ".bale"
-        ):
-            raise AiobaleError(
-                f"Invalid session file: {session_file!r}. "
-                "Only `.bale` files are allowed."
-            )
+        if isinstance(session_file, (str, pathlib.Path)):
+            path = pathlib.Path(session_file)
+            if path.suffix.lower() != ".bale":
+                path = path.with_suffix(".bale")
+            self.__session_file = path.resolve()
 
-        self.__session_file = session_file
+        elif isinstance(session_file, bytes):
+            path = Path(DEFAULT_SESSION)
+            if path.suffix.lower() != ".bale":
+                path = path.with_suffix(".bale")
+            path = path.resolve()
+            path.write_bytes(session_file)
+            self.__session_file = path
+
+        else:
+            raise TypeError("session_file must be str، Path or bytes")
+
         self.__token = None
         self._me = None
 
@@ -326,6 +348,14 @@ class Client:
         """
         return self._me.id
 
+    @property
+    def session_file(self) -> pathlib.Path:
+        return self.__session_file
+
+    @property
+    def session_name(self) -> str:
+        return self.__session_file.stem
+
     def _create_task(self, coro: Coroutine):
         task = asyncio.create_task(coro)
         self._tasks.add(task)
@@ -335,14 +365,11 @@ class Client:
     def _write_session_content(self, content: bytes) -> None:
         if not self.__session_file:
             return
-
-        with open(self.__session_file, "wb") as f:
-            f.write(content)
+        self.__session_file.write_bytes(content)
 
     def _get_session_content(self) -> Optional[bytes]:
-        if self.__session_file and os.path.exists(self.__session_file):
-            with open(self.__session_file, "rb") as f:
-                return f.read()
+        if self.__session_file and self.__session_file.exists():
+            return self.__session_file.read_bytes()
         return None
 
     def _parse_session_content(self, data: bytes) -> ValidateCodeResponse:
@@ -424,21 +451,29 @@ class Client:
             await self._cleanup_session()
 
     def _setup_signal_handlers(self, loop):
-        def handler():
+        async def _stop_async():
             logger.info("Signal received, stopping client...")
-            asyncio.create_task(self.stop())
+            await self.stop()
 
-        signals = []
+        def _stop_sync():
+            asyncio.create_task(_stop_async())
+
         if sys.platform != "win32":
-            signals = [signal.SIGINT, signal.SIGTERM]
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                try:
+                    loop.add_signal_handler(sig, _stop_sync)
+                except NotImplementedError:
+                    logger.warning(f"Signal {sig} handler not implemented.")
+        else:
 
-        for sig in signals:
-            try:
-                loop.add_signal_handler(sig, handler)
-            except NotImplementedError:
-                logger.warning(f"Signal {sig} handler not implemented.")
+            def win_handler(sig, frame):
+                asyncio.create_task(_stop_async())
 
-    async def start(self, run_in_background: bool = False):
+            signal.signal(signal.SIGINT, win_handler)
+
+    async def start(
+        self, run_in_background: bool = False, signal_handling: bool = True
+    ):
         """
         Starts the client session and begins listening for events.
         Args:
@@ -456,8 +491,9 @@ class Client:
         self._stopped = False
         await self._ensure_token_exists()
 
-        loop = asyncio.get_running_loop()
-        self._setup_signal_handlers(loop)
+        if signal_handling:
+            loop = asyncio.get_running_loop()
+            self._setup_signal_handlers(loop)
 
         try:
             while not self._stopped:
@@ -524,6 +560,31 @@ class Client:
         await self._cleanup_session()
         logger.info("Client stopped cleanly.")
 
+    async def _run_async(self):
+        await self.start()
+        await self.stop()
+
+    def run(self):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+
+        if loop and loop.is_running():
+            return self._run_async()
+        else:
+            asyncio.run(self._run_async())
+
+    def _should_ignore(self, event_type: str, event: Any) -> bool:
+        if event_type == "message":
+            message_id = getattr(event, "message_id", None)
+            if message_id not in self._ignored_messages.targets:
+                return False
+            
+            self._ignored_messages.targets.remove()
+
+        return True
+
     async def handle_update(self, update: UpdateBody) -> None:
         """
         Handle a single incoming update event from the Bale API.
@@ -547,8 +608,7 @@ class Client:
 
         event_type, event = event_info
 
-        # Ignore messages sent by this client
-        if event_type == "message" and getattr(event, "sender_id", None) == self.id:
+        if self._should_ignore(event_type, event):
             return
 
         if self.dispatcher is not None:
@@ -763,6 +823,7 @@ class Client:
         peer = self._resolve_peer(chat)
 
         message_id = message_id or generate_id()
+        self._ignored_messages.targets.append(message_id)
 
         content = MessageContent(text=TextMessage(value=text))
 
@@ -3038,6 +3099,7 @@ class Client:
         peer = self._resolve_peer(chat)
 
         message_id = message_id or generate_id()
+        self._ignored_messages.targets.append(message_id)
 
         if isinstance(file_info, DocumentMessage) and use_own_content:
             document = file_info
@@ -3057,7 +3119,7 @@ class Client:
             )
 
         content = MessageContent(document=document)
-        
+
         if reply_markup:
             content = MessageContent(
                 bot_message=TemplateMessage(

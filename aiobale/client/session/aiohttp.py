@@ -37,12 +37,15 @@ class AiohttpSession(BaseSession):
         in your environment to use this session implementation.
     """
 
-    def __init__(self, user_agent: Optional[str] = None, **kwargs) -> None:
+    def __init__(
+        self, user_agent: Optional[str] = None, proxy: Optional[str] = None, **kwargs
+    ) -> None:
         super().__init__(**kwargs)
         self.session: Optional[aiohttp.ClientSession] = None
         self.ws: Optional[aiohttp.ClientWebSocketResponse] = None
 
         self.user_agent = user_agent or DEFAULT_USER_AGENT
+        self.proxy = proxy
 
     def _build_headers(self, token: str) -> Dict[str, str]:
         return {"User-Agent": self.user_agent, "Cookie": f"access_token={token}"}
@@ -50,7 +53,9 @@ class AiohttpSession(BaseSession):
     async def connect(self, token: str):
         if not self.session or self.session.closed:
             session_timeout = aiohttp.ClientTimeout(total=None)
-            self.session = aiohttp.ClientSession(timeout=session_timeout)
+            self.session = aiohttp.ClientSession(
+                timeout=session_timeout, proxy=self.proxy
+            )
 
         if self._running:
             raise AiobaleError("Client is already running")
@@ -129,7 +134,7 @@ class AiohttpSession(BaseSession):
         token: Optional[str] = None,
     ) -> Union[bytes, str, BaleType]:
         if not self.session:
-            self.session = aiohttp.ClientSession()
+            self.session = aiohttp.ClientSession(proxy=self.proxy)
 
         headers = {
             "User-Agent": self.user_agent,
@@ -172,7 +177,7 @@ class AiohttpSession(BaseSession):
         if session is None:
             own_session = True
             session_timeout = aiohttp.ClientTimeout(total=None)
-            session = aiohttp.ClientSession(timeout=session_timeout)
+            session = aiohttp.ClientSession(timeout=session_timeout, proxy=self.proxy)
 
         headers = {
             "Origin": "https://web.bale.ai",
@@ -218,7 +223,7 @@ class AiohttpSession(BaseSession):
         if session is None:
             own_session = True
             session_timeout = aiohttp.ClientTimeout(total=None)
-            session = aiohttp.ClientSession(timeout=session_timeout)
+            session = aiohttp.ClientSession(timeout=session_timeout, proxy=self.proxy)
 
         headers = {
             "User-Agent": self.user_agent,
@@ -236,7 +241,7 @@ class AiohttpSession(BaseSession):
         finally:
             if own_session:
                 await session.close()
-                
+
     def is_closed(self) -> bool:
         return not self.session or self.session.closed
 
