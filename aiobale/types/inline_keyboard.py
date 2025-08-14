@@ -21,6 +21,26 @@ class InlineKeyboardButton(BaleObject):
     copy_text: Optional[str] = Field(None, alias="9")
     """Text to be copied to the clipboard when the button is pressed."""
 
+    if TYPE_CHECKING:
+        # This __init__ is only used for type checking and IDE autocomplete.
+        # It will not be included in runtime behavior.
+        def __init__(
+            __pydantic__self__,
+            *,
+            text: str,
+            url: Optional[str] = None,
+            callback_data: Optional[str] = None,
+            copy_text: Optional[str] = None,
+            **__pydantic_kwargs,
+        ) -> None:
+            super().__init__(
+                text=text,
+                url=url,
+                callback_data=callback_data,
+                copy_text=copy_text,
+                **__pydantic_kwargs,
+            )
+
     @model_validator(mode="before")
     @classmethod
     def validate_keyboard(cls, data):
