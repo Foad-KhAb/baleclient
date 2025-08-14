@@ -251,11 +251,6 @@ class Client:
 
     If a token is not found in the session file, authentication falls back to the CLI login flow.
 
-    .. note::
-
-        The session file path must end with a ``.bale`` extension. Otherwise, an
-        :class:`AiobaleError` will be raised during initialization.
-
     Internally, the client binds the session to itself and loads authentication tokens,
     metadata, and user context if available.
 
