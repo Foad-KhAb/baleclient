@@ -48,27 +48,50 @@ class InlineKeyboardButton(BaleObject):
         """
         Extracts nested field values from the serialized form
         into the expected flat model structure before validation.
+        API nested fields:
+          "2": {"1": "..."}  OR  "2": {}  OR missing
+        Convert to:
+          "2": "..." OR None
         """
-        if isinstance(data, dict) and "1" in data:
-            for i in ("2", "3", "9"):
-                if i not in data:
-                    continue
-                data[i] = data[i]["1"]
+        if not isinstance(data, dict):
+            return data
+
+        for key in ("2", "3", "9"):
+            if key not in data:
+                continue
+
+            v = data[key]
+
+            # Empty dict -> treat as None
+            if isinstance(v, dict) and not v:
+                data[key] = None
+                continue
+
+            # {"1": "..."} -> unwrap
+            if isinstance(v, dict) and "1" in v:
+                data[key] = v["1"]
+                continue
+
+            # already a string (or something) -> leave as is
         return data
 
     @model_serializer(mode="wrap")
     def ser(self, nxt, info):
         """
-        Serializes the model into the API's nested alias structure.
+        Serialize to API nested alias structure:
+          "2": {"1": "..."}
         """
         if not info.by_alias:
             return nxt(self)
 
         out = nxt(self)
-        for i in ("2", "3", "9"):
-            if i not in out:
+        for key in ("2", "3", "9"):
+            if key not in out:
                 continue
-            out[i] = {"1": out[i]}
+            if out[key] is None:
+                out.pop(key, None)
+                continue
+            out[key] = {"1": out[key]}
         return out
 
 
@@ -93,40 +116,52 @@ class InlineKeyboardMarkup(BaleObject):
         ) -> None:
             super().__init__(inline_keyboard=inline_keyboard, **__pydantic_kwargs)
 
+    @staticmethod
+    def _unwrap_1(v: Any) -> Any:
+        # unwrap nested {"1": {"1": {"1": ...}}}
+        while isinstance(v, dict) and set(v.keys()) == {"1"}:
+            v = v["1"]
+        return v
+
     @model_validator(mode="before")
     @classmethod
-    def validate_keyboard(cls, data):
-        """
-        Converts the raw serialized button structure from the API
-        into a list of InlineKeyboardButton rows before validation.
-        """
-        if isinstance(data, dict) and "1" in data and isinstance(data["1"], list):
-            raw_buttons = data["1"]
+    def validate_keyboard(cls, data: Any):
+        if not isinstance(data, dict) or "1" not in data:
+            return data
 
-            keyboard_rows = []
-            for row in raw_buttons:
-                if isinstance(row, dict) and "1" in row:
-                    buttons_dict = row["1"]
-                    btn = InlineKeyboardButton.model_validate(buttons_dict)
+        raw = cls._unwrap_1(data["1"])
+
+        keyboard_rows: List[List[InlineKeyboardButton]] = []
+
+        # Case A) raw is a single button dict -> make it [[button]]
+        if isinstance(raw, dict):
+            raw_btn = cls._unwrap_1(raw)
+            btn = InlineKeyboardButton.model_validate(raw_btn)
+            keyboard_rows.append([btn])
+            return {"1": keyboard_rows}
+
+        # Case B) raw is rows list
+        if isinstance(raw, list):
+            for row in raw:
+                row_unwrapped = cls._unwrap_1(row)
+
+                # row could be dict (single button) or list (multiple buttons)
+                if isinstance(row_unwrapped, dict):
+                    btn = InlineKeyboardButton.model_validate(
+                        cls._unwrap_1(row_unwrapped)
+                    )
                     keyboard_rows.append([btn])
-                else:
-                    pass
+                elif isinstance(row_unwrapped, list):
+                    btns: List[InlineKeyboardButton] = []
+                    for b in row_unwrapped:
+                        b_unwrapped = cls._unwrap_1(b)
+                        if isinstance(b_unwrapped, dict):
+                            btns.append(
+                                InlineKeyboardButton.model_validate(b_unwrapped)
+                            )
+                    keyboard_rows.append(btns)
 
             return {"1": keyboard_rows}
+
+        # unknown shape, leave it
         return data
-
-    @model_serializer(mode="wrap")
-    def ser(self, nxt, info):
-        """
-        Serializes the inline keyboard into the API's nested alias structure.
-        """
-        if not info.by_alias:
-            return nxt(self)
-
-        out = []
-        for row in self.inline_keyboard:
-            buttons_serialized = [
-                btn.model_dump(by_alias=True, exclude_none=True) for btn in row
-            ]
-            out.append({"1": buttons_serialized})
-        return {"1": out}
