@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from pydantic import Field
 
 from ..base import BaleObject
+from ..group_peer import GroupPeer
 from ..info_peer import InfoPeer
 
 
@@ -15,14 +16,14 @@ class ContactResponse(BaleObject):
     Attributes:
         user (Optional[InfoPeer]): If the found contact is a user or a bot,
             its information will be stored here.
-        group (Optional[InfoPeer]): If the found contact is a channel or group,
+        group (Optional[GroupPeer]): If the found contact is a channel or group,
             its information will be stored here.
     """
 
     user: Optional[InfoPeer] = Field(None, alias="2")
     """Contains user or bot information if the contact is of that type."""
 
-    group: Optional[InfoPeer] = Field(None, alias="5")
+    group: Optional[GroupPeer] = Field(None, alias="5")
     """Contains channel or group information if the contact is of that type."""
 
     if TYPE_CHECKING:
