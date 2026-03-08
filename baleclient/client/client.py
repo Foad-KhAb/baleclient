@@ -43,7 +43,7 @@ from ..enums import (
     SendType,
     TypingMode,
 )
-from ..exceptions import BalethonError
+from ..exceptions import BaleClientError
 from ..logger import logger
 from ..methods import (
     AddContact,
@@ -727,11 +727,11 @@ class Client:
         token = self.__token
         result = parse_jwt(token)
         if not result:
-            raise BalethonError("Not a valid jwt token")
+            raise BaleClientError("Not a valid jwt token")
 
         data, _ = result
         if "payload" not in data:
-            raise BalethonError("Wrong jwt payload")
+            raise BaleClientError("Wrong jwt payload")
 
         data["payload"]["user"] = user
         return ClientData.model_validate(data["payload"])
@@ -820,7 +820,7 @@ class Client:
             return self._parse_session_content(content)
 
         except Exception as e:
-            raise BalethonError("Error while parsing data.") from e
+            raise BaleClientError("Error while parsing data.") from e
 
     async def validate_password(
         self, password: str, transaction_hash: str
@@ -853,7 +853,7 @@ class Client:
             return self._parse_session_content(content)
 
         except Exception as e:
-            raise BalethonError("Error while parsing data.") from e
+            raise BaleClientError("Error while parsing data.") from e
 
     async def sign_out(self, delete_session: bool = True) -> None:
         """
@@ -1024,7 +1024,7 @@ class Client:
             AiobaleError: If input lists are empty or for other client-side errors.
         """
         if not message_ids or not message_dates:
-            raise BalethonError("`message_ids` or `message_dates` can not be empty")
+            raise BaleClientError("`message_ids` or `message_dates` can not be empty")
 
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(type=peer_type, id=chat_id)
@@ -1095,13 +1095,13 @@ class Client:
             AiobaleError: If input lists are empty or mismatched, or for other client-side errors.
         """
         if not messages:
-            raise BalethonError("`messages` cannot be empty")
+            raise BaleClientError("`messages` cannot be empty")
 
         if new_ids is None:
             new_ids = [generate_id() for _ in messages]
 
         if len(new_ids) != len(messages):
-            raise BalethonError("Mismatch between number of `new_ids` and `messages`")
+            raise BaleClientError("Mismatch between number of `new_ids` and `messages`")
 
         target_peer = Peer(type=self._resolve_peer_type(chat_type), id=chat_id)
 
@@ -3280,7 +3280,7 @@ class Client:
         self, cover_thumb: FileInput, cover_width: int, cover_height: int
     ) -> Thumbnail:
         if cover_thumb.info.size > 2 * 1024:
-            raise BalethonError("Cover should not be larger than 2KB")
+            raise BaleClientError("Cover should not be larger than 2KB")
 
         thumb_width = 50
         thumb_height = int((thumb_width / cover_width) * cover_height)

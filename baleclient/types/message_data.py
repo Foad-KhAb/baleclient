@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from pydantic import Field, model_validator
 
-from ..exceptions import BalethonError
+from ..exceptions import BaleClientError
 from .base import BaleObject
 from .chat import Chat
 from .message_content import MessageContent
@@ -96,7 +96,7 @@ class MessageData(BaleObject):
         from .message import Message
 
         if self.chat is None:
-            raise BalethonError("Need the current chat to process")
+            raise BaleClientError("Need the current chat to process")
 
         return Message(
             message_id=self.message_id,

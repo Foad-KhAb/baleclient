@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 from colorama import Fore, init
 
 from ..enums import AuthErrors, SendCodeType
-from ..exceptions import BalethonError
+from ..exceptions import BaleClientError
 from ..types.responses import PhoneAuthResponse
 
 if TYPE_CHECKING:
@@ -101,7 +101,7 @@ class PhoneLoginCLI:
     ) -> Optional[PhoneAuthResponse]:
         try:
             resp = await self.client.start_phone_auth(phone_number, code_type=code_type)
-        except BalethonError as e:
+        except BaleClientError as e:
             # handle library-specific errors gracefully
             self._print(
                 f"⚠️ Aiobale error while starting phone auth: {e}\n",
@@ -265,7 +265,7 @@ class PhoneLoginCLI:
                 # Validate the code (with AiobaleError handling)
                 try:
                     res = await self.client.validate_code(code, resp.transaction_hash)
-                except BalethonError as e:
+                except BaleClientError as e:
                     self._print(
                         f"⚠️ Aiobale error while validating code: {e}\n",
                         f"⚠️ Khata dar zamineh-e validate kardan code: {e}\n",
@@ -349,7 +349,7 @@ class PhoneLoginCLI:
                 res = await self.client.validate_password(
                     password.strip(), transaction_hash
                 )
-            except BalethonError as e:
+            except BaleClientError as e:
                 self._print(
                     f"⚠️ Aiobale error while validating password: {e}\n",
                     f"⚠️ Khata dar zamineh-e validate kardan ramz: {e}\n",

@@ -1,5 +1,5 @@
-from balethon import Client, Dispatcher, F
-from balethon.types import Message
+from baleclient import Client, Dispatcher, F
+from baleclient.types import Message
 
 dp = Dispatcher()
 client = Client(dp)
