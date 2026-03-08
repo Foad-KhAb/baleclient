@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-import aiohttp
 import asyncio
-from typing import Any, AsyncGenerator, Callable, Optional, Dict, Union
+from typing import Any, AsyncGenerator, Callable, Dict, Optional, Union
 
+import aiohttp
+
+from ...exceptions import BaleError, BalethonError
 from ...methods import BaleMethod, BaleType
-from ...utils import add_header, clean_grpc
-from ...exceptions import AiobaleError, BaleError
 from ...types import FileInput
+from ...utils import add_header, clean_grpc
 from .base import BaseSession
-
 
 DEFAULT_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -58,7 +58,7 @@ class AiohttpSession(BaseSession):
             )
 
         if self._running:
-            raise AiobaleError("Client is already running")
+            raise BalethonError("Client is already running")
 
         headers = self._build_headers(token)
         self.ws = await self.session.ws_connect(
@@ -94,8 +94,8 @@ class AiohttpSession(BaseSession):
 
         try:
             return await asyncio.wait_for(future, timeout=timeout or self.timeout)
-        except asyncio.TimeoutError:
-            raise RuntimeError("WebSocket is not responding")
+        except asyncio.TimeoutError as e:
+            raise RuntimeError("WebSocket is not responding") from e
 
     async def make_request(
         self,
@@ -202,11 +202,11 @@ class AiohttpSession(BaseSession):
             ) as resp:
                 if resp.status >= 400:
                     text = await resp.text()
-                    raise AiobaleError(
+                    raise BalethonError(
                         f"Upload failed with status {resp.status}: {text}"
                     )
         except Exception as e:
-            raise AiobaleError(f"Upload error: {e}") from e
+            raise BalethonError(f"Upload error: {e}") from e
         finally:
             if own_session:
                 await session.close()
@@ -237,7 +237,7 @@ class AiohttpSession(BaseSession):
                 async for chunk in resp.content.iter_chunked(chunk_size):
                     yield chunk
         except Exception as e:
-            raise AiobaleError(f"Upload error: {e}") from e
+            raise BalethonError(f"Upload error: {e}") from e
         finally:
             if own_session:
                 await session.close()

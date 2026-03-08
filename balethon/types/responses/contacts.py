@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import List, Any, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
+
 from pydantic import Field, model_validator
 
-from .default import DefaultResponse
 from ...types import InfoPeer
+from .default import DefaultResponse
 
 
 class ContactsResponse(DefaultResponse):
@@ -38,9 +39,6 @@ class ContactsResponse(DefaultResponse):
         # This init is only used for type checking and IDE autocomplete.
         # It will not be included in runtime behavior.
         def __init__(
-            __pydantic__self__,
-            *,
-            peers: List[InfoPeer],
-            **__pydantic_kwargs
+            __pydantic__self__, *, peers: List[InfoPeer], **__pydantic_kwargs
         ) -> None:
             super().__init__(peers=peers, **__pydantic_kwargs)

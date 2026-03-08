@@ -4,7 +4,7 @@ warnings.filterwarnings(
     "ignore",
     message="pkg_resources is deprecated as an API.*",
     category=UserWarning,
-    module="google.protobuf.*"
+    module="google.protobuf.*",
 )
 
 from .client.client import Client
@@ -14,9 +14,4 @@ from .utils.magic_filter import MagicFilter
 
 F = MagicFilter()
 
-__all__ = (
-    "Client",
-    "Dispatcher",
-    "Router",
-    "F"
-)
+__all__ = ("Client", "Dispatcher", "Router", "F")

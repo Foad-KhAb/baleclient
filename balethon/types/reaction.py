@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Any, Dict, List
+
+from pydantic import Field, model_validator
 
 from ..utils import decode_list
 from .base import BaleObject
@@ -70,9 +71,14 @@ class Reaction(BaleObject):
         def __init__(
             __pydantic__self__,
             *,
-            users: List[int] = [],
+            users: List[int] = None,
             emojy: str,
             count: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(users=users, emojy=emojy, count=count, **__pydantic_kwargs)
+            super().__init__(
+                users=users if users else [],
+                emojy=emojy,
+                count=count,
+                **__pydantic_kwargs,
+            )

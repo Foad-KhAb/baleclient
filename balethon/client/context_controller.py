@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any, Optional
+
 from pydantic import BaseModel, PrivateAttr
 from typing_extensions import Self
 
@@ -8,11 +9,11 @@ if TYPE_CHECKING:
 
 class BotContextController(BaseModel):
     """
-    BotContextController serves as a base class for managing context in objects that require 
-    a client instance. This class provides functionality to store and bind a client instance 
+    BotContextController serves as a base class for managing context in objects that require
+    a client instance. This class provides functionality to store and bind a client instance
     to itself, enabling seamless interaction with the client throughout its lifecycle.
     """
-    
+
     _client: Optional["Client"] = PrivateAttr()
 
     def model_post_init(self, __context: Any) -> None:

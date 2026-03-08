@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Any, List
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import InfoPeer
 from ...types.responses import UsersResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 

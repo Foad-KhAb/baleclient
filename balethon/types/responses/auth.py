@@ -1,9 +1,10 @@
-from pydantic import Field
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from ..int_bool import IntBool
-from ..base import BaleObject
+from pydantic import Field
+
 from ...enums import SendCodeType
+from ..base import BaleObject
+from ..int_bool import IntBool
 
 
 class Value(BaleObject):
@@ -19,12 +20,7 @@ class Value(BaleObject):
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.
         # It will not be included in runtime behavior.
-        def __init__(
-            __pydantic__self__,
-            *,
-            value: int,
-            **__pydantic_kwargs
-        ) -> None:
+        def __init__(__pydantic__self__, *, value: int, **__pydantic_kwargs) -> None:
             super().__init__(value=value, **__pydantic_kwargs)
 
 
@@ -68,7 +64,7 @@ class PhoneAuthResponse(BaleObject):
             code_expiration_date: Value,
             next_send_code_type: Optional[SendCodeType] = None,
             code_timeout: Value,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 transaction_hash=transaction_hash,
@@ -77,5 +73,5 @@ class PhoneAuthResponse(BaleObject):
                 code_expiration_date=code_expiration_date,
                 next_send_code_type=next_send_code_type,
                 code_timeout=code_timeout,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

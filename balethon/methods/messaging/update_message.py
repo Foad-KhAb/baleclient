@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
-from ...types import Peer, MessageContent
-from ...types.responses import DefaultResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import MessageContent, Peer
+from ...types.responses import DefaultResponse
 from ..base import BaleMethod
 
 
@@ -44,11 +45,11 @@ class UpdateMessage(BaleMethod):
             peer: Peer,
             message_id: int,
             updated_message: MessageContent,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 peer=peer,
                 message_id=message_id,
                 updated_message=updated_message,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

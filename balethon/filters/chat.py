@@ -1,7 +1,8 @@
 from typing import Any
-from .base import Filter
-from ..types import Message
+
 from ..enums import ChatType
+from ..types import Message
+from .base import Filter
 
 
 class IsGroupOrChannel(Filter):
@@ -13,7 +14,7 @@ class IsGroupOrChannel(Filter):
 
     Examples:
         .. code:: python
-        
+
             @router.message(IsGroupOrChannel())
             async def handler(msg: Message):
                 ...
@@ -42,7 +43,7 @@ class IsPrivate(Filter):
 
     Examples:
         .. code:: python
-        
+
             @router.message(IsPrivate())
             async def handler(msg: Message):
                 ...
@@ -70,7 +71,7 @@ class ChatTypeFilter(Filter):
 
     Examples:
         .. code:: python
-        
+
             @router.message(ChatTypeFilter(ChatType.CHANNEL))
             async def handler(msg: Message):
                 ...

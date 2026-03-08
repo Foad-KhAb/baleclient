@@ -1,16 +1,17 @@
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
 from pydantic import Field, model_validator
 
 from ..enums import ChatType, PrivacyMode
-from .int_bool import IntBool
 from .base import BaleObject
 from .ext import ExtKeyValue
+from .int_bool import IntBool
 
 
 class ExInfo(BaleObject):
     """
     Contains extended metadata about a peer, such as its type and verification status.
-    
+
     Typically used in `FullUser` and `FullGroup` to describe whether the user/group/channel is verified.
     """
 
@@ -21,20 +22,23 @@ class ExInfo(BaleObject):
     """Indicates if the peer is verified (has the blue badge)."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             expeer_type: ChatType,
             identified: IntBool = False,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(expeer_type=expeer_type, identified=identified, **__pydantic_kwargs)
+            super().__init__(
+                expeer_type=expeer_type, identified=identified, **__pydantic_kwargs
+            )
 
 
 class ContactInfo(BaleObject):
     """
     Represents an optional contact entry (like phone or username) attached to a user.
-    
+
     This is used to show additional context about how this user is saved in your contact list.
     """
 
@@ -54,12 +58,13 @@ class ContactInfo(BaleObject):
         return data
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             value: Optional[int] = None,
             title: Optional[str] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(value=value, title=title, **__pydantic_kwargs)
 
@@ -132,6 +137,7 @@ class FullUser(BaleObject):
         return data
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -148,7 +154,7 @@ class FullUser(BaleObject):
             created_at: int,
             privacy_mode: PrivacyMode,
             allowed_invite: IntBool = False,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 id=id,
@@ -164,5 +170,5 @@ class FullUser(BaleObject):
                 created_at=created_at,
                 privacy_mode=privacy_mode,
                 allowed_invite=allowed_invite,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

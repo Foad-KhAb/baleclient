@@ -1,17 +1,18 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import Peer
 from ...types.responses import ReactionListResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
 class GetMessageReactionsList(BaleMethod):
     """
     Represents the BaleMethod for retrieving the list of reactions for a specific message.
-    
-    Returns: 
+
+    Returns:
         aiobale.types.responses.ReactionListResponse: The response containing reactions data.
     """
 
@@ -62,7 +63,7 @@ class GetMessageReactionsList(BaleMethod):
             emojy: str,
             page: int,
             limit: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 peer=peer,
@@ -71,5 +72,5 @@ class GetMessageReactionsList(BaleMethod):
                 emojy=emojy,
                 page=page,
                 limit=limit,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

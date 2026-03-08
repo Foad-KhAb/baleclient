@@ -1,10 +1,11 @@
 import time
-from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import Peer
 from ...types.responses import DefaultResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 

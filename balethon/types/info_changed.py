@@ -1,5 +1,6 @@
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
 from pydantic import Field, model_validator
-from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from .base import BaleObject
 
@@ -25,7 +26,7 @@ class UsernameChanged(BaleObject):
         """
         Pre-processes incoming raw data before validation.
 
-        The 'username' field arrives nested as data["2"]["1"], 
+        The 'username' field arrives nested as data["2"]["1"],
         so this method extracts the actual string username to simplify model parsing.
 
         Args:
@@ -47,7 +48,7 @@ class UsernameChanged(BaleObject):
             *,
             user_id: int,
             username: Optional[str] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(user_id=user_id, username=username, **__pydantic_kwargs)
 
@@ -73,7 +74,7 @@ class AboutChanged(BaleObject):
         """
         Pre-processes incoming raw data before validation.
 
-        The 'about' field is nested as data["2"]["1"], so this method extracts 
+        The 'about' field is nested as data["2"]["1"], so this method extracts
         the string to simplify model parsing.
 
         Args:
@@ -89,11 +90,8 @@ class AboutChanged(BaleObject):
         return data
 
     if TYPE_CHECKING:
+
         def __init__(
-            __pydantic__self__,
-            *,
-            user_id: int,
-            about: str,
-            **__pydantic_kwargs
+            __pydantic__self__, *, user_id: int, about: str, **__pydantic_kwargs
         ) -> None:
             super().__init__(user_id=user_id, about=about, **__pydantic_kwargs)

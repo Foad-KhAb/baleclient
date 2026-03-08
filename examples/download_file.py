@@ -1,6 +1,6 @@
 from aiobale import Client, Dispatcher
-from aiobale.types import Message
 from aiobale.filters import IsDocument
+from aiobale.types import Message
 
 dp = Dispatcher()
 client = Client(dp)

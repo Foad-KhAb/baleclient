@@ -1,9 +1,10 @@
-from pydantic import Field
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import ShortPeer
 from ...types.responses import DefaultResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -44,7 +45,7 @@ class EditGroupTitle(BaleMethod):
             group: ShortPeer,
             random_id: int,
             title: str,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 random_id=random_id, group=group, title=title, **__pydantic_kwargs

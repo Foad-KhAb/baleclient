@@ -1,15 +1,16 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
-from ...types.responses import DialogResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types.responses import DialogResponse
 from ..base import BaleMethod
 
 
 class LoadDialogs(BaleMethod):
     """
     Loads a list of dialogs (chats, groups, or channels) with optional filters.
-    
+
     Returns:
         aiobale.types.responses.DialogResponse: The response containing the list of dialogs.
     """
@@ -43,11 +44,11 @@ class LoadDialogs(BaleMethod):
             offset_date: int,
             limit: int,
             exclude_pinned: bool,
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs: Any,
         ) -> None:
             super().__init__(
                 offset_date=offset_date,
                 limit=limit,
                 exclude_pinned=exclude_pinned,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

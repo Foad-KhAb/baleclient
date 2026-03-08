@@ -1,5 +1,5 @@
-from ...types.responses import WalletResponse
 from ...enums import Services
+from ...types.responses import WalletResponse
 from ..base import BaleMethod
 
 

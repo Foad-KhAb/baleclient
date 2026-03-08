@@ -1,11 +1,12 @@
-from typing import Any, Dict, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict
+
 from pydantic import Field, model_validator
 
 from .base import BaleObject
-from .peer import Peer
-from .message_content import MessageContent
-from .message import Message
 from .chat import Chat
+from .message import Message
+from .message_content import MessageContent
+from .peer import Peer
 
 
 class PeerData(BaleObject):
@@ -47,8 +48,8 @@ class PeerData(BaleObject):
     @classmethod
     def normalize_nested_fields(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Extracts nested fields like 'first_unread_message' and 'unread_mentions' 
-        from wrapped objects returned by the backend. The API returns these as 
+        Extracts nested fields like 'first_unread_message' and 'unread_mentions'
+        from wrapped objects returned by the backend. The API returns these as
         dicts with a "1" key, so we unwrap them here.
         """
         if "9" in data and isinstance(data["9"], dict):
@@ -71,7 +72,7 @@ class PeerData(BaleObject):
             sender_id=self.sender_id,
             date=self.date,
             message_id=self.message_id,
-            content=self.content
+            content=self.content,
         ).as_(self.client)
 
     if TYPE_CHECKING:
@@ -89,7 +90,7 @@ class PeerData(BaleObject):
             content: MessageContent,
             first_unread_message: int,
             unread_mentions: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 peer=peer,
@@ -101,5 +102,5 @@ class PeerData(BaleObject):
                 content=content,
                 first_unread_message=first_unread_message,
                 unread_mentions=unread_mentions,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

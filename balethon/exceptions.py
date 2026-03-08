@@ -1,9 +1,10 @@
-class AiobaleError(Exception):
-    """Base exception for all Aiobale-related errors."""
+class BalethonError(Exception):
+    """Base exception for all Balethon-related errors."""
+
     pass
 
 
-class BaleError(AiobaleError):
+class BaleError(BalethonError):
     """
     Exception raised when an error occurs in Bale service.
 
@@ -18,9 +19,9 @@ class BaleError(AiobaleError):
         self.topic = topic
 
     def __str__(self) -> str:
-        return (
-            f"Bale service reported an error on topic {self.topic}: {self.message}"
-        )
+        return f"Bale service reported an error on topic {self.topic}: {self.message}"
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(topic={self.topic}, message='{self.message}')"
+        return (
+            f"{self.__class__.__name__}(topic={self.topic}, message='{self.message}')"
+        )

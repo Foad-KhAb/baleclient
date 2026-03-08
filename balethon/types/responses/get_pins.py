@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
+
 from pydantic import Field, model_validator
 
 from ...enums import ChatType
-from ..message_data import MessageData
-from ..message import Message
-from ..short_peer import ShortPeer
-from ..chat import Chat
 from ..base import BaleObject
+from ..chat import Chat
+from ..message import Message
+from ..message_data import MessageData
+from ..short_peer import ShortPeer
 
 
 class GetPinsResponse(BaleObject):
@@ -16,7 +17,7 @@ class GetPinsResponse(BaleObject):
     Response class representing the pinned messages in a chat.
 
     Attributes:
-        pins_data (List[MessageData]): List of pinned message data objects. 
+        pins_data (List[MessageData]): List of pinned message data objects.
             This is the raw data received from the server, which includes message details.
         count (int): Total number of pinned messages available.
         method_data (Any): Additional data related to the method/request, typically includes group info.

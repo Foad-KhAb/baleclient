@@ -1,10 +1,11 @@
 from enum import Enum
 
+
 class GroupType(int, Enum):
     """
     Enum representing different types of groups.
     """
-    
+
     GROUP = 0
     """Represents a standard group."""
 

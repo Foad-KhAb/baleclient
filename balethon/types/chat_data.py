@@ -1,5 +1,6 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
+
+from pydantic import Field
 
 from .base import BaleObject
 from .peer import Peer
@@ -22,10 +23,5 @@ class ChatData(BaleObject):
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.
         # It will not be included in runtime behavior.
-        def __init__(
-            __pydantic__self__,
-            *,
-            peer: Peer,
-            **__pydantic_kwargs
-        ) -> None:
+        def __init__(__pydantic__self__, *, peer: Peer, **__pydantic_kwargs) -> None:
             super().__init__(peer=peer, **__pydantic_kwargs)

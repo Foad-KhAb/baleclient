@@ -1,16 +1,17 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import Peer
 from ...types.responses import HistoryResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
 class LoadPinnedMessages(BaleMethod):
     """
     Loads pinned messages from a specific peer (chat or user).
-    
+
     Returns:
         aiobale.types.responses.HistoryResponse: The response containing the history of pinned messages.
     """

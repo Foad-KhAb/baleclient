@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, List, Optional
 
+from pydantic import Field
+
+from ...enums import GroupType, Restriction, Services
 from ...types import ShortPeer, StringValue
 from ...types.responses import GroupCreatedResponse
-from ...enums import Services, GroupType, Restriction
 from ..base import BaleMethod
 
 
@@ -62,7 +63,7 @@ class CreateGroup(BaleMethod):
             group_type: GroupType = GroupType.GROUP,
             username: Optional[StringValue] = None,
             restriction: Restriction = Restriction.PRIVATE,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 random_id=random_id,
@@ -71,5 +72,5 @@ class CreateGroup(BaleMethod):
                 group_type=group_type,
                 username=username,
                 restriction=restriction,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

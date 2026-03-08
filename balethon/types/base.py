@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict
 from typing import TYPE_CHECKING
+
+from pydantic import BaseModel, ConfigDict
 
 from ..client.context_controller import BotContextController
 
@@ -19,16 +20,14 @@ class BaleObject(BotContextController, BaseModel):
         arbitrary_types_allowed=True,  # Allows arbitrary types in the model.
         defer_build=True,  # Defers model building for performance optimization.
         json_encoders={
-            bool: lambda v: 1 if v else 0  # Encodes boolean values as 1 (True) or 0 (False).
-        }
+            bool: lambda v: (
+                1 if v else 0
+            )  # Encodes boolean values as 1 (True) or 0 (False).
+        },
     )
 
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.
         # It will not be included in runtime behavior.
-        def __init__(
-            __pydantic__self__,
-            *args,
-            **kwargs
-        ) -> None:
+        def __init__(__pydantic__self__, *args, **kwargs) -> None:
             super().__init__(*args, **kwargs)

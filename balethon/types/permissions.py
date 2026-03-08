@@ -1,6 +1,6 @@
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
+
 from pydantic import Field, model_validator
-from typing import TYPE_CHECKING
 
 from .base import BaleObject
 from .int_bool import IntBool
@@ -10,10 +10,10 @@ class Permissions(BaleObject):
     """
     Represents a user's permissions within a group or channel context in Bale.
 
-    Each permission is represented using `IntBool`, meaning the value is stored 
+    Each permission is represented using `IntBool`, meaning the value is stored
     as an integer (0 or 1) in the backend, but exposed as a boolean (`False` or `True`) in Python.
 
-    Some fields are wrapped in nested dicts (e.g., {"1": true}) when their field number is greater than 10. 
+    Some fields are wrapped in nested dicts (e.g., {"1": true}) when their field number is greater than 10.
     This is handled automatically in `model_dump()` and `fix_fields()`.
     """
 
@@ -83,7 +83,7 @@ class Permissions(BaleObject):
         """
         Normalizes incoming permission values.
 
-        Some fields may come wrapped in a dict like {"1": true}. 
+        Some fields may come wrapped in a dict like {"1": true}.
         This method extracts the inner value and ensures all falsy values are converted to `False`.
         """
         for key in list(data.keys()):
@@ -111,6 +111,7 @@ class Permissions(BaleObject):
         return data
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -134,7 +135,7 @@ class Permissions(BaleObject):
             send_forwarded_message: IntBool = False,
             add_story: IntBool = False,
             manage_call: IntBool = False,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 see_message=see_message,
@@ -157,5 +158,5 @@ class Permissions(BaleObject):
                 send_forwarded_message=send_forwarded_message,
                 add_story=add_story,
                 manage_call=manage_call,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

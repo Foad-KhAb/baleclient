@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
-from ...types import Peer, GiftPacket
-from ...types.responses import DefaultResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import GiftPacket, Peer
+from ...types.responses import DefaultResponse
 from ..base import BaleMethod
 
 
@@ -19,7 +20,7 @@ class SendGiftPacketWithWallet(BaleMethod):
 
     __service__ = Services.GIFT_PACKET.value
     __method__ = "SendGiftPacketWithWallet"
-    
+
     __returning__ = DefaultResponse
 
     peer: Peer = Field(..., alias="1")

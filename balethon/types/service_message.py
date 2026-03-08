@@ -1,8 +1,7 @@
-from typing import TYPE_CHECKING, Optional
-from pydantic import Field, model_validator
+from pydantic import Field
 
-from .service_ext import ServiceExt
 from .base import BaleObject
+from .service_ext import ServiceExt
 
 
 class ServiceMessage(BaleObject):

@@ -1,8 +1,8 @@
-import os
 import io
 import mimetypes
+import os
 from pathlib import Path
-from typing import Union, Optional, NamedTuple
+from typing import NamedTuple, Optional, Union
 
 from ..utils import guess_mime_type
 
@@ -16,6 +16,7 @@ class FileData(NamedTuple):
     - size (int): Size of the file in bytes.
     - mime_type (str): Detected or provided MIME type (e.g., 'image/jpeg').
     """
+
     name: str
     size: int
     mime_type: str
@@ -64,6 +65,7 @@ class FileInput:
 
     - ``TypeError``: If an unsupported type is passed to ``file`` (only ``str``, ``Path``, or ``bytes`` are allowed).
     """
+
     def __init__(
         self,
         file: Union[str, Path, bytes],
@@ -122,9 +124,9 @@ class FileInput:
                 name = f"upload.{ext if ext.isalnum() else 'dat'}"
 
         return FileData(name=name, size=size, mime_type=mime_type)
-    
+
     async def get_content(self) -> bytes:
         chunks = []
         async for chunk in self.read():
             chunks.append(chunk)
-        return b''.join(chunks)
+        return b"".join(chunks)

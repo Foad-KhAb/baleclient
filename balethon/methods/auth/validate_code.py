@@ -1,5 +1,6 @@
+from typing import TYPE_CHECKING, Optional
+
 from pydantic import Field
-from typing import TYPE_CHECKING, Any, Optional
 
 from ...enums import Services
 from ..base import BaleMethod

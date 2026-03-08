@@ -1,16 +1,17 @@
 from typing import TYPE_CHECKING, Optional
+
 from pydantic import Field, model_validator
 
 from ..enums import GivingType
 from .base import BaleObject
-from .values import StringValue, BoolValue
+from .values import BoolValue, StringValue
 
 
 class GiftPacket(BaleObject):
     """
     Represents a packet of gifts that can be distributed among users.
 
-    Used in scenarios like sending monetary gifts in a group or channel.  
+    Used in scenarios like sending monetary gifts in a group or channel.
     Includes information such as total amount, number of recipients, message, and distribution type.
     """
 
@@ -32,9 +33,11 @@ class GiftPacket(BaleObject):
     owner_id: int = Field(None, alias="6")
     """User ID of the gift sender or owner (optional)."""
 
-    show_amounts: BoolValue = Field(default_factory=lambda: BoolValue(value=False), alias="7")
+    show_amounts: BoolValue = Field(
+        default_factory=lambda: BoolValue(value=False), alias="7"
+    )
     """Indicates whether the individual received amounts should be shown to recipients."""
-    
+
     @model_validator(mode="before")
     @classmethod
     def _remove_empty_show_amounts(cls, data: dict) -> dict:
@@ -45,6 +48,7 @@ class GiftPacket(BaleObject):
         return data
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -55,7 +59,7 @@ class GiftPacket(BaleObject):
             message: StringValue,
             owner_id: Optional[int] = None,
             show_amounts: Optional[BoolValue] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 count=count,
@@ -65,5 +69,5 @@ class GiftPacket(BaleObject):
                 message=message,
                 owner_id=owner_id,
                 show_amounts=show_amounts or BoolValue(value=False),
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

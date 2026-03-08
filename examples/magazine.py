@@ -1,5 +1,5 @@
-from aiobale import F, Client, Dispatcher
-from aiobale.types import Message
+from balethon import Client, Dispatcher, F
+from balethon.types import Message
 
 dp = Dispatcher()
 client = Client(dp)
@@ -8,7 +8,7 @@ added = set()
 
 
 @dp.message(F.content.empty, F.replied_to)  # Means the message is forwarded
-async def handler(msg: Message):
+async def handler1(msg: Message):
     message_id = msg.replied_to.message_id
     if message_id in added:
         await client.revoke_upvote(msg.replied_to)
@@ -22,7 +22,7 @@ async def handler(msg: Message):
 
 
 @dp.message()
-async def handler(msg: Message):
+async def handler2(msg: Message):
     await msg.answer("Forward a message!!!")
 
 

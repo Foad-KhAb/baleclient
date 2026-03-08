@@ -1,12 +1,13 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
 from pydantic import Field, model_validator
 
 from ..enums import ChatType
 from .base import BaleObject
-from .message_data import MessageData
-from .message import Message
-from .other_message import OtherMessage
 from .chat import Chat
+from .message import Message
+from .message_data import MessageData
+from .other_message import OtherMessage
 
 
 class GroupMessagePinned(BaleObject):
@@ -59,13 +60,13 @@ class GroupMessagePinned(BaleObject):
             group_id: int,
             message_data: MessageData,
             message: Optional[Message] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 group_id=group_id,
                 message_data=message_data,
                 message=message,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )
 
 
@@ -96,6 +97,6 @@ class GroupPinRemoved(BaleObject):
             *,
             group_id: int,
             message: Optional[OtherMessage] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(group_id=group_id, message=message, **__pydantic_kwargs)

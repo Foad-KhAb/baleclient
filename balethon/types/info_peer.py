@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Optional
+
 from pydantic import Field
 
 from ..enums import ChatType
@@ -23,7 +24,7 @@ class InfoPeer(BaleObject):
     type: Optional[ChatType] = Field(None, alias="2")
     """
     The type of chat (e.g., user, group, channel).
-    
+
     This field is optional because sometimes only the ID is provided, and type inference
     or external context is required to interpret the peer correctly.
     """
@@ -36,10 +37,6 @@ class InfoPeer(BaleObject):
             *,
             id: int,
             type: Optional[ChatType] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(
-                id=id,
-                type=type,
-                **__pydantic_kwargs
-            )
+            super().__init__(id=id, type=type, **__pydantic_kwargs)

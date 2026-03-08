@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from ..exceptions import AiobaleError
-from .other_message import OtherMessage
+from pydantic import Field, model_validator
+
+from ..exceptions import BalethonError
 from .base import BaleObject
-from .message_content import MessageContent
-from .quoted_message import QuotedMessage
 from .chat import Chat
+from .message_content import MessageContent
+from .other_message import OtherMessage
+from .quoted_message import QuotedMessage
 
 if TYPE_CHECKING:
     from .message import Message
@@ -57,7 +58,7 @@ class MessageData(BaleObject):
     """
     The chat object this message belongs to.
 
-    This is excluded from serialization and must be set manually when constructing 
+    This is excluded from serialization and must be set manually when constructing
     a MessageData instance during runtime.
     """
 
@@ -95,7 +96,7 @@ class MessageData(BaleObject):
         from .message import Message
 
         if self.chat is None:
-            raise AiobaleError("Need the current chat to process")
+            raise BalethonError("Need the current chat to process")
 
         return Message(
             message_id=self.message_id,

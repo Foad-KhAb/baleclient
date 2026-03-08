@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
-from ...types import ShortPeer, Permissions
-from ...types.responses import DefaultResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import Permissions, ShortPeer
+from ...types.responses import DefaultResponse
 from ..base import BaleMethod
 
 
@@ -44,7 +45,7 @@ class SetMemberPermissions(BaleMethod):
             group: ShortPeer,
             user: ShortPeer,
             permissions: Permissions,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 group=group, user=user, permissions=permissions, **__pydantic_kwargs

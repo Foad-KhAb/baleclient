@@ -1,7 +1,8 @@
-from PIL import Image
 from io import BytesIO
-from aiobale import F, Client, Dispatcher
-from aiobale.types import Message, FileInput
+
+from aiobale import Client, Dispatcher, F
+from aiobale.types import FileInput, Message
+from PIL import Image
 
 dp = Dispatcher()
 # If you have already logged in, don't use `new`

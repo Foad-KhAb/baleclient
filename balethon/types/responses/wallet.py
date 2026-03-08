@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
 from pydantic import Field, model_validator
 
 from ..base import BaleObject
@@ -36,7 +37,7 @@ class WalletResponse(BaleObject):
                 wallet=wallet,
                 first_name=first_name,
                 last_name=last_name,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )
 
     @model_validator(mode="before")

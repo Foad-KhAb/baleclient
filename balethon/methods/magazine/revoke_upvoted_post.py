@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Optional
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import InfoMessage, IntValue
 from ...types.responses import UpvoteResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 

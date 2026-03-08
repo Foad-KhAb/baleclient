@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Optional
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import ShortPeer, StringValue
 from ...types.responses import DefaultResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -44,7 +45,7 @@ class MakeUserAdmin(BaleMethod):
             group: ShortPeer,
             user: ShortPeer,
             admin_name: Optional[str] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 group=group, user=user, admin_name=admin_name, **__pydantic_kwargs

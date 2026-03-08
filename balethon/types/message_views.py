@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any, Dict
+
 from pydantic import Field, model_validator
-from typing import Any, Dict, TYPE_CHECKING
 
 from .base import BaleObject
 from .other_message import OtherMessage
@@ -44,6 +45,6 @@ class MessageViews(BaleObject):
             *,
             message: OtherMessage,
             views: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(message=message, views=views, **__pydantic_kwargs)

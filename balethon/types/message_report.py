@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, List
+
 from pydantic import Field
-from typing import List, TYPE_CHECKING
 
 from .base import BaleObject
-from .peer import Peer
 from .other_message import OtherMessage
+from .peer import Peer
 
 
 class MessageReport(BaleObject):
@@ -27,6 +28,6 @@ class MessageReport(BaleObject):
             *,
             peer: Peer,
             messages: List[OtherMessage],
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(peer=peer, messages=messages, **__pydantic_kwargs)

@@ -1,7 +1,8 @@
 import asyncio
+
 from aiobale import Client, Dispatcher
-from aiobale.types import Message
 from aiobale.enums import ChatType
+from aiobale.types import Message
 
 dp = Dispatcher()
 client = Client(dp)
@@ -21,15 +22,15 @@ async def handler(msg: Message):
         members = await client.load_members(
             msg.chat.id, limit=limit, next_offset=offset
         )
-        
+
         all_members.extend(members)
         offset += limit
-        
+
         if len(members) < limit:
             break
-        
+
         await asyncio.sleep(0.5)
-    
+
     text = "\n".join([f"ID: {member.id}" for member in all_members])
     print(text)
 

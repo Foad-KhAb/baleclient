@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
+
 from pydantic import Field, model_validator
 
-from ..short_peer import ShortPeer
 from ..group import Group
+from ..short_peer import ShortPeer
 from .default import DefaultResponse
 
 
@@ -12,8 +13,8 @@ class GroupCreatedResponse(DefaultResponse):
     """
     Response returned after successfully creating a group.
 
-    Contains information about the created group, invited users, users 
-    who couldn't be added, and an invite link to share. Some fields are 
+    Contains information about the created group, invited users, users
+    who couldn't be added, and an invite link to share. Some fields are
     normalized to lists for consistent downstream handling.
     """
 
@@ -52,7 +53,7 @@ class GroupCreatedResponse(DefaultResponse):
             users: List[ShortPeer] = ...,
             not_added_users: List[ShortPeer] = ...,
             invite_link: str,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 group=group,

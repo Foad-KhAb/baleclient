@@ -1,8 +1,9 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Optional
 
-from ...types import Chat, SendTypeModel, FileUploadInfo
+from pydantic import Field
+
 from ...enums import Services
+from ...types import Chat, FileUploadInfo, SendTypeModel
 from ..base import BaleMethod
 
 
@@ -61,7 +62,7 @@ class GetFileUploadUrl(BaleMethod):
             mime_type: int,
             chat: Chat,
             send_type: Optional[SendTypeModel],
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 expected_size=expected_size,
@@ -70,5 +71,5 @@ class GetFileUploadUrl(BaleMethod):
                 mime_type=mime_type,
                 chat=chat,
                 send_type=send_type,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

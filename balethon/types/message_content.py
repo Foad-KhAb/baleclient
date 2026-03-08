@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from pydantic import Field, model_validator
-from typing import Any, Optional, Union, TYPE_CHECKING, List, Dict
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
+from pydantic import Field, model_validator
+
+from ..utils import generate_id
 from .base import BaleObject
-from .thumbnail import Thumbnail
 from .file_ext import DocumentsExt
 from .gift_packet import GiftPacket
-from .service_message import ServiceMessage
 from .inline_keyboard import InlineKeyboardMarkup
-from ..utils import generate_id
+from .service_message import ServiceMessage
+from .thumbnail import Thumbnail
 
 
 class TextMessage(BaleObject):
@@ -151,7 +152,7 @@ class TemplateMessage(BaleObject):
                 message=message,
                 temp_id=temp_id,
                 inline_keyboard_markup=inline_keyboard_markup,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )
 
 

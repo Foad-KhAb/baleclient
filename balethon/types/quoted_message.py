@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from pydantic import Field
 from typing import TYPE_CHECKING, Optional
 
-from ..exceptions import AiobaleError
+from pydantic import Field
+
+from .base import BaleObject
+from .chat import Chat
+from .message_content import MessageContent
 from .peer import Peer
 from .values import IntValue
-from .base import BaleObject
-from .message_content import MessageContent
-from .chat import Chat
 
 if TYPE_CHECKING:
     from .message import Message
@@ -18,7 +18,7 @@ class QuotedMessage(BaleObject):
     """
     Represents a quoted (replied-to) message within another message.
 
-    This model is used when a message is replying to another message, 
+    This model is used when a message is replying to another message,
     and contains enough metadata to reconstruct or display the original one.
     """
 
@@ -60,7 +60,7 @@ class QuotedMessage(BaleObject):
             chat=self.chat,
             sender_id=self.sender_id,
             date=self.date,
-            content=self.content
+            content=self.content,
         ).as_(self.client)
 
     if TYPE_CHECKING:
@@ -75,7 +75,7 @@ class QuotedMessage(BaleObject):
             content: MessageContent,
             peer: Peer,
             chat: Optional[Chat] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 message_id=message_id,
@@ -84,5 +84,5 @@ class QuotedMessage(BaleObject):
                 content=content,
                 peer=peer,
                 chat=chat,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

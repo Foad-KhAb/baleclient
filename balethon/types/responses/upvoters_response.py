@@ -1,5 +1,6 @@
 import json
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
 from pydantic import Field, model_validator
 
 from ..base import BaleObject
@@ -28,11 +29,14 @@ class UpvotersResponse(BaleObject):
             *,
             count: Optional[int] = None,
             offset: Optional[int] = None,
-            users: List[int] = [],
+            users: List[int] = None,
             **__pydantic_kwargs,
         ) -> None:
             super().__init__(
-                count=count, offset=offset, users=users, **__pydantic_kwargs
+                count=count,
+                offset=offset,
+                users=users if users else [],
+                **__pydantic_kwargs,
             )
 
     @model_validator(mode="before")

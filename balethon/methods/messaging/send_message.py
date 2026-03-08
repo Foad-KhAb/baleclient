@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Any, Optional
 
-from ...types import Chat, Peer, MessageContent, InfoMessage
-from ...types.responses import MessageResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import Chat, InfoMessage, MessageContent, Peer
+from ...types.responses import MessageResponse
 from ..base import BaleMethod
 
 
@@ -56,7 +57,7 @@ class SendMessage(BaleMethod):
             content: MessageContent,
             reply_to: Optional[InfoMessage] = None,
             chat: Chat,
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs: Any,
         ) -> None:
             super().__init__(
                 peer=peer,
@@ -64,5 +65,5 @@ class SendMessage(BaleMethod):
                 content=content,
                 reply_to=reply_to,
                 chat=chat,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

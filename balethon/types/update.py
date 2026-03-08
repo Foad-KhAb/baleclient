@@ -1,16 +1,17 @@
 from functools import cached_property
-from typing import Any, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional, Tuple
+
 from pydantic import Field
 
 from .base import BaleObject
-from .message import Message
-from .selected_messages import SelectedMessages
-from .chat_data import ChatData
-from .info_changed import UsernameChanged, AboutChanged
-from .info_message import InfoMessage
-from .updated_message import UpdatedMessage
 from .block_updates import UserBlocked, UserUnblocked
-from .message_updates import GroupPinRemoved, GroupMessagePinned
+from .chat_data import ChatData
+from .info_changed import AboutChanged, UsernameChanged
+from .info_message import InfoMessage
+from .message import Message
+from .message_updates import GroupMessagePinned, GroupPinRemoved
+from .selected_messages import SelectedMessages
+from .updated_message import UpdatedMessage
 
 
 class Update(BaleObject):
@@ -67,7 +68,7 @@ class Update(BaleObject):
 
         If the event has a `fixed` attribute, it returns that instead of the raw value.
         Returns None if no events are set.
-        
+
         This simplifies event handling by allowing to check a single property
         for the update's active event.
         """
@@ -80,6 +81,7 @@ class Update(BaleObject):
         return None
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -95,7 +97,7 @@ class Update(BaleObject):
             group_pin_removed: Optional[GroupPinRemoved] = None,
             user_blocked: Optional[UserBlocked] = None,
             user_unblocked: Optional[UserUnblocked] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 message_sent=message_sent,
@@ -134,13 +136,14 @@ class UpdateBody(BaleObject):
     """Timestamp of the update event, in milliseconds since epoch."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             body: Optional[Update] = None,
             update_id: Optional[int] = None,
             date: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 body=body,

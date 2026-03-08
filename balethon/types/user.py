@@ -1,9 +1,10 @@
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
 from pydantic import Field, model_validator
-from typing import Dict, Any, Optional, TYPE_CHECKING
 
 from .base import BaleObject
-from .int_bool import IntBool
 from .full_user import ExInfo
+from .int_bool import IntBool
 from .values import StringValue
 
 
@@ -28,8 +29,8 @@ class UserAuth(BaleObject):
     username: Optional[StringValue] = Field(None, alias="9")
     """Optional username wrapped in a `StringValue` type, which can hold additional metadata."""
 
-
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -37,9 +38,15 @@ class UserAuth(BaleObject):
             access_hash: int,
             name: str,
             username: Optional[StringValue] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(id=id, access_hash=access_hash, name=name, username=username, **__pydantic_kwargs)
+            super().__init__(
+                id=id,
+                access_hash=access_hash,
+                name=name,
+                username=username,
+                **__pydantic_kwargs,
+            )
 
 
 class User(BaleObject):
@@ -48,7 +55,7 @@ class User(BaleObject):
 
     This data is provided post-login or loaded from session and contains
     both public and internal user fields.
-    
+
     All timestamp fields (like `created_at`) are in milliseconds since epoch.
     """
 
@@ -110,6 +117,7 @@ class User(BaleObject):
         return data
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -123,7 +131,7 @@ class User(BaleObject):
             is_deleted: IntBool = False,
             created_at: int = ...,
             ex_info: ExInfo = ...,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 id=id,

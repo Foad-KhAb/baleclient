@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, List
 
-from ...types import Peer, OtherMessage
-from ...types.responses import ViewsResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import OtherMessage, Peer
+from ...types.responses import ViewsResponse
 from ..base import BaleMethod
 
 
@@ -38,6 +39,6 @@ class GetMessagesViews(BaleMethod):
             *,
             peer: Peer,
             message_ids: List[OtherMessage],
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(peer=peer, message_ids=message_ids, **__pydantic_kwargs)

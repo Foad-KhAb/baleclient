@@ -1,8 +1,9 @@
 import re
 from typing import Optional
+
 from aiobale import Client, Dispatcher
-from aiobale.types import Message
 from aiobale.filters import IsText
+from aiobale.types import Message
 
 dp = Dispatcher()
 client = Client(dp)
@@ -30,7 +31,7 @@ async def join(msg: Message):
     link_data = get_link(msg.text)
     if not link_data:
         return await msg.answer("No link found!!!")
-    
+
     link_type, link_value = link_data["type"], link_data["value"]
     if link_type == "join":
         await client.join_chat(link_value)
@@ -39,10 +40,10 @@ async def join(msg: Message):
         result = await client.search_username(link_value)
         if result.group is None:
             return await msg.answer("Could not fetch public group/channel data.")
-        
+
         chat_id = result.group.id
         await client.join_public_chat(chat_id)
         await msg.answer("Joined the public group/channel.")
-    
+
 
 client.run()

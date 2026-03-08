@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field
 from typing import TYPE_CHECKING
+
+from pydantic import Field
 
 from .base import BaleObject
 from .values import IntValue
@@ -25,8 +26,7 @@ class FileInfo(BaleObject):
     """Access hash used to securely access or validate the file."""
 
     file_storage_version: IntValue = Field(
-        default_factory=lambda: IntValue(value=1),
-        alias="3"
+        default_factory=lambda: IntValue(value=1), alias="3"
     )
     """Version of the file storage format. Defaults to 1."""
 

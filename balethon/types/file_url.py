@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Any, Dict
+
+from pydantic import Field, model_validator
 
 from .base import BaleObject
 
@@ -11,7 +12,7 @@ class FileURL(BaleObject):
     Represents a downloadable file URL along with metadata.
 
     This object is returned when requesting a file from the server.
-    It includes the actual URL, the file ID it's linked to, a timeout for validity, 
+    It includes the actual URL, the file ID it's linked to, a timeout for validity,
     and the chunk size to be used for segmented downloads.
 
     Note: All timestamps and durations (like timeout) are in milliseconds.

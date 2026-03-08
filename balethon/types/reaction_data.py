@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field
 from typing import TYPE_CHECKING
+
+from pydantic import Field
 
 from .base import BaleObject
 
@@ -32,6 +33,8 @@ class ReactionData(BaleObject):
             user_id: int,
             emoji: str,
             date: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(user_id=user_id, emoji=emoji, date=date, **__pydantic_kwargs)
+            super().__init__(
+                user_id=user_id, emoji=emoji, date=date, **__pydantic_kwargs
+            )

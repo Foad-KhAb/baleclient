@@ -1,15 +1,14 @@
 from typing import (
-    Callable,
-    Awaitable,
-    Union,
-    TypeVar,
-    Protocol,
     Any,
+    Awaitable,
+    Callable,
     Dict,
     List,
     Optional,
+    Protocol,
+    TypeVar,
+    Union,
 )
-
 
 T = TypeVar("T", bound=Callable[..., Any])
 
@@ -27,6 +26,7 @@ class EventObserver:
     event types, retrieve the list of registered event types, and fetch the
     decorator for a specific event type.
     """
+
     def __init__(self) -> None:
         self._event_decorators: Dict[str, Callable[..., Any]] = {}
 

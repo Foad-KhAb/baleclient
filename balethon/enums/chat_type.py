@@ -1,10 +1,11 @@
 from enum import Enum
 
+
 class ChatType(int, Enum):
     """
     Enum representing different types of chat.
     """
-    
+
     UNKNOWN = 0
     """Represents an unknown chat type."""
 

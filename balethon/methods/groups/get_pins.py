@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import ShortPeer
 from ...types.responses import GetPinsResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -44,11 +45,6 @@ class GetPins(BaleMethod):
             group: ShortPeer,
             page: int,
             limit: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(
-                group=group,
-                page=page,
-                limit=limit,
-                **__pydantic_kwargs
-            )
+            super().__init__(group=group, page=page, limit=limit, **__pydantic_kwargs)

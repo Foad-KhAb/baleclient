@@ -1,4 +1,5 @@
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
+
 from pydantic import Field, model_serializer, model_validator
 
 from .base import BaleObject

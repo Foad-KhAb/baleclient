@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from pydantic import Field
-from typing import TYPE_CHECKING, Optional
 
 from .base import BaleObject
 

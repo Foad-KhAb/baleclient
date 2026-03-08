@@ -1,6 +1,7 @@
 from typing import Any
-from .base import Filter
+
 from ..types import Message
+from .base import Filter
 
 
 class IsText(Filter):
@@ -11,7 +12,7 @@ class IsText(Filter):
 
     Examples:
         .. code:: python
-        
+
             @router.message(IsText())
             async def handler(msg: Message):
                 ...

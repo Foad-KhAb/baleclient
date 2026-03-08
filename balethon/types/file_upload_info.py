@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field
 from typing import TYPE_CHECKING
+
+from pydantic import Field
 
 from .base import BaleObject
 
@@ -10,8 +11,8 @@ class FileUploadInfo(BaleObject):
     """
     Contains information required to upload a file to the Bale server.
 
-    This includes a unique file ID, the upload URL, and the chunk size to be used 
-    when uploading the file in multiple parts. Chunking is useful for uploading 
+    This includes a unique file ID, the upload URL, and the chunk size to be used
+    when uploading the file in multiple parts. Chunking is useful for uploading
     large files efficiently and reliably.
 
     All values are provided by the server in preparation for a file upload session.
@@ -27,6 +28,7 @@ class FileUploadInfo(BaleObject):
     """Recommended chunk size in bytes. Default is 262144 (256KB)."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,

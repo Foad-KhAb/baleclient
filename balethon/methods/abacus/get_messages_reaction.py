@@ -1,16 +1,17 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, List
 
-from ...types import Peer, OtherMessage
-from ...types.responses import ReactionsResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import OtherMessage, Peer
+from ...types.responses import ReactionsResponse
 from ..base import BaleMethod
 
 
 class GetMessagesReactions(BaleMethod):
     """
     Retrieves reactions for specified messages and their origins.
-    
+
     Returns:
         aiobale.types.responses.ReactionsResponse: The response containing reactions data.
     """
@@ -50,12 +51,12 @@ class GetMessagesReactions(BaleMethod):
             message_ids: List[OtherMessage],
             origin_peer: Peer,
             origin_message_ids: List[OtherMessage],
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 peer=peer,
                 message_ids=message_ids,
                 origin_peer=origin_peer,
                 origin_message_ids=origin_message_ids,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

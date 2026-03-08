@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
+
 from pydantic import Field, model_validator
 
-from ..short_peer import ShortPeer
-from ..group import Group
 from ..base import BaleObject
+from ..group import Group
+from ..short_peer import ShortPeer
 
 
 class JoinedGroupResponse(BaleObject):

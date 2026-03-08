@@ -1,9 +1,8 @@
 from .base import Filter
-from .logic import invert_f, or_f, and_f
-from .regex import RegexFilter
 from .chat import ChatTypeFilter, IsGroupOrChannel, IsPrivate
-from .content import IsText, IsDocument, IsGift
-
+from .content import IsDocument, IsGift, IsText
+from .logic import and_f, invert_f, or_f
+from .regex import RegexFilter
 
 __all__ = (
     "Filter",

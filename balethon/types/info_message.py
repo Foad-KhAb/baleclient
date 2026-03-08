@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from pydantic import Field
-from typing import TYPE_CHECKING, Optional, Union, Any
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-from .peer import Peer
+from pydantic import Field
+
 from .base import BaleObject
-from .values import IntValue
 from .other_message import OtherMessage
+from .peer import Peer
+from .values import IntValue
 
 
 class InfoMessage(BaleObject):
@@ -14,7 +15,7 @@ class InfoMessage(BaleObject):
     Represents metadata about a message, typically used in reply or reference contexts.
 
     This object encapsulates information about the message sender (peer),
-    the unique message identifier, the timestamp of the message, 
+    the unique message identifier, the timestamp of the message,
     and optionally a reference to the previous message in a thread or conversation.
     """
 
@@ -27,8 +28,8 @@ class InfoMessage(BaleObject):
     date: Union[IntValue, int] = Field(..., alias="3")
     """
     Timestamp of the message.
-    
-    Can be either a plain integer UNIX timestamp or a wrapped `IntValue` 
+
+    Can be either a plain integer UNIX timestamp or a wrapped `IntValue`
     for extended or protobuf-compatible representations.
     """
 
@@ -50,12 +51,12 @@ class InfoMessage(BaleObject):
             message_id: int,
             date: Union[IntValue, int],
             previous_message: Optional[OtherMessage] = None,
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs: Any,
         ) -> None:
             super().__init__(
                 peer=peer,
                 message_id=message_id,
                 date=date,
                 previous_message=previous_message,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

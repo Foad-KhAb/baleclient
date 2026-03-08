@@ -1,4 +1,5 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel
 
 
@@ -26,6 +27,7 @@ class FileDetails(BaseModel):
     """Access hash used for security and authorization related to the file."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,

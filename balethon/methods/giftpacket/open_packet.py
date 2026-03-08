@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import InfoMessage
 from ...types.responses import PacketResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -19,7 +20,7 @@ class OpenGiftPacket(BaleMethod):
 
     __service__ = Services.GIFT_PACKET.value
     __method__ = "OpenGiftPacket"
-    
+
     __returning__ = PacketResponse
 
     message: InfoMessage = Field(..., alias="1")
@@ -42,14 +43,14 @@ class OpenGiftPacket(BaleMethod):
             *,
             message: InfoMessage,
             receiver_token: str,
-            page_no: dict = {},
+            page_no: dict = None,
             order_type: int = 3,
             **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 message=message,
                 receiver_token=receiver_token,
-                page_no=page_no,
+                page_no=page_no if page_no else {},
                 order_type=order_type,
                 **__pydantic_kwargs,
             )

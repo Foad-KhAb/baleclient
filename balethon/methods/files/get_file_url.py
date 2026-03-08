@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import FileInfo
 from ...types.responses import FileURLResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 

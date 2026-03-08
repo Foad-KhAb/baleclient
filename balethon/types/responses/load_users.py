@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import List, Dict, Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
+
 from pydantic import Field, model_validator
 
 from ..base import BaleObject

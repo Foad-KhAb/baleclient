@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field
 from typing import TYPE_CHECKING, Optional
+
+from pydantic import Field
 
 from ..enums import ReportKind
 from .base import BaleObject
@@ -36,12 +37,12 @@ class Report(BaleObject):
             description: Optional[str] = None,
             peer_report: Optional[PeerReport] = None,
             message_report: Optional[MessageReport] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 kind=kind,
                 description=description,
                 peer_report=peer_report,
                 message_report=message_report,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )
