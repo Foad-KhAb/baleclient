@@ -1,123 +1,62 @@
-<p align="center">
-  <img src="https://i.postimg.cc/Ssg1Tfhr/banner.png" alt="Aiobale Banner">
-</p>
+# Balethon
 
-<h1 align="center">Aiobale</h1>
-<h3 align="center">Async Python Client for Bale Messenger — Simplified, Modern, Pythonic</h3>
+Balethon is a maintained fork / rework of **Aiobale**, an asynchronous Python client for Bale Messenger.
 
-<p align="center">
-  <strong>Aiobale</strong> is an asynchronous Python library that unlocks Bale Messenger's internal API, making it effortless to build bots, automation, and tools without diving into gRPC or Protobuf complexity.
-</p>
+The original library is great but contains several bugs and incomplete implementations.
+This project fixes those issues and adds additional improvements for reliability and usability.
 
-<p align="center">
-  <img src="https://img.shields.io/pypi/v/aiobale?color=brightgreen&logo=pypi" alt="PyPI version">
-  <img src="https://pepy.tech/badge/aiobale" alt="Downloads">
-  <img src="https://img.shields.io/badge/Python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-brightgreen?logo=python">
-  <img src="https://img.shields.io/badge/License-MIT-blue?logo=open-source-initiative" alt="License">
-</p>
+Balethon is used internally in Chavosh projects and will continue to receive fixes and improvements.
 
 ---
 
-## 🚀 Why Aiobale?
+## Based On
 
-Bale Messenger's API can be a maze of encrypted gRPC calls. **Aiobale** cuts through the noise:
+This project is based on:
 
-- Async-first, fully non-blocking, built on `aiohttp`.
-- Type-safe Python classes for messages, users, groups, and more.
-- Event-driven Dispatcher for clean, modular bot code.
-- Handles connections, reconnections, and multi-client setups effortlessly.
-- Reverse-engineered, continuously updated, zero reliance on `.proto` files.
+**Aiobale**
+https://github.com/Enalite/aiobale
 
-**In short:** Build bots, automation, or monitoring tools **without wrestling with low-level network details**.
+Credit to the original author for the initial implementation.
 
 ---
 
-## ✨ Features
+## Why Balethon?
 
-- **Async & High Performance:** Responsive bots and automation.
-- **Complete API Coverage:** Messaging, files, presence, bots, groups, channels.
-- **Pythonic Interface:** Type hints, dataclasses, clean methods.
-- **Smart Dispatcher:** Decorator-based event routing, multiple clients support.
-- **Robust Connections:** Auto-reconnects, handles disconnects gracefully.
-- **Extensible & Modular:** Easy to adapt and extend for custom workflows.
+While using Aiobale in real projects, I encountered several issues such as:
 
----
+- parsing bugs
+- inconsistent API responses
+- missing validations
+- edge cases not handled
 
-## ⚠️ Important Notes
-
-- Bale’s API is sensitive to excessive POST gRPC calls, especially outside authentication. Overuse may trigger **rate limits** or temporary account bans.
-- Use Aiobale responsibly — **no spamming, scraping, or TOS violations**.
-- Aiobale is **unofficial** and provided **as-is** for educational and ethical purposes.
+Balethon fixes these problems and adds additional improvements.
 
 ---
 
-## 📦 Installation
+## Fixes
 
-```bash
-# Stable release
-pip install aiobale
+List of fixes applied to the original library:
 
-# Latest development version
-pip install git+https://github.com/Enalite/aiobale.git
-````
+- [X] Fix dialog response parsing
+- [X] Fix message caption parsing
+- [X] Fix incorrect type validations
 
----
-
-## 💡 Quick Start — Echo Bot
-
-```python
-from aiobale import Client, Dispatcher
-from aiobale.types import Message
-
-dp = Dispatcher()
-client = Client(dp)
-
-@dp.message()
-async def echo(msg: Message):
-    if content := msg.document:
-        await msg.answer_document(content, use_own_content=True)
-    elif text := msg.text:
-        await msg.answer(text)
-    else:
-        await msg.answer("Nothing to echo!")
-
-client.run()
-```
+*(this list will grow as more issues are discovered)*
 
 ---
 
-## 🧑‍💻 Contributing
+## Added Improvements
 
-We welcome contributions of all kinds:
+Additional features and improvements:
 
-* ⭐ Star the repo
-* 🐞 Report bugs or request features
-* 🧩 Submit pull requests (code, docs, tests)
-* ✍️ Help document unknown methods or structures
+- [X] Better error handling in reading corrupted or changed session files
 
-> Every contribution counts — even small fixes make a difference.
 
 ---
 
-## 📄 License
+## Notes
 
-Aiobale is released under the [MIT License](https://github.com/Enalite/aiobale/blob/main/LICENSE). Use freely and responsibly.
-
----
-
-## 🔗 Links
-
-* **PyPI:** [pypi.org/project/aiobale](https://pypi.org/project/aiobale)
-* **GitHub:** [github.com/Enalite/aiobale](https://github.com/Enalite/aiobale)
-* **Bale Channel:** [ble.ir/aiobale](https://ble.ir/aiobale)
-* **Telegram Mirror:** [t.me/aiobale](https://t.me/aiobale)
-* **Docs:** [docs.aiobale.ir](https://docs.aiobale.ir)
+* Balethon is **not an official Bale API library**.
+* The Bale API is internal and may change without notice.
 
 ---
-
-## 💬 Final Thoughts
-
-Aiobale isn’t just a library — it’s a gateway to Bale Messenger’s inner workings.
-Build bots, explore features, and automate with **confidence and simplicity**.
-
-Welcome to the unofficial Bale ecosystem. Let’s innovate together!
