@@ -216,6 +216,11 @@ from ..types.responses import (
     WalletResponse,
 )
 from ..utils import clean_grpc, extract_join_token, generate_id, parse_jwt
+from ..utils.grpc_post import (
+    decode_jwt_payload,
+    extract_jwt_from_bytes,
+    maybe_extract_name_from_bytes,
+)
 from .auth_cli import PhoneLoginCLI
 from .session import AiohttpSession, BaseSession
 
@@ -423,14 +428,48 @@ class Client:
             return self.__session_file.read_bytes()
         return None
 
-    def _parse_session_content(self, data: bytes) -> ValidateCodeResponse:
-        decoded = self.session.decoder(clean_grpc(data))
-        model = ValidateCodeResponse.model_validate(decoded)
+    def _parse_session_content(self, data: bytes) -> Optional["ValidateCodeResponse"]:
+        payload = clean_grpc(data)
 
-        self.__token = model.jwt.value
-        self._me = self._check_token(model.user)
+        # 1) Normal path
+        try:
+            decoded = self.session.decoder(payload)
+            model = ValidateCodeResponse.model_validate(decoded)
+            self.__token = model.jwt.value
+            self._me = self._check_token(model.user)
+            return model
 
-        return model
+        except Exception as e:
+            print(f"[session] protobuf decode failed, fallback mode: {e}")
+
+        # 2) Fallback path for corrupted protobuf
+        token = extract_jwt_from_bytes(payload) or extract_jwt_from_bytes(data)
+        if not token:
+            raise ValueError("Session file is corrupted and no JWT could be recovered")
+
+        claims = decode_jwt_payload(token)
+        jwt_payload = claims.get("payload", {})
+
+        user_id = jwt_payload.get("user_id")
+        auth_id = jwt_payload.get("auth_id")
+        service = jwt_payload.get("service")
+        name = maybe_extract_name_from_bytes(payload) or maybe_extract_name_from_bytes(
+            data
+        )
+
+        self.__token = token
+        user = UserAuth(id=user_id, access_hash=auth_id, service=service, name=name)
+        self._me = ClientData(
+            id=user_id,
+            user=user,
+            name=name,
+            auth_sid=1,
+            app_id=1,
+            auth_id=auth_id,
+            service=service,
+        )
+
+        return ValidateCodeResponse(jwt=StringValue(value=self.__token), user=user)
 
     def _add_token_via_file(self) -> bool:
         content = self._get_session_content()

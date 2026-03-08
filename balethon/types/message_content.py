@@ -62,6 +62,13 @@ class MessageCaption(BaleObject):
                 content=content, mentions=mentions, ext=ext, **__pydantic_kwargs
             )
 
+    @model_validator(mode="before")
+    @classmethod
+    def fix_mentions(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        if "2" in data and not isinstance(data["2"], (list, dict)):
+            data["2"] = {}
+        return data
+
 
 class DocumentMessage(BaleObject):
     """
