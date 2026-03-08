@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Dict, TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, Dict, List
+
 from pydantic import Field, model_validator
 
+from ...enums import GiftOpenning
 from ..base import BaleObject
 from ..winner import Winner
-from ...enums import GiftOpenning
 
 
 class PacketResponse(BaleObject):
@@ -35,7 +36,7 @@ class PacketResponse(BaleObject):
         def __init__(
             __pydantic__self__,
             *,
-            receivers: List[Winner] = [],
+            receivers: List[Winner] = None,
             status: GiftOpenning = GiftOpenning.ALREADY_RECEIVED,
             openned_count: int,
             win_amount: int,
@@ -43,12 +44,12 @@ class PacketResponse(BaleObject):
             **__pydantic_kwargs,
         ) -> None:
             super().__init__(
-                receivers=receivers,
+                receivers=receivers if receivers else [],
                 status=status,
                 openned_count=openned_count,
                 win_amount=win_amount,
                 rank=rank,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )
 
     @model_validator(mode="before")
@@ -59,7 +60,7 @@ class PacketResponse(BaleObject):
 
         if "4" in data:
             data["4"] = data["4"]["1"]
-            
+
         if "5" in data:
             data["5"] = data["5"]["1"]
 

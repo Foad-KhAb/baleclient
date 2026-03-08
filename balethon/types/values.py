@@ -1,5 +1,6 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, List, Optional
+
+from pydantic import Field
 
 from .base import BaleObject
 from .int_bool import IntBool
@@ -17,12 +18,8 @@ class StringValue(BaleObject):
     """The wrapped string value."""
 
     if TYPE_CHECKING:
-        def __init__(
-            __pydantic__self__,
-            *,
-            value: str,
-            **__pydantic_kwargs
-        ) -> None:
+
+        def __init__(__pydantic__self__, *, value: str, **__pydantic_kwargs) -> None:
             super().__init__(value=value, **__pydantic_kwargs)
 
 
@@ -37,12 +34,8 @@ class IntValue(BaleObject):
     """The wrapped integer value."""
 
     if TYPE_CHECKING:
-        def __init__(
-            __pydantic__self__,
-            *,
-            value: int,
-            **__pydantic_kwargs
-        ) -> None:
+
+        def __init__(__pydantic__self__, *, value: int, **__pydantic_kwargs) -> None:
             super().__init__(value=value, **__pydantic_kwargs)
 
 
@@ -57,11 +50,9 @@ class BoolValue(BaleObject):
     """The wrapped boolean value as an integer (0 or 1)."""
 
     if TYPE_CHECKING:
+
         def __init__(
-            __pydantic__self__,
-            *,
-            value: IntBool,
-            **__pydantic_kwargs
+            __pydantic__self__, *, value: IntBool, **__pydantic_kwargs
         ) -> None:
             super().__init__(value=value, **__pydantic_kwargs)
 
@@ -77,12 +68,8 @@ class BytesValue(BaleObject):
     """The wrapped bytes value."""
 
     if TYPE_CHECKING:
-        def __init__(
-            __pydantic__self__,
-            *,
-            value: bytes,
-            **__pydantic_kwargs
-        ) -> None:
+
+        def __init__(__pydantic__self__, *, value: bytes, **__pydantic_kwargs) -> None:
             super().__init__(value=value, **__pydantic_kwargs)
 
 
@@ -95,10 +82,8 @@ class IntListValue(BaleObject):
     """The wrapped int values."""
 
     if TYPE_CHECKING:
+
         def __init__(
-            __pydantic__self__,
-            *,
-            value: List[int],
-            **__pydantic_kwargs
+            __pydantic__self__, *, value: List[int], **__pydantic_kwargs
         ) -> None:
             super().__init__(value=value, **__pydantic_kwargs)

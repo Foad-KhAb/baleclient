@@ -45,8 +45,8 @@ Bale Messenger's API can be a maze of encrypted gRPC calls. **Aiobale** cuts thr
 
 ## ⚠️ Important Notes
 
-- Bale’s API is sensitive to excessive POST gRPC calls, especially outside authentication. Overuse may trigger **rate limits** or temporary account bans.  
-- Use Aiobale responsibly — **no spamming, scraping, or TOS violations**.  
+- Bale’s API is sensitive to excessive POST gRPC calls, especially outside authentication. Overuse may trigger **rate limits** or temporary account bans.
+- Use Aiobale responsibly — **no spamming, scraping, or TOS violations**.
 - Aiobale is **unofficial** and provided **as-is** for educational and ethical purposes.
 
 ---

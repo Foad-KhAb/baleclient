@@ -1,8 +1,8 @@
 import re
-from typing import Pattern, Union, Any
+from typing import Any, Pattern, Union
 
-from .base import Filter
 from ..types import Message
+from .base import Filter
 
 
 class RegexFilter(Filter):
@@ -14,11 +14,12 @@ class RegexFilter(Filter):
 
     Example:
         .. code:: python
-        
+
             @router.message(RegexFilter(r"hello (\\w+)"))
             async def greet_user(msg: Message):
                 ...
     """
+
     def __init__(self, pattern: Union[str, Pattern[str]]):
         if isinstance(pattern, str):
             self.pattern = re.compile(pattern)

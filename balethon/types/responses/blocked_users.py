@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from pydantic import Field, model_validator
 
@@ -39,9 +39,6 @@ class BlockedUsersResponse(BaleObject):
         # This init is only used for type checking and IDE autocomplete.
         # It will not be included in runtime behavior.
         def __init__(
-            __pydantic__self__,
-            *,
-            users: List[InfoPeer] = [],
-            **__pydantic_kwargs
+            __pydantic__self__, *, users: List[InfoPeer] = None, **__pydantic_kwargs
         ) -> None:
-            super().__init__(users=users, **__pydantic_kwargs)
+            super().__init__(users=users if users else [], **__pydantic_kwargs)

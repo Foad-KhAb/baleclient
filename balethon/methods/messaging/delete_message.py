@@ -1,9 +1,10 @@
-from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from ...types import Peer, IntValue, IntListValue
-from ...types.responses import DefaultResponse
+from pydantic import Field, model_validator
+
 from ...enums import Services
+from ...types import IntListValue, IntValue, Peer
+from ...types.responses import DefaultResponse
 from ..base import BaleMethod
 
 
@@ -50,14 +51,14 @@ class DeleteMessage(BaleMethod):
             message_ids: List[int],
             dates: List[int],
             just_me: IntValue,
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs: Any,
         ) -> None:
             super().__init__(
                 peer=peer,
                 message_ids=message_ids,
                 dates=dates,
                 just_me=just_me,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )
 
     @model_validator(mode="before")

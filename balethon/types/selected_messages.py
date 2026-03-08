@@ -1,9 +1,10 @@
-from pydantic import Field, model_validator
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
+from pydantic import Field, model_validator
+
+from ..utils import decode_list
 from .base import BaleObject
 from .peer import Peer
-from ..utils import decode_list
 
 
 class SelectedMessages(BaleObject):

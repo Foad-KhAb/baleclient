@@ -1,8 +1,4 @@
-from .base import BaseSession
 from .aiohttp import AiohttpSession
+from .base import BaseSession
 
-
-__all__ = (
-    "BaseSession",
-    "AiohttpSession"
-)
+__all__ = ("BaseSession", "AiohttpSession")

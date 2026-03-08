@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field
 from typing import TYPE_CHECKING, Union
+
+from pydantic import Field
 
 from .base import BaleObject
 
@@ -24,12 +25,13 @@ class Thumbnail(BaleObject):
 
     image: Union[str, bytes] = Field(..., alias="3")
     """Thumbnail image data. Can be either:
-    
+
     - `str`: a URL pointing to the image
     - `bytes`: raw image bytes (e.g., in base64 or binary format)
     """
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,

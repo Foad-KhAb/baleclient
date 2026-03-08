@@ -1,16 +1,17 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Optional
 
-from ...types import ShortPeer, Condition, StringValue
-from ...types.responses import MembersResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import Condition, ShortPeer, StringValue
+from ...types.responses import MembersResponse
 from ..base import BaleMethod
 
 
 class LoadMembers(BaleMethod):
     """
     Loads members of a group with optional filtering conditions.
-    
+
     Returns:
         aiobale.types.responses.MembersResponse: The response containing the list of group members.
     """
@@ -50,12 +51,12 @@ class LoadMembers(BaleMethod):
             limit: int,
             next_offset: int,
             condition: Optional[Condition] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 group=group,
                 limit=limit,
                 next=next_offset,
                 condition=condition,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

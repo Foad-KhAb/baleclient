@@ -1,5 +1,6 @@
+from typing import TYPE_CHECKING, Any, Optional
+
 from pydantic import Field
-from typing import Any, Optional, TYPE_CHECKING
 
 from .base import BaleObject
 from .update import UpdateBody
@@ -20,12 +21,9 @@ class BaleError(BaleObject):
     """Detailed error message explaining the cause or context."""
 
     if TYPE_CHECKING:
+
         def __init__(
-            __pydantic__self__,
-            *,
-            topic: int,
-            message: str,
-            **__pydantic_kwargs
+            __pydantic__self__, *, topic: int, message: str, **__pydantic_kwargs
         ) -> None:
             super().__init__(topic=topic, message=message, **__pydantic_kwargs)
 
@@ -47,15 +45,18 @@ class ResponseBody(BaleObject):
     """Sequence or request number for matching requests and responses."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             error: Optional[BaleError] = None,
             result: Optional[Any] = None,
             number: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(error=error, result=result, number=number, **__pydantic_kwargs)
+            super().__init__(
+                error=error, result=result, number=number, **__pydantic_kwargs
+            )
 
 
 class UpdateField(BaleObject):
@@ -69,11 +70,9 @@ class UpdateField(BaleObject):
     """The detailed body of the update event."""
 
     if TYPE_CHECKING:
+
         def __init__(
-            __pydantic__self__,
-            *,
-            body: UpdateBody,
-            **__pydantic_kwargs
+            __pydantic__self__, *, body: UpdateBody, **__pydantic_kwargs
         ) -> None:
             super().__init__(body=body, **__pydantic_kwargs)
 
@@ -106,6 +105,7 @@ class Response(BaleObject):
     """Handshake data used during session establishment."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -114,7 +114,7 @@ class Response(BaleObject):
             terminate_session: Optional[Any] = None,
             pong: Optional[IntValue] = None,
             handshake: Optional[Any] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 response=response,

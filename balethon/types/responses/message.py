@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Optional, Any, Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
 from pydantic import ValidationInfo, model_validator
 
+from ...types import ExtData, Message, OtherMessage
 from .default import DefaultResponse
-from ...types import Message, OtherMessage, ExtData
 
 if TYPE_CHECKING:
     from ...methods import SendMessage
@@ -15,7 +16,7 @@ class MessageResponse(DefaultResponse):
     Response model representing a message returned from a send message request.
 
     Attributes:
-        message (Optional[Message]): The main message object constructed from the 
+        message (Optional[Message]): The main message object constructed from the
             send message method data and extended metadata.
     """
 
@@ -61,10 +62,14 @@ class MessageResponse(DefaultResponse):
         if "previous_message_date" in prev_data:
             mapped_prev_data["date"] = prev_data["previous_message_date"]
 
-        prev_message = OtherMessage.model_validate(mapped_prev_data) if mapped_prev_data else None
+        prev_message = (
+            OtherMessage.model_validate(mapped_prev_data) if mapped_prev_data else None
+        )
 
         # Normalize document thumbnail image bytes to hex string if present
-        if hasattr(method.content, "document") and getattr(method.content.document, "thumb", None):
+        if hasattr(method.content, "document") and getattr(
+            method.content.document, "thumb", None
+        ):
             thumb = method.content.document.thumb
             if isinstance(thumb.image, bytes):
                 thumb.image = thumb.image.hex()

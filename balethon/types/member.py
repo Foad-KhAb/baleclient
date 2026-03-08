@@ -1,5 +1,6 @@
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
 from pydantic import Field, model_validator
-from typing import Dict, List, Optional, Any, TYPE_CHECKING
 
 from .base import BaleObject
 from .int_bool import IntBool
@@ -8,7 +9,7 @@ from .permissions import Permissions
 
 class Member(BaleObject):
     """
-    Represents a member of a Bale channel or group, including 
+    Represents a member of a Bale channel or group, including
     information about their role, invitation, promotion, and permissions.
 
     All date fields represent timestamps in milliseconds since the Unix epoch.
@@ -33,7 +34,7 @@ class Member(BaleObject):
     """Timestamp (ms) when the member was promoted to admin."""
 
     permissions: Optional[List[Permissions]] = Field(None, alias="7")
-    """List of permissions granted to the member.  
+    """List of permissions granted to the member.
     Even if only one permission exists, it is normalized as a list.
     """
 
@@ -78,7 +79,7 @@ class Member(BaleObject):
             promoted_by: Optional[int] = None,
             promoted_at: Optional[int] = None,
             permissions: Optional[List[Permissions]] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 id=id,
@@ -88,5 +89,5 @@ class Member(BaleObject):
                 promoted_by=promoted_by,
                 promoted_at=promoted_at,
                 permissions=permissions,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

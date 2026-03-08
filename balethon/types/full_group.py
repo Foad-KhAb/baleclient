@@ -1,10 +1,11 @@
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
 from pydantic import Field, model_validator
 
 from ..enums import GroupType, PrivacyMode
 from .base import BaleObject
-from .int_bool import IntBool
 from .full_user import ExInfo
+from .int_bool import IntBool
 from .member import Member
 from .permissions import Permissions
 
@@ -62,7 +63,7 @@ class FullGroup(BaleObject):
 
     ex_info: Optional[ExInfo] = Field(None, alias="18")
     """Extended info about the group, including:
-    
+
     - `expeer_type`: Represents ChatType enum.
     - `identified`: Whether the group is verified (has blue badge).
     """
@@ -128,7 +129,7 @@ class FullGroup(BaleObject):
             available_reactions: Optional[List[str]] = None,
             is_suspend: IntBool = False,
             privacy_mode: Optional[PrivacyMode] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 id=id,
@@ -149,5 +150,5 @@ class FullGroup(BaleObject):
                 available_reactions=available_reactions or [],
                 is_suspend=is_suspend,
                 privacy_mode=privacy_mode,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

@@ -1,224 +1,223 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass, field
 import io
 import json
+import os
 import pathlib
 import signal
 import sys
-import aiofiles
-import os
+from contextlib import AbstractAsyncContextManager, asynccontextmanager, suppress
+from dataclasses import dataclass, field
+from types import TracebackType
 from typing import (
     Any,
     AsyncGenerator,
     BinaryIO,
     Callable,
     Coroutine,
+    Final,
     List,
     Literal,
     Optional,
     Set,
     Tuple,
     Type,
-    Final,
     Union,
 )
-from types import TracebackType
-from contextlib import AbstractAsyncContextManager, asynccontextmanager, suppress
 
-from .session import AiohttpSession, BaseSession
-from ..exceptions import AiobaleError
-from ..utils import parse_jwt, generate_id, clean_grpc, extract_join_token
+import aiofiles
+
+from ..dispatcher.dispatcher import Dispatcher
+from ..enums import (
+    AuthErrors,
+    ChatType,
+    GivingType,
+    GroupType,
+    ListLoadMode,
+    PeerSource,
+    PeerType,
+    ReportKind,
+    Restriction,
+    SendCodeType,
+    SendType,
+    TypingMode,
+)
+from ..exceptions import BalethonError
+from ..logger import logger
 from ..methods import (
-    SendMessage,
+    AddContact,
     BaleMethod,
     BaleType,
-    StartPhoneAuth,
-    ValidateCode,
+    BlockUser,
+    CheckNickName,
+    ClearChat,
+    CreateGroup,
+    DeleteChat,
     DeleteMessage,
-    ForwardMessages,
-    MessageRead,
+    EditAbout,
+    EditChannelUsername,
+    EditGroupAbout,
+    EditGroupTitle,
     EditName,
     EditNickName,
-    CheckNickName,
-    UpdateMessage,
-    ClearChat,
-    DeleteChat,
-    LoadHistory,
-    SetOnline,
-    PinMessage,
-    UnPinMessages,
-    LoadPinnedMessages,
-    LoadDialogs,
-    EditAbout,
-    LoadFullUsers,
-    LoadUsers,
-    EditUserLocalName,
-    BlockUser,
-    UnblockUser,
-    LoadBlockedUsers,
-    SearchContact,
-    ImportContacts,
-    ResetContacts,
-    RemoveContact,
-    AddContact,
-    GetContacts,
-    SendReport,
-    StopTyping,
-    Typing,
-    GetParameters,
     EditParameter,
-    GetMessagesReactions,
-    GetMessageReactionsList,
-    MessageSetReaction,
-    MessageRemoveReaction,
-    GetMessagesViews,
-    ValidatePassword,
+    EditUserLocalName,
+    ForwardMessages,
+    GetBannedUsers,
+    GetContacts,
+    GetFileUploadUrl,
+    GetFileUrl,
     GetFullGroup,
-    LoadMembers,
-    CreateGroup,
-    InviteUsers,
-    EditGroupTitle,
-    EditGroupAbout,
-    SetRestriction,
     GetGroupInviteURL,
-    RevokeInviteURL,
-    LeaveGroup,
-    TransferOwnership,
-    RemoveUserAdmin,
-    MakeUserAdmin,
-    KickUser,
-    RemoveUserAdmin,
+    GetGroupPreview,
+    GetMemberPermissions,
+    GetMessageReactionsList,
+    GetMessagesReactions,
+    GetMessagesViews,
+    GetMessageUpvoters,
+    GetMyKifpools,
+    GetParameters,
+    GetPins,
+    ImportContacts,
+    InviteUsers,
     JoinGroup,
     JoinPublicGroup,
-    PinGroupMessage,
-    RemoveSinglePin,
-    RemoveAllPins,
-    GetPins,
-    EditChannelUsername,
-    SetMemberPermissions,
-    GetMemberPermissions,
-    SetGroupDefaultPermissions,
-    GetBannedUsers,
-    UnbanUser,
-    GetGroupPreview,
-    GetFileUrl,
-    GetFileUploadUrl,
-    GetMyKifpools,
-    SendGiftPacketWithWallet,
+    KickUser,
+    LeaveGroup,
+    LoadBlockedUsers,
+    LoadDialogs,
+    LoadFullUsers,
+    LoadHistory,
+    LoadMembers,
+    LoadPinnedMessages,
+    LoadUsers,
+    MakeUserAdmin,
+    MessageRead,
+    MessageRemoveReaction,
+    MessageSetReaction,
     OpenGiftPacket,
-    SignOut,
-    UpvotePost,
+    PinGroupMessage,
+    PinMessage,
+    RemoveAllPins,
+    RemoveContact,
+    RemoveSinglePin,
+    RemoveUserAdmin,
+    ResetContacts,
+    RevokeInviteURL,
     RevokeUpvotedPost,
-    GetMessageUpvoters,
+    SearchContact,
+    SendGiftPacketWithWallet,
+    SendMessage,
+    SendReport,
+    SetGroupDefaultPermissions,
+    SetMemberPermissions,
+    SetOnline,
+    SetRestriction,
+    SignOut,
+    StartPhoneAuth,
+    StopTyping,
+    TransferOwnership,
+    Typing,
+    UnbanUser,
+    UnblockUser,
+    UnPinMessages,
+    UpdateMessage,
+    UpvotePost,
+    ValidateCode,
+    ValidatePassword,
 )
 from ..types import (
-    MessageContent,
-    ClientData,
-    Peer,
-    Chat,
-    TextMessage,
-    DocumentMessage,
-    UserAuth,
-    IntValue,
-    Message,
-    InfoMessage,
-    StringValue,
-    OtherMessage,
-    MessageData,
-    QuotedMessage,
-    PeerData,
-    InfoPeer,
-    FullUser,
-    User,
-    ContactData,
-    Report,
-    PeerReport,
-    MessageReport,
-    ExtKeyValue,
-    MessageReactions,
-    ReactionData,
-    Reaction,
-    MessageViews,
-    FullGroup,
-    ShortPeer,
-    Member,
-    Condition,
-    BoolValue,
-    Permissions,
+    AudioExt,
     BanData,
+    BoolValue,
+    Chat,
+    ClientData,
+    Condition,
+    ContactData,
+    DocumentMessage,
+    DocumentsExt,
+    ExtKeyValue,
+    FileDetails,
     FileInfo,
-    FileURL,
     FileInput,
     FileUploadInfo,
-    FileDetails,
-    SendTypeModel,
+    FileURL,
+    FullGroup,
+    FullUser,
+    GiftPacket,
+    InfoMessage,
+    InfoPeer,
+    InlineKeyboardMarkup,
+    IntValue,
+    Member,
+    Message,
     MessageCaption,
+    MessageContent,
+    MessageData,
+    MessageReactions,
+    MessageReport,
+    MessageViews,
+    OtherMessage,
+    Peer,
+    PeerData,
+    PeerReport,
+    Permissions,
+    PhotoExt,
+    QuotedMessage,
+    Reaction,
+    ReactionData,
+    Report,
+    Request,
+    SendTypeModel,
+    ShortPeer,
+    StringValue,
+    TemplateMessage,
+    TextMessage,
     Thumbnail,
+    UpdateBody,
+    Upvote,
+    User,
+    UserAuth,
     VideoExt,
     VoiceExt,
-    AudioExt,
-    PhotoExt,
-    DocumentsExt,
-    UpdateBody,
-    Request,
-    GiftPacket,
-    InlineKeyboardMarkup,
-    TemplateMessage,
-    Upvote,
 )
 from ..types.responses import (
-    MessageResponse,
-    PhoneAuthResponse,
-    ValidateCodeResponse,
-    DefaultResponse,
-    NickNameAvailable,
-    HistoryResponse,
-    DialogResponse,
-    FullUsersResponse,
-    UsersResponse,
+    BannedUsersResponse,
     BlockedUsersResponse,
     ContactResponse,
     ContactsResponse,
-    ParametersResponse,
-    ReactionsResponse,
-    ReactionListResponse,
-    ReactionSentResponse,
-    ViewsResponse,
+    DefaultResponse,
+    DialogResponse,
+    FileURLResponse,
     FullGroupResponse,
-    MembersResponse,
+    FullUsersResponse,
+    GetPinsResponse,
     GroupCreatedResponse,
+    HistoryResponse,
     InviteResponse,
     InviteURLResponse,
     JoinedGroupResponse,
-    GetPinsResponse,
     MemberPermissionsResponse,
-    BannedUsersResponse,
-    FileURLResponse,
-    WalletResponse,
+    MembersResponse,
+    MessageResponse,
+    NickNameAvailable,
     PacketResponse,
+    ParametersResponse,
+    PhoneAuthResponse,
+    ReactionListResponse,
+    ReactionSentResponse,
+    ReactionsResponse,
     UpvoteResponse,
     UpvotersResponse,
+    UsersResponse,
+    ValidateCodeResponse,
+    ViewsResponse,
+    WalletResponse,
 )
-from ..enums import (
-    ChatType,
-    PeerType,
-    SendCodeType,
-    ListLoadMode,
-    PeerSource,
-    ReportKind,
-    TypingMode,
-    Restriction,
-    GroupType,
-    SendType,
-    GivingType,
-    AuthErrors,
-)
-from ..dispatcher.dispatcher import Dispatcher
-from ..logger import logger
+from ..utils import clean_grpc, extract_join_token, generate_id, parse_jwt
 from .auth_cli import PhoneLoginCLI
-
+from .session import AiohttpSession, BaseSession
 
 LifespanType = Callable[["Client"], AbstractAsyncContextManager[None]]
 DEFAULT_SESSION: Final[pathlib.Path] = pathlib.Path("./session.bale")
@@ -353,7 +352,7 @@ class Client:
             self.__session_file = path.resolve()
 
         elif isinstance(session_file, bytes):
-            path = Path(DEFAULT_SESSION)
+            path = pathlib.Path(DEFAULT_SESSION)
             if path.suffix.lower() != ".bale":
                 path = path.with_suffix(".bale")
             path = path.resolve()
@@ -480,7 +479,9 @@ class Client:
             try:
                 await self.session.send_bytes(data, f"ping_{ping_id}")
             except RuntimeError:
-                logger.warning(f"Ping failed. Closing session to trigger restart. (Client: {self.id})")
+                logger.warning(
+                    f"Ping failed. Closing session to trigger restart. (Client: {self.id})"
+                )
                 await self._cleanup_session()
 
     async def _ping_loop(self, interval=5):
@@ -550,11 +551,15 @@ class Client:
                         try:
                             await listen_task
                         except asyncio.CancelledError:
-                            logger.info(f"Listening task cancelled (Client: {self.id}).")
+                            logger.info(
+                                f"Listening task cancelled (Client: {self.id})."
+                            )
                             break
 
             except KeyboardInterrupt:
-                logger.info(f"KeyboardInterrupt received, stopping client (Client: {self.id})...")
+                logger.info(
+                    f"KeyboardInterrupt received, stopping client (Client: {self.id})..."
+                )
                 await self.stop()
             except Exception as e:
                 logger.error(f"Unhandled exception in start (Client: {self.id}): {e}")
@@ -683,11 +688,11 @@ class Client:
         token = self.__token
         result = parse_jwt(token)
         if not result:
-            raise AiobaleError("Not a valid jwt token")
+            raise BalethonError("Not a valid jwt token")
 
         data, _ = result
         if "payload" not in data:
-            raise AiobaleError("Wrong jwt payload")
+            raise BalethonError("Wrong jwt payload")
 
         data["payload"]["user"] = user
         return ClientData.model_validate(data["payload"])
@@ -776,7 +781,7 @@ class Client:
             return self._parse_session_content(content)
 
         except Exception as e:
-            raise AiobaleError("Error while parsing data.") from e
+            raise BalethonError("Error while parsing data.") from e
 
     async def validate_password(
         self, password: str, transaction_hash: str
@@ -809,7 +814,7 @@ class Client:
             return self._parse_session_content(content)
 
         except Exception as e:
-            raise AiobaleError("Error while parsing data.") from e
+            raise BalethonError("Error while parsing data.") from e
 
     async def sign_out(self, delete_session: bool = True) -> None:
         """
@@ -980,7 +985,7 @@ class Client:
             AiobaleError: If input lists are empty or for other client-side errors.
         """
         if not message_ids or not message_dates:
-            raise AiobaleError("`message_ids` or `message_dates` can not be empty")
+            raise BalethonError("`message_ids` or `message_dates` can not be empty")
 
         peer_type = self._resolve_peer_type(chat_type)
         peer = Peer(type=peer_type, id=chat_id)
@@ -1051,13 +1056,13 @@ class Client:
             AiobaleError: If input lists are empty or mismatched, or for other client-side errors.
         """
         if not messages:
-            raise AiobaleError("`messages` cannot be empty")
+            raise BalethonError("`messages` cannot be empty")
 
         if new_ids is None:
             new_ids = [generate_id() for _ in messages]
 
         if len(new_ids) != len(messages):
-            raise AiobaleError("Mismatch between number of `new_ids` and `messages`")
+            raise BalethonError("Mismatch between number of `new_ids` and `messages`")
 
         target_peer = Peer(type=self._resolve_peer_type(chat_type), id=chat_id)
 
@@ -3236,7 +3241,7 @@ class Client:
         self, cover_thumb: FileInput, cover_width: int, cover_height: int
     ) -> Thumbnail:
         if cover_thumb.info.size > 2 * 1024:
-            raise AiobaleError("Cover should not be larger than 2KB")
+            raise BalethonError("Cover should not be larger than 2KB")
 
         thumb_width = 50
         thumb_height = int((thumb_width / cover_width) * cover_height)

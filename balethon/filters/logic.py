@@ -15,6 +15,7 @@ class _LogicFilter(Filter, ABC):
 
     All logical filter types (AND, OR, NOT) inherit from this class.
     """
+
     pass
 
 
@@ -27,7 +28,7 @@ class _InvertFilter(_LogicFilter):
 
     Examples:
         .. code:: python
-        
+
             @router.message(invert_f(IsText()))
             async def handle_non_text(msg: Message):
                 ...
@@ -54,7 +55,7 @@ class _AndFilter(_LogicFilter):
 
     Examples:
         .. code:: python
-        
+
             @router.message(and_f(IsText(), IsDocument()))
             async def handle_text_document(msg: Message):
                 ...
@@ -92,7 +93,7 @@ class _OrFilter(_LogicFilter):
 
     Examples:
         .. code:: python
-        
+
             @router.message(or_f(IsGift(), IsDocument()))
             async def handle_gift_or_document(msg: Message):
                 ...

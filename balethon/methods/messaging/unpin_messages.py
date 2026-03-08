@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Any, List
 
-from ...types import Peer, OtherMessage, IntBool
-from ...types.responses import DefaultResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import IntBool, OtherMessage, Peer
+from ...types.responses import DefaultResponse
 from ..base import BaleMethod
 
 
@@ -44,11 +45,11 @@ class UnPinMessages(BaleMethod):
             peer: Peer,
             messages: List[OtherMessage],
             all_messages: IntBool = False,
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs: Any,
         ) -> None:
             super().__init__(
                 peer=peer,
                 messages=messages,
                 all_messages=all_messages,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

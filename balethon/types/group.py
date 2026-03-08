@@ -1,4 +1,5 @@
-from typing import List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional
+
 from pydantic import Field, model_validator
 
 from ..enums import GroupType, Restriction
@@ -73,7 +74,7 @@ class Group(BaleObject):
         - Removing falsey values (None, empty strings, etc.)
         - Ensuring 'available_reactions' is always a list
         """
-        from typing import Any, Dict  # moved inside to avoid unnecessary top-level import
+
         if not isinstance(data, dict):
             return data
 
@@ -109,7 +110,7 @@ class Group(BaleObject):
             available_reactions: Optional[List[str]] = None,
             is_suspend: IntBool = False,
             restriction: Restriction = Restriction.PRIVATE,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 id=id,
@@ -128,5 +129,5 @@ class Group(BaleObject):
                 available_reactions=available_reactions or [],
                 is_suspend=is_suspend,
                 restriction=restriction,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

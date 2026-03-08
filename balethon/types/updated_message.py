@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
 from .base import BaleObject
+from .chat import Chat
 from .message_content import MessageContent
 from .peer import Peer
-from .chat import Chat
 from .values import IntValue
 
 if TYPE_CHECKING:
@@ -35,13 +36,13 @@ class UpdatedMessage(BaleObject):
 
     date: IntValue = Field(..., alias="4")
     """
-    The timestamp of the update, represented as an `IntValue`.  
+    The timestamp of the update, represented as an `IntValue`.
     This is a millisecond UNIX timestamp indicating when the update occurred.
     """
 
     sender_id: IntValue = Field(..., alias="5")
     """
-    The identifier of the sender as an `IntValue`.  
+    The identifier of the sender as an `IntValue`.
     Wraps the integer ID of the user who sent the updated message.
     """
 
@@ -79,6 +80,7 @@ class UpdatedMessage(BaleObject):
         return self.message
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,

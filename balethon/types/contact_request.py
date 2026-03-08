@@ -1,5 +1,6 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
+
+from pydantic import Field
 
 from .base import BaleObject
 from .values import StringValue
@@ -7,14 +8,14 @@ from .values import StringValue
 
 class ContactData(BaleObject):
     """Represents contact data in Bale messenger.
-    
+
     This class contains essential information about a contact,
     including their phone number and name.
     """
 
     phone_number: int = Field(..., alias="1")
     """The contact's phone number in international format"""
-    
+
     name: StringValue = Field(..., alias="2")
     """The contact's display name"""
 
@@ -26,10 +27,6 @@ class ContactData(BaleObject):
             *,
             phone_number: int,
             name: StringValue,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(
-                phone_number=phone_number,
-                name=name,
-                **__pydantic_kwargs
-            )
+            super().__init__(phone_number=phone_number, name=name, **__pydantic_kwargs)

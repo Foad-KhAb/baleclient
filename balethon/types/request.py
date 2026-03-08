@@ -1,9 +1,10 @@
-from pydantic import Field
-from typing import Any, List, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, List, Optional
 
-from .ext import ExtData
-from .base import BaleObject
+from pydantic import Field
+
 from .auth import AuthBody
+from .base import BaleObject
+from .ext import ExtData
 from .values import IntValue
 
 
@@ -19,11 +20,9 @@ class MetaList(BaleObject):
     """List of extended metadata items, each describing a key-value pair with typed values."""
 
     if TYPE_CHECKING:
+
         def __init__(
-            __pydantic__self__,
-            *,
-            meta_list: List[ExtData],
-            **__pydantic_kwargs
+            __pydantic__self__, *, meta_list: List[ExtData], **__pydantic_kwargs
         ) -> None:
             super().__init__(meta_list=meta_list, **__pydantic_kwargs)
 
@@ -34,7 +33,7 @@ class RequestBody(BaleObject):
 
     Attributes like `service` and `method` specify the target endpoint,
     while `payload` contains the optional data sent with the request.
-    `metadata` holds extended information such as authentication tokens, 
+    `metadata` holds extended information such as authentication tokens,
     timestamps (in milliseconds), or other contextual data.
     `request_id` uniquely identifies this request for matching responses.
     """
@@ -46,7 +45,7 @@ class RequestBody(BaleObject):
     """The method or action name within the service (e.g., 'SendMessage')."""
 
     payload: Optional[Any] = Field(None, alias="3")
-    """Optional data payload associated with the request.  
+    """Optional data payload associated with the request.
     Can be any serializable structure depending on the method."""
 
     metadata: MetaList = Field(..., alias="4")
@@ -56,6 +55,7 @@ class RequestBody(BaleObject):
     """Unique identifier for this request, useful for matching responses and debugging."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -64,7 +64,7 @@ class RequestBody(BaleObject):
             payload: Optional[Any] = None,
             metadata: MetaList,
             request_id: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 service=service,
@@ -98,13 +98,14 @@ class Request(BaleObject):
     """Authentication handshake data used when establishing a session."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             body: Optional[RequestBody] = None,
             ping: Optional[IntValue] = None,
             handshake: Optional[AuthBody] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 body=body,

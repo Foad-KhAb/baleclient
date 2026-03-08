@@ -1,4 +1,5 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
 from pydantic import Field
 
 from ..base import BaleObject
@@ -10,7 +11,7 @@ class DefaultResponse(BaleObject):
 
     Most response objects inherit from this class, which provides:
     - `seq`: a sequence number for tracking message or request order.
-    - `date`: a millisecond-based timestamp representing the server time 
+    - `date`: a millisecond-based timestamp representing the server time
       when the response was generated.
 
     These fields are typically included in nearly all API responses from Bale.
@@ -30,6 +31,6 @@ class DefaultResponse(BaleObject):
             *,
             seq: Optional[int] = None,
             date: Optional[int] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(seq=seq, date=date, **__pydantic_kwargs)

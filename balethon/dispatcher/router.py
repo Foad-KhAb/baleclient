@@ -1,17 +1,7 @@
 from collections import defaultdict
-from typing import (
-    Any,
-    Awaitable,
-    Callable,
-    Coroutine,
-    Dict,
-    List,
-    Optional,
-    Union,
-    Type,
-)
+from typing import Any, Awaitable, Callable, Coroutine, Dict, List, Optional, Union
 
-from .event.handler import Handler, FilterObject, CallbackType
+from .event.handler import CallbackType, FilterObject, Handler
 from .event.observer import EventObserver
 
 

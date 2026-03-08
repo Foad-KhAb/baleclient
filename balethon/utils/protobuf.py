@@ -56,7 +56,7 @@ def _parse_protobuf_fields(data: bytes) -> List[Tuple[int, int, bytes]]:
         try:
             tag, n_tag = _read_varint(data, i)
         except Exception as e:
-            raise ValueError(f"Error reading tag at position {i}: {e}")
+            raise ValueError(f"Error reading tag at position {i}: {e}") from e
 
         field_no = tag >> 3
         wire_type = tag & 0x7

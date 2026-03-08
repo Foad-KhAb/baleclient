@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import asyncio
 import time
-from colorama import Fore, init
 from typing import TYPE_CHECKING, Optional
 
-from ..exceptions import AiobaleError
-from ..enums import SendCodeType, AuthErrors
+from colorama import Fore, init
+
+from ..enums import AuthErrors, SendCodeType
+from ..exceptions import BalethonError
 from ..types.responses import PhoneAuthResponse
 
 if TYPE_CHECKING:
@@ -69,11 +70,19 @@ class PhoneLoginCLI:
             low = raw.lower()
             if low == "fin":
                 self.fingilish_mode = True
-                self._print("✅ Fingilish mode ON.\n", "✅ Halat Fingilish fa'al shod.\n", Fore.GREEN)
+                self._print(
+                    "✅ Fingilish mode ON.\n",
+                    "✅ Halat Fingilish fa'al shod.\n",
+                    Fore.GREEN,
+                )
                 continue
             if low == "en":
                 self.fingilish_mode = False
-                self._print("✅ English mode ON.\n", "✅ Halat English fa'al shod.\n", Fore.GREEN)
+                self._print(
+                    "✅ English mode ON.\n",
+                    "✅ Halat English fa'al shod.\n",
+                    Fore.GREEN,
+                )
                 continue
 
             if raw.isdigit():
@@ -92,7 +101,7 @@ class PhoneLoginCLI:
     ) -> Optional[PhoneAuthResponse]:
         try:
             resp = await self.client.start_phone_auth(phone_number, code_type=code_type)
-        except AiobaleError as e:
+        except BalethonError as e:
             # handle library-specific errors gracefully
             self._print(
                 f"⚠️ Aiobale error while starting phone auth: {e}\n",
@@ -179,7 +188,10 @@ class PhoneLoginCLI:
                 try:
                     code = await asyncio.wait_for(
                         asyncio.to_thread(
-                            self._input, "Enter code: ", "Code ra vared kon: ", Fore.BLUE
+                            self._input,
+                            "Enter code: ",
+                            "Code ra vared kon: ",
+                            Fore.BLUE,
                         ),
                         timeout=remaining_time,
                     )
@@ -196,11 +208,19 @@ class PhoneLoginCLI:
                 # language toggles first
                 if code == "fin":
                     self.fingilish_mode = True
-                    self._print("✅ Fingilish mode ON.", "✅ Halat Fingilish fa'al shod.", Fore.GREEN)
+                    self._print(
+                        "✅ Fingilish mode ON.",
+                        "✅ Halat Fingilish fa'al shod.",
+                        Fore.GREEN,
+                    )
                     continue
                 if code == "en":
                     self.fingilish_mode = False
-                    self._print("✅ English mode ON.", "✅ Halat English fa'al shod.", Fore.GREEN)
+                    self._print(
+                        "✅ English mode ON.",
+                        "✅ Halat English fa'al shod.",
+                        Fore.GREEN,
+                    )
                     continue
 
                 if code == "restart":
@@ -237,13 +257,15 @@ class PhoneLoginCLI:
 
                     last_sent_time = time.time()
                     expiration_timestamp = resp.code_expiration_date.value / 1000
-                    self._print("✅ Code resent!\n", "✅ Code dobare ersal shod!\n", Fore.GREEN)
+                    self._print(
+                        "✅ Code resent!\n", "✅ Code dobare ersal shod!\n", Fore.GREEN
+                    )
                     continue
 
                 # Validate the code (with AiobaleError handling)
                 try:
                     res = await self.client.validate_code(code, resp.transaction_hash)
-                except AiobaleError as e:
+                except BalethonError as e:
                     self._print(
                         f"⚠️ Aiobale error while validating code: {e}\n",
                         f"⚠️ Khata dar zamineh-e validate kardan code: {e}\n",
@@ -307,7 +329,10 @@ class PhoneLoginCLI:
             try:
                 password = await asyncio.wait_for(
                     asyncio.to_thread(
-                        self._input, "Enter password: ", "Ramz ra vared kon: ", Fore.BLUE
+                        self._input,
+                        "Enter password: ",
+                        "Ramz ra vared kon: ",
+                        Fore.BLUE,
                     ),
                     timeout=60,
                 )
@@ -321,8 +346,10 @@ class PhoneLoginCLI:
 
             # Validate password with AiobaleError handling
             try:
-                res = await self.client.validate_password(password.strip(), transaction_hash)
-            except AiobaleError as e:
+                res = await self.client.validate_password(
+                    password.strip(), transaction_hash
+                )
+            except BalethonError as e:
                 self._print(
                     f"⚠️ Aiobale error while validating password: {e}\n",
                     f"⚠️ Khata dar zamineh-e validate kardan ramz: {e}\n",

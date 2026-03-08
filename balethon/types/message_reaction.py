@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Any, Dict, List
+
 from pydantic import Field, model_validator
-from typing import Any, Dict, List, TYPE_CHECKING
 
 from .base import BaleObject
 from .reaction import Reaction
@@ -49,10 +50,10 @@ class MessageReactions(BaleObject):
         """
         if "3" not in data:
             return data
-        
+
         if not isinstance(data["3"], list):
             data["3"] = [data["3"]]
-        
+
         return data
 
     if TYPE_CHECKING:
@@ -64,6 +65,6 @@ class MessageReactions(BaleObject):
             id: int,
             date: int,
             reactions: List[Reaction] = ...,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(id=id, date=date, reactions=reactions, **__pydantic_kwargs)

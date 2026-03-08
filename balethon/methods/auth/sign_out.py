@@ -12,7 +12,8 @@ class SignOut(BaleMethod):
     Returns:
         aiobale.types.responses.DefaultResponse: The standard response.
     """
+
     __service__ = Services.AUTH.value
     __method__ = "SignOut"
-    
+
     __returning__ = DefaultResponse

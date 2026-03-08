@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
+
 from pydantic import Field, model_validator
 
-from ..peer_data import PeerData
 from ..base import BaleObject
+from ..peer_data import PeerData
 
 
 class DialogResponse(BaleObject):
@@ -40,9 +41,6 @@ class DialogResponse(BaleObject):
         # This init is only used for type checking and IDE autocomplete.
         # It will not be included in runtime behavior.
         def __init__(
-            __pydantic__self__,
-            *,
-            dialogs: List[PeerData] = ...,
-            **__pydantic_kwargs
+            __pydantic__self__, *, dialogs: List[PeerData] = ..., **__pydantic_kwargs
         ) -> None:
             super().__init__(dialogs=dialogs, **__pydantic_kwargs)

@@ -1,10 +1,5 @@
 from .set_online import SetOnline
-from .typing import Typing
 from .stop_typing import StopTyping
+from .typing import Typing
 
-
-__all__ = (
-    "SetOnline",
-    "Typing",
-    "StopTyping"
-)
+__all__ = ("SetOnline", "Typing", "StopTyping")

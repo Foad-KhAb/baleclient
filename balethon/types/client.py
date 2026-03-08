@@ -1,5 +1,6 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Any
+
+from pydantic import Field
 
 from .base import BaleObject
 from .user import UserAuth
@@ -9,7 +10,7 @@ class ClientData(BaleObject):
     """
     Represents the client data associated with a user in the Bale system.
 
-    This class contains information about the user's authentication and 
+    This class contains information about the user's authentication and
     the application/service they are interacting with.
     """
 
@@ -43,7 +44,7 @@ class ClientData(BaleObject):
             auth_id: str,
             auth_sid: int,
             service: str,
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs: Any,
         ) -> None:
             super().__init__(
                 id=id,
@@ -52,5 +53,5 @@ class ClientData(BaleObject):
                 auth_id=auth_id,
                 auth_sid=auth_sid,
                 service=service,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

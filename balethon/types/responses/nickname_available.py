@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
+
 from pydantic import Field
 
-from ..base import BaleObject
 from ..int_bool import IntBool
 from .default import DefaultResponse
 

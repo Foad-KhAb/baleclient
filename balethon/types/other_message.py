@@ -1,4 +1,5 @@
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
 from pydantic import Field
 
 from .base import BaleObject
@@ -8,7 +9,7 @@ class OtherMessage(BaleObject):
     """
     Represents a reference to another message within the Bale platform.
 
-    This is typically used to refer to a related message (such as a reply or forward), 
+    This is typically used to refer to a related message (such as a reply or forward),
     carrying just enough metadata to identify and order it.
     """
 
@@ -22,12 +23,15 @@ class OtherMessage(BaleObject):
     """Optional sequence number used for ordering in certain contexts."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
             date: int,
             message_id: int,
             seq: Optional[int] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
-            super().__init__(date=date, message_id=message_id, seq=seq, **__pydantic_kwargs)
+            super().__init__(
+                date=date, message_id=message_id, seq=seq, **__pydantic_kwargs
+            )

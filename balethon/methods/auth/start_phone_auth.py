@@ -1,8 +1,9 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Optional
 
+from pydantic import Field
+
+from ...enums import SendCodeType, Services
 from ...types.responses import PhoneAuthResponse
-from ...enums import Services, SendCodeType
 from ..base import BaleMethod
 
 
@@ -16,7 +17,7 @@ class StartPhoneAuth(BaleMethod):
 
     __service__ = Services.AUTH.value
     __method__ = "StartPhoneAuth"
-    
+
     __returning__ = PhoneAuthResponse
 
     phone_number: int = Field(..., alias="1")
@@ -67,7 +68,7 @@ class StartPhoneAuth(BaleMethod):
             device_title: str,
             send_code_type: SendCodeType = SendCodeType.DEFAULT,
             options: Optional[dict] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 phone_number=phone_number,
@@ -77,5 +78,5 @@ class StartPhoneAuth(BaleMethod):
                 device_title=device_title,
                 send_code_type=send_code_type,
                 options=options,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

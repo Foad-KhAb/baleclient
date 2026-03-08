@@ -1,16 +1,17 @@
 import asyncio
 import contextvars
-from functools import partial
 import inspect
 from dataclasses import dataclass, field
+from functools import partial
+from typing import Any, Awaitable, Callable, List, Optional, ParamSpec, TypeVar, Union
+
 from magic_filter.magic import MagicFilter as OriginalMagicFilter
-from typing import Awaitable, Callable, Optional, Any, List, ParamSpec, TypeVar, Union
 
 from ...filters.base import Filter
 from ...utils.magic_filter import MagicFilter
 
-P = ParamSpec('P')
-R = TypeVar('R')
+P = ParamSpec("P")
+R = TypeVar("R")
 
 CallbackType = Callable[P, Union[R, Awaitable[R]]]
 
@@ -30,7 +31,7 @@ class CallableObject:
         callback = inspect.unwrap(self.callback)
         sig = inspect.signature(callback)
         filtered_kwargs = {}
-        
+
         for name, param in sig.parameters.items():
             if name in kwargs:
                 filtered_kwargs[name] = kwargs[name]

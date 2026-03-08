@@ -1,4 +1,5 @@
 from typing import Any
+
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import core_schema
 
@@ -32,14 +33,18 @@ class IntBool:
         raise ValueError("Must be 0 or 1 or boolean")
 
     @classmethod
-    def __get_pydantic_core_schema__(cls, _source_type: Any, handler: GetCoreSchemaHandler):
+    def __get_pydantic_core_schema__(
+        cls, _source_type: Any, handler: GetCoreSchemaHandler
+    ):
         """
         Provide Pydantic core schema with a plain validator using the `validate` method.
         """
         return core_schema.no_info_plain_validator_function(cls.validate)
 
     @classmethod
-    def __get_pydantic_json_schema__(cls, schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler):
+    def __get_pydantic_json_schema__(
+        cls, schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler
+    ):
         """
         Provide JSON schema for OpenAPI and other schema generation tools.
         Represents this type as an integer enum with values [0, 1].

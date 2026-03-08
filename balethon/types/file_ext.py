@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pydantic import Field
 from typing import TYPE_CHECKING, Optional
+
+from pydantic import Field
 
 from .base import BaleObject
 
@@ -20,6 +21,7 @@ class PhotoExt(BaleObject):
     """Photo height in pixels."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -47,6 +49,7 @@ class VideoExt(BaleObject):
     """Video duration in seconds."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -69,6 +72,7 @@ class VoiceExt(BaleObject):
     """Voice message duration in seconds."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -98,6 +102,7 @@ class AudioExt(BaleObject):
     """Track title or name of the song."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,
@@ -142,6 +147,7 @@ class DocumentsExt(BaleObject):
     """Metadata for an audio/music file."""
 
     if TYPE_CHECKING:
+
         def __init__(
             __pydantic__self__,
             *,

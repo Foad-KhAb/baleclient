@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import ShortPeer
 from ...types.responses import DefaultResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -44,7 +45,7 @@ class PinGroupMessage(BaleMethod):
             group: ShortPeer,
             date: int,
             message_id: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 group=group, date=date, message_id=message_id, **__pydantic_kwargs

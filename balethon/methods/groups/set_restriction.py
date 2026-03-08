@@ -1,9 +1,10 @@
-from pydantic import Field
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
+from pydantic import Field
+
+from ...enums import Restriction, Services
 from ...types import ShortPeer, StringValue
 from ...types.responses import DefaultResponse
-from ...enums import Services, Restriction
 from ..base import BaleMethod
 
 
@@ -44,11 +45,11 @@ class SetRestriction(BaleMethod):
             group: ShortPeer,
             restriction: Restriction,
             username: Optional[StringValue] = None,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 group=group,
                 restriction=restriction,
                 username=username,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

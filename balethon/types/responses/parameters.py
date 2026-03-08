@@ -1,4 +1,5 @@
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
+
 from pydantic import Field
 
 from ..base import BaleObject

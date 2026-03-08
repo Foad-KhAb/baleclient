@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import Peer
 from ...types.responses import ReactionSentResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -50,12 +51,12 @@ class MessageRemoveReaction(BaleMethod):
             message_id: int,
             date: int,
             emojy: str,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 peer=peer,
                 message_id=message_id,
                 date=date,
                 emojy=emojy,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from pydantic import Field
 
 from ..enums import PeerSource
@@ -8,7 +9,7 @@ from .peer import Peer
 
 class PeerReport(BaleObject):
     """
-    
+
     Represents a report request for a specific peer (user or group) in the Bale platform.
 
     This model is typically used when the client wants to report a user or group,
@@ -25,10 +26,6 @@ class PeerReport(BaleObject):
         # This init is only used for type checking and IDE autocomplete.
         # It will not be included in runtime behavior.
         def __init__(
-            __pydantic__self__,
-            *,
-            source: PeerSource,
-            peer: Peer,
-            **__pydantic_kwargs
+            __pydantic__self__, *, source: PeerSource, peer: Peer, **__pydantic_kwargs
         ) -> None:
             super().__init__(source=source, peer=peer, **__pydantic_kwargs)

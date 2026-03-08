@@ -1,8 +1,9 @@
-from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, Any, Dict, List
 
-from .base import BaleObject
+from pydantic import Field, model_validator
+
 from ..types import InfoMessage
+from .base import BaleObject
 
 
 class Upvote(BaleObject):

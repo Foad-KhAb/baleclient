@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any, Dict, Optional
+
 from pydantic import Field, model_validator
 
 from .base import BaleObject

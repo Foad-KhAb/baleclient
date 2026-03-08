@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import ListLoadMode, Services
 from ...types import Peer
 from ...types.responses import HistoryResponse
-from ...enums import Services, ListLoadMode
 from ..base import BaleMethod
 
 
@@ -50,12 +51,12 @@ class LoadHistory(BaleMethod):
             offset_date: int,
             load_mode: ListLoadMode,
             limit: int,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 peer=peer,
                 offset_date=offset_date,
                 load_mode=load_mode,
                 limit=limit,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import ShortPeer
 from ...types.responses import MemberPermissionsResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -38,6 +39,6 @@ class GetMemberPermissions(BaleMethod):
             *,
             group: ShortPeer,
             user: ShortPeer,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(group=group, user=user, **__pydantic_kwargs)

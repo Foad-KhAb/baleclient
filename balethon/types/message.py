@@ -1,23 +1,24 @@
 from __future__ import annotations
 
-from pydantic import Field, model_validator
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from pydantic import Field, model_validator
+
 from ..enums import ChatType, ListLoadMode, ReportKind, TypingMode
-from .chat import Chat
 from .base import BaleObject
-from .quoted_message import QuotedMessage
-from .message_content import MessageContent, DocumentMessage
-from .other_message import OtherMessage
-from .full_user import FullUser
-from .user import User
-from .message_reaction import MessageReactions
-from .reaction_data import ReactionData
-from .reaction import Reaction
+from .chat import Chat
 from .file_details import FileDetails
 from .file_input import FileInput
+from .full_user import FullUser
 from .gift_packet import GiftPacket
 from .inline_keyboard import InlineKeyboardMarkup
+from .message_content import DocumentMessage, MessageContent
+from .message_reaction import MessageReactions
+from .other_message import OtherMessage
+from .quoted_message import QuotedMessage
+from .reaction import Reaction
+from .reaction_data import ReactionData
+from .user import User
 
 if TYPE_CHECKING:
     from .responses import DefaultResponse
@@ -58,11 +59,11 @@ class Message(BaleObject):
     """The message that was sent immediately before this one (if known)."""
 
     next_message: Optional[OtherMessage] = Field(None, exclude=True)
-    """The message that was sent immediately after this one (if known).  
+    """The message that was sent immediately after this one (if known).
     Excluded from serialization because it’s used only internally."""
 
     replied_to: Optional[Message] = Field(None, exclude=True)
-    """The full `Message` object that this message replies to (if available).  
+    """The full `Message` object that this message replies to (if available).
     Set automatically by `attach_chat_to_reply` validator."""
 
     if TYPE_CHECKING:

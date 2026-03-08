@@ -1,9 +1,10 @@
-from pydantic import Field
 from typing import TYPE_CHECKING, Any, List
 
-from ...types import Peer, InfoMessage
-from ...types.responses import DefaultResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types import InfoMessage, Peer
+from ...types.responses import DefaultResponse
 from ..base import BaleMethod
 
 
@@ -44,11 +45,11 @@ class ForwardMessages(BaleMethod):
             peer: Peer,
             message_ids: List[int],
             forwarded_messages: List[InfoMessage],
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs: Any,
         ) -> None:
             super().__init__(
                 peer=peer,
                 message_ids=message_ids,
                 forwarded_messages=forwarded_messages,
-                **__pydantic_kwargs
+                **__pydantic_kwargs,
             )

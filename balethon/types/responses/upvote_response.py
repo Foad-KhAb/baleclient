@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from pydantic import Field
 
 from ..base import BaleObject

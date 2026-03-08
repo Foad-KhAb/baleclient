@@ -1,9 +1,10 @@
-from pydantic import Field
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import ShortPeer, StringValue
 from ...types.responses import DefaultResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -17,9 +18,9 @@ class EditGroupAbout(BaleMethod):
 
     __service__ = Services.GROUPS.value
     __method__ = "EditGroupAbout"
-    
+
     __returning__ = DefaultResponse
-    
+
     group: ShortPeer = Field(..., alias="1")
     """
     The group whose 'about' section is to be edited.
@@ -34,7 +35,7 @@ class EditGroupAbout(BaleMethod):
     """
     The new 'about' text to be set for the group.
     """
-    
+
     if TYPE_CHECKING:
         # This init is only used for type checking and IDE autocomplete.
         # It will not be included in runtime behavior.
@@ -44,11 +45,8 @@ class EditGroupAbout(BaleMethod):
             group: ShortPeer,
             random_id: int,
             about: StringValue,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
-                random_id=random_id,
-                group=group,
-                about=about,
-                **__pydantic_kwargs
+                random_id=random_id, group=group, about=about, **__pydantic_kwargs
             )

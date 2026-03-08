@@ -1,9 +1,9 @@
-import time
-from pydantic import Field
 from typing import TYPE_CHECKING, Any
 
-from ...types.responses import DefaultResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types.responses import DefaultResponse
 from ..base import BaleMethod
 
 
@@ -44,7 +44,7 @@ class EditUserLocalName(BaleMethod):
             user_id: int,
             name: str,
             access_hash: int,
-            **__pydantic_kwargs: Any
+            **__pydantic_kwargs: Any,
         ) -> None:
             super().__init__(
                 name=name, user_id=user_id, access_hash=access_hash, **__pydantic_kwargs

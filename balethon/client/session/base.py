@@ -1,32 +1,31 @@
 from __future__ import annotations
 
+import abc
 import asyncio
+import time
 from typing import (
+    TYPE_CHECKING,
+    Any,
     AsyncGenerator,
+    Callable,
     Dict,
     Final,
-    Callable,
-    Any,
     Optional,
-    TYPE_CHECKING,
     Union,
 )
-import abc
-import time
 
-from ...utils import ProtoBuf
 from ...logger import logger
 from ...methods import BaleMethod, BaleType
 from ...types import (
-    Request,
-    RequestBody,
     AuthBody,
     ExtData,
     ExtValue,
     MetaList,
+    Request,
+    RequestBody,
     Response,
 )
-from ...exceptions import BaleError
+from ...utils import ProtoBuf
 
 if TYPE_CHECKING:
     from ..client import Client
@@ -62,7 +61,7 @@ class BaseSession(abc.ABC):
         decoder: _Decoder = ProtoBuf().decode,
         encoder: _Encoder = ProtoBuf().encode,
         timeout: float = DEFAULT_TIMEOUT,
-        show_update_errors: bool = False
+        show_update_errors: bool = False,
     ) -> None:
         self.ws_url = ws_url
         self.post_url = post_url
@@ -216,7 +215,7 @@ class BaseSession(abc.ABC):
         self, data: bytes, future_key: str, timeout: Optional[int] = None
     ) -> Any:
         pass
-    
+
     @abc.abstractmethod
     def is_closed(self) -> bool:
         pass

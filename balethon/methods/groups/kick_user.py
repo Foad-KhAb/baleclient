@@ -1,9 +1,10 @@
-from pydantic import Field
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 
+from pydantic import Field
+
+from ...enums import Services
 from ...types import ShortPeer
 from ...types.responses import DefaultResponse
-from ...enums import Services
 from ..base import BaleMethod
 
 
@@ -44,7 +45,7 @@ class KickUser(BaleMethod):
             group: ShortPeer,
             random_id: int,
             user: ShortPeer,
-            **__pydantic_kwargs
+            **__pydantic_kwargs,
         ) -> None:
             super().__init__(
                 group=group, random_id=random_id, user=user, **__pydantic_kwargs

@@ -1,8 +1,9 @@
-from pydantic import Field
 from typing import TYPE_CHECKING
 
-from ...types.responses import FullGroupResponse
+from pydantic import Field
+
 from ...enums import Services
+from ...types.responses import FullGroupResponse
 from ..base import BaleMethod
 
 

@@ -1,4 +1,5 @@
 import asyncio
+
 from aiobale import Client, Dispatcher
 from aiobale.filters import IsGift, IsPrivate
 from aiobale.types import Message
@@ -13,7 +14,7 @@ async def handler(msg: Message):
 
     await asyncio.sleep(2)
     await msg.answer("Thanks! That was kind — but let me give it back to you.")
-    
+
     packet = msg.content.gift
     await client.send_gift(
         msg.chat.id,

@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+
 from pydantic import Field
 
 from .base import BaleObject
@@ -16,15 +17,12 @@ class ShortPeer(BaleObject):
     """The unique identifier of the peer (e.g., group ID or user ID)."""
 
     access_hash: int = Field(1, alias="2")
-    """A security hash used to authorize access to the peer.  
+    """A security hash used to authorize access to the peer.
     Defaults to 1 when no specific access hash is provided."""
 
     if TYPE_CHECKING:
+
         def __init__(
-            __pydantic__self__,
-            *,
-            id: int,
-            access_hash: int = 1,
-            **__pydantic_kwargs
+            __pydantic__self__, *, id: int, access_hash: int = 1, **__pydantic_kwargs
         ) -> None:
             super().__init__(id=id, access_hash=access_hash, **__pydantic_kwargs)

@@ -1,5 +1,5 @@
-from aiobale import F, Client, Dispatcher
-from aiobale.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from aiobale import Client, Dispatcher, F
+from aiobale.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 dp = Dispatcher()
 # You can also use a proxy

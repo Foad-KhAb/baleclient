@@ -7,9 +7,9 @@ client = Client(dp)
 
 def extract_content(msg: Message):
     if msg.document:
-        return 'document', msg.document
+        return "document", msg.document
     elif msg.text:
-        return 'text', msg.text
+        return "text", msg.text
     return None, None
 
 
@@ -21,9 +21,9 @@ async def echo(msg: Message):
         # This message was not originally sent by the user; it was forwarded from somewhere else
         type_, value = extract_content(msg.replied_to)
 
-    if type_ == 'document':
+    if type_ == "document":
         return await msg.answer_document(value, use_own_content=True)
-    elif type_ == 'text':
+    elif type_ == "text":
         return await msg.answer(value)
 
     await msg.answer("Nothing to echo!")
