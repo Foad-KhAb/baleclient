@@ -1,11 +1,9 @@
-# Balethon
+# BaleClient
 
-Balethon is a maintained fork / rework of **Aiobale**, an asynchronous Python client for Bale Messenger.
+BaleClient is a maintained fork / rework of **Aiobale**, an asynchronous Python client for Bale Messenger.
 
 The original library is great but contains several bugs and incomplete implementations.
 This project fixes those issues and adds additional improvements for reliability and usability.
-
-Balethon is used internally in Chavosh projects and will continue to receive fixes and improvements.
 
 ---
 
@@ -20,7 +18,7 @@ Credit to the original author for the initial implementation.
 
 ---
 
-## Why Balethon?
+## Why BaleClient?
 
 While using Aiobale in real projects, I encountered several issues such as:
 
@@ -29,7 +27,7 @@ While using Aiobale in real projects, I encountered several issues such as:
 - missing validations
 - edge cases not handled
 
-Balethon fixes these problems and adds additional improvements.
+BaleClient fixes these problems and adds additional improvements.
 
 ---
 
@@ -56,7 +54,7 @@ Additional features and improvements:
 
 ## Notes
 
-* Balethon is **not an official Bale API library**.
+* BaleClient is **not an official Bale API library**.
 * The Bale API is internal and may change without notice.
 
 ---

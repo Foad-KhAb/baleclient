@@ -1,10 +1,10 @@
-class BalethonError(Exception):
-    """Base exception for all Balethon-related errors."""
+class BaleClientError(Exception):
+    """Base exception for all BaleClient-related errors."""
 
     pass
 
 
-class BaleError(BalethonError):
+class BaleError(BaleClientError):
     """
     Exception raised when an error occurs in Bale service.
 

@@ -5,7 +5,7 @@ from typing import Any, AsyncGenerator, Callable, Dict, Optional, Union
 
 import aiohttp
 
-from ...exceptions import BaleError, BalethonError
+from ...exceptions import BaleClientError, BaleError
 from ...methods import BaleMethod, BaleType
 from ...types import FileInput
 from ...utils import add_header, clean_grpc
@@ -58,7 +58,7 @@ class AiohttpSession(BaseSession):
             )
 
         if self._running:
-            raise BalethonError("Client is already running")
+            raise BaleClientError("Client is already running")
 
         headers = self._build_headers(token)
         self.ws = await self.session.ws_connect(
@@ -202,11 +202,11 @@ class AiohttpSession(BaseSession):
             ) as resp:
                 if resp.status >= 400:
                     text = await resp.text()
-                    raise BalethonError(
+                    raise BaleClientError(
                         f"Upload failed with status {resp.status}: {text}"
                     )
         except Exception as e:
-            raise BalethonError(f"Upload error: {e}") from e
+            raise BaleClientError(f"Upload error: {e}") from e
         finally:
             if own_session:
                 await session.close()
@@ -237,7 +237,7 @@ class AiohttpSession(BaseSession):
                 async for chunk in resp.content.iter_chunked(chunk_size):
                     yield chunk
         except Exception as e:
-            raise BalethonError(f"Upload error: {e}") from e
+            raise BaleClientError(f"Upload error: {e}") from e
         finally:
             if own_session:
                 await session.close()
