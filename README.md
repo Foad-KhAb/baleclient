@@ -91,8 +91,9 @@ List of fixes applied to the original library:
 * [x] Fix dialog response parsing
 * [x] Fix message caption parsing
 * [x] Fix incorrect type validations
+* [x] Allow `GroupPeer.access_hash` to be optional to handle peers returned without an access hash
 
-*(this list will grow as more issues are discovered)*
+* *(this list will grow as more issues are discovered)*
 
 ---
 

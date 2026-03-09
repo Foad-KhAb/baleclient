@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import Field
 
@@ -18,7 +18,7 @@ class GroupPeer(BaleObject):
     id: int = Field(..., alias="1")
     """Unique identifier of the group or channel."""
 
-    access_hash: int = Field(..., alias="2")
+    access_hash: Optional[int] = Field(None, alias="2")
     """
     Access hash associated with the peer.
 
