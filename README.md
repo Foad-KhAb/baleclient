@@ -94,6 +94,7 @@ The following issues in the original library have been fixed:
 * [x] Fixed **incorrect type validations** in response models
 * [x] Fixed **document MIME type parsing** when the API returns a dictionary instead of a string
 * [x] Fixed **thumbnail parsing** when the API returns `6-1` instead of `6`
+* [x] Fixed **thumbnail image parsing** when the API returns a structured object instead of raw `bytes` or `str`
 * [x] Allowed `GroupPeer.access_hash` to be **optional** to support peers returned without an access hash
 
 > This list will continue to grow as more protocol inconsistencies are discovered and resolved.
@@ -107,6 +108,8 @@ Additional enhancements and quality-of-life improvements:
 * [x] Improved **error handling for corrupted or modified session files**
 * [x] Improved **robustness when parsing Bale API responses with inconsistent structures**
 * [x] Added safer handling for **missing or optional message fields**
+* [x] Added normalization for **inconsistent thumbnail payload structures**
+* [x] Improved resilience against **schema variations in document and media responses**
 
 ---
 

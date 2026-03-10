@@ -37,8 +37,20 @@ class Thumbnail(BaleObject):
         if not isinstance(data, dict):
             return data
 
-        if "6" not in data and "6-1" in data:
-            data["6"] = data["6-1"]
+        image_value = data.get("3")
+
+        # Case 1: image is wrapped in a dict with metadata
+        if isinstance(image_value, dict):
+            data["raw_meta"] = image_value
+
+            # Prefer the embedded bytes if present
+            if isinstance(image_value.get("10"), (bytes, bytearray)):
+                data["3"] = bytes(image_value["10"])
+            # Fallback: stringify or fail more gracefully
+            elif isinstance(image_value.get("10"), str):
+                data["3"] = image_value["10"]
+            else:
+                data["3"] = b""
 
         return data
 
