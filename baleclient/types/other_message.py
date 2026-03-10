@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from .base import BaleObject
 
@@ -21,6 +21,13 @@ class OtherMessage(BaleObject):
 
     seq: Optional[int] = Field(None, alias="3")
     """Optional sequence number used for ordering in certain contexts."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def set_default_message_id(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "2" not in data:
+            data["2"] = -1
+        return data
 
     if TYPE_CHECKING:
 

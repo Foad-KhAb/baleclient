@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from .base import BaleObject
 
@@ -29,6 +29,18 @@ class Thumbnail(BaleObject):
     - `str`: a URL pointing to the image
     - `bytes`: raw image bytes (e.g., in base64 or binary format)
     """
+    raw_meta: Optional[dict] = Field(None, exclude=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_thumb(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+
+        if "6" not in data and "6-1" in data:
+            data["6"] = data["6-1"]
+
+        return data
 
     if TYPE_CHECKING:
 
@@ -38,6 +50,13 @@ class Thumbnail(BaleObject):
             w: int,
             h: int,
             image: Union[str, bytes],
+            raw_meta: Optional[dict] = None,
             **__pydantic_kwargs,
         ) -> None:
-            super().__init__(w=w, h=h, image=image, **__pydantic_kwargs)
+            super().__init__(
+                w=w,
+                h=h,
+                image=image,
+                raw_meta=raw_meta,
+                **__pydantic_kwargs,
+            )
