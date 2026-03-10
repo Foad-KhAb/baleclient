@@ -86,22 +86,27 @@ While using Aiobale in real projects, I encountered several issues such as:
 
 ## Fixes
 
-List of fixes applied to the original library:
+The following issues in the original library have been fixed:
 
-* [x] Fix dialog response parsing
-* [x] Fix message caption parsing
-* [x] Fix incorrect type validations
-* [x] Allow `GroupPeer.access_hash` to be optional to handle peers returned without an access hash
+* [x] Fixed **dialog response parsing**
+* [x] Fixed **message caption parsing**
+* [x] Fixed **history response validation errors**
+* [x] Fixed **incorrect type validations** in response models
+* [x] Fixed **document MIME type parsing** when the API returns a dictionary instead of a string
+* [x] Fixed **thumbnail parsing** when the API returns `6-1` instead of `6`
+* [x] Allowed `GroupPeer.access_hash` to be **optional** to support peers returned without an access hash
 
-* *(this list will grow as more issues are discovered)*
+> This list will continue to grow as more protocol inconsistencies are discovered and resolved.
 
 ---
 
-## Added Improvements
+## Improvements
 
-Additional features and improvements:
+Additional enhancements and quality-of-life improvements:
 
-* [x] Better error handling when reading corrupted or modified session files
+* [x] Improved **error handling for corrupted or modified session files**
+* [x] Improved **robustness when parsing Bale API responses with inconsistent structures**
+* [x] Added safer handling for **missing or optional message fields**
 
 ---
 

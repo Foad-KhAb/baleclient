@@ -101,6 +101,35 @@ class DocumentMessage(BaleObject):
     caption: Optional[MessageCaption] = Field(None, alias="8")
     """Caption associated with the document message."""
 
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_thumb(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+
+        if "6" not in data and "6-1" in data:
+            data["6"] = data["6-1"]
+
+        # normalize mime_type
+        mime = data.get("5")
+        if isinstance(mime, dict):
+            # fallback based on filename if possible
+            name = data.get("4")
+            if isinstance(name, str):
+                lowered = name.lower()
+                if lowered.endswith(".png"):
+                    data["5"] = "image/png"
+                elif lowered.endswith(".jpg") or lowered.endswith(".jpeg"):
+                    data["5"] = "image/jpeg"
+                elif lowered.endswith(".mp4"):
+                    data["5"] = "video/mp4"
+                else:
+                    data["5"] = "application/octet-stream"
+            else:
+                data["5"] = "application/octet-stream"
+
+        return data
+
     if TYPE_CHECKING:
 
         def __init__(

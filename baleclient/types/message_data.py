@@ -77,8 +77,17 @@ class MessageData(BaleObject):
         Returns:
             Dict[str, Any]: The normalized data dict with 'edited_at' as int or None.
         """
+        # ensure message_id exists
+        if "2" not in data:
+            data["2"] = -1
+
+        # normalize edited_at
         if "12" in data and isinstance(data["12"], dict) and "1" in data["12"]:
             data["12"] = data["12"]["1"]
+
+        if "4" not in data and "4-1" in data:
+            data["4"] = data["4-1"]
+
         return data
 
     @property
