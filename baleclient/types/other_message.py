@@ -25,7 +25,7 @@ class OtherMessage(BaleObject):
     @model_validator(mode="before")
     @classmethod
     def set_default_message_id(cls, data: Any) -> Any:
-        if isinstance(data, dict) and "2" not in data:
+        if isinstance(data, dict) and "2" not in data and "message_id" not in data:
             data["2"] = -1
         return data
 
