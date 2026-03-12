@@ -110,6 +110,12 @@ class DocumentMessage(BaleObject):
         if "6" not in data and "6-1" in data:
             data["6"] = data["6-1"]
 
+        thumb = data.get("6")
+        if isinstance(thumb, dict):
+            # only keep it if it resembles a Thumbnail
+            if not any(k in thumb for k in ("1", "2", "3")):
+                data["6"] = None
+
         # normalize mime_type
         mime = data.get("5")
         if isinstance(mime, dict):

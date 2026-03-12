@@ -1,6 +1,6 @@
 [project]
 name = "BaleClient"
-version = "1.0.5"
+version = "1.0.6"
 description = ""
 authors = [
     { name = "foad.kheirabady", email = "foad.kheirabady@gmail.com" }
