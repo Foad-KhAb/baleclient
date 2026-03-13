@@ -17,13 +17,13 @@ class Thumbnail(BaleObject):
     - Raw bytes (if embedded directly in the structure)
     """
 
-    w: int = Field(..., alias="1")
+    w: Optional[int] = Field(..., alias="1")
     """Width of the thumbnail in pixels."""
 
-    h: int = Field(..., alias="2")
+    h: Optional[int] = Field(..., alias="2")
     """Height of the thumbnail in pixels."""
 
-    image: Union[str, bytes] = Field(..., alias="3")
+    image: Optional[Union[str, bytes]] = Field(None, alias="3")
     """Thumbnail image data. Can be either:
 
     - `str`: a URL pointing to the image
