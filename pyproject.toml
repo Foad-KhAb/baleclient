@@ -22,10 +22,6 @@ packages = [
     { include = "BaleClient" },
 ]
 
-[[tool.poetry.source]]
-
-url = "https://"
-
 
 [build-system]
 requires = ["setuptools>=61.0"]
