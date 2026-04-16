@@ -1,6 +1,6 @@
 [project]
 name = "BaleClient"
-version = "1.0.7"
+version = "1.0.8"
 description = ""
 authors = [
     { name = "foad.kheirabady", email = "foad.kheirabady@gmail.com" }
@@ -24,5 +24,8 @@ packages = [
 
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=6
+    git push --set-upstream origin main
+
+1.0"]
 build-backend = "setuptools.build_meta"
