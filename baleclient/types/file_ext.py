@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from .base import BaleObject
 
@@ -100,6 +100,22 @@ class AudioExt(BaleObject):
 
     track: Optional[str] = Field(None, alias="4")
     """Track title or name of the song."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_data(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+
+        str_fields = {"2", "3", "4"}
+
+        for key in str_fields:
+            if key in data and data[key] is not None and not isinstance(data[key], str):
+                data[key] = str(data[key])
+            elif key not in data:
+                data[key] = None
+
+        return data
 
     if TYPE_CHECKING:
 

@@ -35,7 +35,7 @@ class MessageData(BaleObject):
     date: int = Field(..., alias="3")
     """Timestamp when the message was originally sent, in milliseconds since epoch."""
 
-    content: MessageContent = Field(..., alias="4")
+    content: Optional[MessageContent] = Field(None, alias="4")
     """The main content of the message, such as text, media, or service info."""
 
     replied_to: Optional[QuotedMessage] = Field(None, alias="8")

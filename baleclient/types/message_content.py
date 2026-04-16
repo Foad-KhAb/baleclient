@@ -242,5 +242,6 @@ class MessageContent(BaleObject):
     def _check_empty(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         if "5" in data:
             data["5"] = True
-
+        if "15" in data:
+            data["15"] = None
         return data
