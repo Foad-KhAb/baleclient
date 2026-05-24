@@ -96,6 +96,7 @@ The following issues in the original library have been fixed:
 * [x] Fixed **thumbnail parsing** when the API returns `6-1` instead of `6`
 * [x] Fixed **thumbnail image parsing** when the API returns a structured object instead of raw `bytes` or `str`
 * [x] Allowed `GroupPeer.access_hash` to be **optional** to support peers returned without an access hash
+* [x] Resolved **Protobuf Conflicts**: Replaced the legacy `blackboxprotobuf` dependency with `bigblackboxprotobuf`. This frees the library from ancient `protobuf` version locks.
 
 > This list will continue to grow as more protocol inconsistencies are discovered and resolved.
 
